@@ -128,6 +128,19 @@ repos:
         language: system
         files: ^packages/java/src/.*\.java$
         pass_filenames: false
+      - id: tflint-format
+        name: tflint format
+        entry: bash -c 'scripts/terraform/format.sh'
+        language: system
+        files: \.tf$
+        pass_filenames: false
+      - id: tflint-validate
+        name: tflint validate
+        entry: bash -c 'scripts/terraform/validate.sh'
+        language: system
+        files: \.tf$
+        pass_filenames: false
+        require_serial: true
       - id: mypy
         name: mypy
         entry: uv run python -m mypy

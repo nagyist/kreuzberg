@@ -4,6 +4,8 @@ vars:
   V3_TAG: v3.20.2
   BUNDLE: bundle
   GOLANGCI_LINT_VERSION: 2.7.2
+  OPENTOFU_VERSION: "1.11.1"
+  TFLINT_VERSION: "v0.60.0"
   ROOT: "{{.ROOT}}"
 silent: false
 tasks:
@@ -20,6 +22,7 @@ tasks:
       - task: ruby:install
       - task: java:install
       - task: go:install
+      - task: terraform:install
       - task: csharp:install
       - echo "Setup complete - safe to re-run anytime"
   build:
@@ -55,6 +58,7 @@ tasks:
       - task: ruby:lint
       - task: java:lint
       - task: go:lint
+      - task: terraform:lint
       - task: csharp:lint
   lint:check:
     desc: Run all linters in check-only mode (no modifications)
@@ -69,6 +73,7 @@ tasks:
       - task: ruby:lint:check
       - task: java:lint:check
       - task: go:lint:check
+      - task: terraform:lint:check
       - task: csharp:lint:check
   check:
     desc: Run all checks without modifications (lint + format checks)
@@ -85,6 +90,7 @@ tasks:
       - task: typescript:format
       - task: java:format
       - task: go:format
+      - task: terraform:fmt
       - task: csharp:format
   format:check:
     desc: Check code formatting without modifications
@@ -96,6 +102,7 @@ tasks:
       - task: typescript:format:check
       - task: java:format:check
       - task: go:format:check
+      - task: terraform:fmt:check
       - task: csharp:format:check
   rust:install:
     desc: Install Rust toolchain and tools (rustup, cargo-install, taplo)
@@ -725,6 +732,36 @@ tasks:
     desc: Run Go tests
     cmds:
       - scripts/go/test.sh
+
+  terraform:install:
+    desc: Install OpenTofu and tflint tools
+    cmds:
+      - bash scripts/terraform/install.sh
+
+  terraform:fmt:
+    desc: Format Terraform/OpenTofu files
+    cmds:
+      - bash scripts/terraform/format.sh
+
+  terraform:fmt:check:
+    desc: Check Terraform/OpenTofu formatting without modifications
+    cmds:
+      - bash scripts/terraform/format.sh --check
+
+  terraform:lint:
+    desc: Lint Terraform/OpenTofu code with auto-fix
+    cmds:
+      - bash scripts/terraform/lint.sh fix
+
+  terraform:lint:check:
+    desc: Lint Terraform/OpenTofu code in check-only mode
+    cmds:
+      - bash scripts/terraform/lint.sh check
+
+  terraform:validate:
+    desc: Validate Terraform/OpenTofu configurations
+    cmds:
+      - bash scripts/terraform/validate.sh
 
   csharp:install:
     desc: Restore C# dependencies

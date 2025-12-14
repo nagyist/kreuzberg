@@ -131,3 +131,15 @@ libpdfium.a
 
 # Generated pkg-config files
 *.pc
+
+# Terraform/OpenTofu
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfplan
+.terraform.tfstate.lock.info
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
