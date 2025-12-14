@@ -17,6 +17,11 @@ task terraform:install
 # Authenticate to GCP
 gcloud auth application-default login
 gcloud config set project kreuzberg-481219
+
+# Set GitHub App credentials (required for runner registration)
+export TF_VAR_gh_app_id="123456"
+export TF_VAR_gh_app_installation_id="78910"
+export TF_VAR_gh_app_private_key="$(cat path/to/private-key.pem)"
 ```
 
 ## Usage

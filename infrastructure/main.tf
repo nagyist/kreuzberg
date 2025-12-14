@@ -1,13 +1,35 @@
-# Kreuzberg GKE Infrastructure - Frankfurt (europe-west3)
-# Main entry point for infrastructure deployment
+# Kreuzberg GKE GitHub Actions Runners - Frankfurt (europe-west3)
 
-# Project configuration
-# GCP Project: kreuzberg-481219
-# Region: europe-west3 (Frankfurt, Germany)
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
 
-# TODO: Implement modules in Phase 2
-# - networking: VPC, Cloud NAT, firewall
-# - gke-cluster: GKE cluster with 3 node pools
-# - artifact-registry: Docker repository for build cache
-# - storage: GCS buckets for Cargo/Maven/npm caching
-# - runners: GitHub Actions Runner Controller (ARC)
+provider "google-beta" {
+  project = var.project_id
+  region  = var.region
+}
+
+# GitHub Actions self-hosted runners on GKE
+module "github_actions_runner" {
+  source  = "registry.terraform.io/terraform-google-modules/github-actions-runners/google//modules/gh-runner-gke"
+  version = "~> 5.0"
+
+  project_id = var.project_id
+  region     = var.region
+
+  # GitHub App authentication (from environment variables)
+  gh_app_id              = var.gh_app_id
+  gh_app_installation_id = var.gh_app_installation_id
+  gh_app_private_key     = var.gh_app_private_key
+  gh_config_url          = "https://github.com/${var.github_owner}/${var.github_repo}"
+
+  # GKE cluster configuration
+  cluster_suffix = var.cluster_name
+
+  # Node pool configuration (Frankfurt zones)
+  zones          = ["europe-west3-a", "europe-west3-b"]
+  machine_type   = "n2-standard-4"
+  min_node_count = 2
+  max_node_count = 16
+}

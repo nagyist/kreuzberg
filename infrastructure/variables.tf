@@ -28,8 +28,18 @@ variable "github_repo" {
   default     = "kreuzberg"
 }
 
-variable "environment" {
-  description = "Environment name (dev, staging, prod)"
+variable "gh_app_id" {
+  description = "GitHub App ID for runner registration (from TF_VAR_gh_app_id)"
   type        = string
-  default     = "prod"
+}
+
+variable "gh_app_installation_id" {
+  description = "GitHub App Installation ID (from TF_VAR_gh_app_installation_id)"
+  type        = string
+}
+
+variable "gh_app_private_key" {
+  description = "GitHub App Private Key (from TF_VAR_gh_app_private_key)"
+  type        = string
+  sensitive   = true
 }
