@@ -15,7 +15,9 @@ fn main() {
 
     let version = env::var("CARGO_PKG_VERSION").unwrap();
     let repo_root = std::path::Path::new(&crate_dir).parent().unwrap().parent().unwrap();
-    let dev_prefix = repo_root.to_string_lossy();
+
+    // Normalize paths to use forward slashes for pkg-config compatibility across all platforms
+    let dev_prefix = repo_root.to_string_lossy().replace('\\', "/");
 
     // Platform-specific private libs (use CARGO_CFG_TARGET_OS for cross-compilation support)
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_else(|_| "unknown".to_string());
@@ -30,7 +32,8 @@ fn main() {
     let profile_dir = out_dir.ancestors().nth(3).expect("OUT_DIR did not have expected depth");
 
     // Development version (for monorepo use) - use actual monorepo paths
-    let dev_libdir = profile_dir.to_string_lossy();
+    // Normalize path separators for pkg-config compatibility
+    let dev_libdir = profile_dir.to_string_lossy().replace('\\', "/");
     let dev_includedir = format!("{}/crates/kreuzberg-ffi", dev_prefix);
     let dev_pc = format!(
         r#"prefix={}
