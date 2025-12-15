@@ -1,7 +1,6 @@
 [build-system]
-build-backend = "build"
+build-backend = "maturin"
 requires = [ "maturin>=1,<2" ]
-backend-path = [ "." ]
 
 [project]
 name = "kreuzberg"
