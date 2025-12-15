@@ -1,5 +1,5 @@
-import type { OcrBackendProtocol } from "../types.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { OcrBackendProtocol } from "../types.js";
 import {
 	clearOcrBackends,
 	getOcrBackend,

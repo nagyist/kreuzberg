@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd crates/kreuzberg-wasm/pkg/bundler
+cd crates/kreuzberg-wasm/pkg
 
 wasm_size=$(wc -c <kreuzberg_wasm_bg.wasm)
 echo "WASM size (uncompressed): $(numfmt --to=iec-i --suffix=B "$wasm_size")"

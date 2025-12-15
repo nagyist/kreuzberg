@@ -1,5 +1,5 @@
-import type { ExtractionConfig } from "../types.js";
 import { describe, expect, it } from "vitest";
+import type { ExtractionConfig } from "../types.js";
 import {
 	configToJS,
 	fileToUint8Array,
