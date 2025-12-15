@@ -28,7 +28,8 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Clean cache directories
+    - name: Clean cache directories (cache disabled)
+      if: inputs.enable-cache != 'true'
       shell: bash
       run: scripts/ci/actions/setup-tesseract-cache/clean-dirs.sh "${{ inputs.label }}"
 
