@@ -66,6 +66,7 @@ jobs:
 
   lint-and-format:
     name: Lint & Format
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -105,6 +106,7 @@ jobs:
 
   unit-tests:
     name: Unit Tests (${{ matrix.os }})
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     permissions:
@@ -156,6 +158,7 @@ jobs:
 
   build-wasm-targets:
     name: Build WASM (${{ matrix.os }})
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     permissions:
@@ -234,6 +237,7 @@ jobs:
 
   bundle-size-check:
     name: Bundle Size Check
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -274,6 +278,7 @@ jobs:
 
   type-definitions:
     name: Type Definitions Check
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -318,6 +323,7 @@ jobs:
 
   integration-tests-node:
     name: Integration Tests (Node ${{ matrix.node-version }})
+    if: ${{ github.actor != 'dependabot[bot]' }}
     needs: [build-wasm-targets]
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -359,6 +365,7 @@ jobs:
 
   deno-tests:
     name: Deno Tests (${{ matrix.os }}, Deno ${{ matrix.deno-version }})
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     permissions:
@@ -439,6 +446,7 @@ jobs:
 
   workers-tests:
     name: Cloudflare Workers Tests
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -491,6 +499,7 @@ jobs:
 
   all-checks-passed:
     name: All WASM Checks Passed
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs:
