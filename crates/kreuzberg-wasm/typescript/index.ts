@@ -94,23 +94,11 @@
  * ```
  */
 
-import type { ExtractionConfig as ExtractionConfigType, ExtractionResult } from "./types.js";
-
 import { configToJS, fileToUint8Array, jsToExtractionResult, wrapWasmError } from "./adapters/wasm-adapter.js";
 import { registerOcrBackend } from "./ocr/registry.js";
 import { TesseractWasmBackend } from "./ocr/tesseract-wasm-backend.js";
 import { detectRuntime, hasWasm, isBrowser } from "./runtime.js";
-
-export type {
-	Chunk,
-	ChunkingConfig,
-	ExtractedImage,
-	ExtractionConfig,
-	ExtractionResult,
-	Table,
-} from "./types.js";
-
-export type * from "./types.js";
+import type { ExtractionConfig as ExtractionConfigType, ExtractionResult } from "./types.js";
 
 // Re-export adapter utilities for convenient access
 export {
@@ -120,7 +108,6 @@ export {
 	jsToExtractionResult,
 	wrapWasmError,
 } from "./adapters/wasm-adapter.js";
-
 // Re-export OCR registry
 export {
 	clearOcrBackends,
@@ -129,10 +116,8 @@ export {
 	registerOcrBackend,
 	unregisterOcrBackend,
 } from "./ocr/registry.js";
-
 // Re-export OCR backends
 export { TesseractWasmBackend } from "./ocr/tesseract-wasm-backend.js";
-
 // Re-export runtime utilities
 export {
 	detectRuntime,
@@ -156,6 +141,15 @@ export {
 	type RuntimeType,
 	type WasmCapabilities,
 } from "./runtime.js";
+export type * from "./types.js";
+export type {
+	Chunk,
+	ChunkingConfig,
+	ExtractedImage,
+	ExtractionConfig,
+	ExtractionResult,
+	Table,
+} from "./types.js";
 
 // WASM binding imports (to be populated during build)
 // Type definition for the WASM module interface

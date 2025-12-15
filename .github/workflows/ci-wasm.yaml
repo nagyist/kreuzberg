@@ -138,7 +138,7 @@ jobs:
         run: scripts/ci/wasm/install-wasm-pack.sh
 
       - name: Run Rust unit tests
-        run: cargo test --lib --target wasm32-unknown-unknown --no-fail-fast
+        run: wasm-pack test --node --release
         working-directory: crates/kreuzberg-wasm
         shell: bash
         env:
