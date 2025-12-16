@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync } from "fs";
-import { promises as fs } from "fs";
+import { readFileSync } from "fs";
 import path from "path";
 import type {
 	ChunkingConfig,
@@ -16,33 +15,19 @@ import type {
 } from "@kreuzberg/wasm";
 
 // Fixture loading from disk instead of embedded base64 data
-// This eliminates the 154MB bloat from the repository
+// This eliminates repository bloat
 
 function getRootDir(): string {
-	if (typeof process !== "undefined" && typeof process.cwd === "function") {
-		const cwd = process.cwd();
-		const candidates = [cwd, path.resolve(cwd, ".."), path.resolve(cwd, "../.."), path.resolve(cwd, "../../..")];
-		for (const candidate of candidates) {
-			// Prefer the directory that contains `test_documents/`.
-			// In CI, tests run from `e2e/wasm-workers`, so the repo root is `../..`.
-			if (existsSync(path.join(candidate, "test_documents"))) {
-				return candidate;
-			}
-			if (existsSync(path.join(candidate, "Cargo.toml"))) {
-				return candidate;
-			}
-		}
-	}
 	const __filename = new URL(import.meta.url).pathname;
 	const __dirname = path.dirname(__filename);
 	return path.resolve(__dirname, "../../");
 }
 
-const fixtureCache = new Map();
+const fixtureCache = new Map<string, Uint8Array>();
 
 export function getFixture(fixturePath: string): Uint8Array {
 	if (fixtureCache.has(fixturePath)) {
-		return fixtureCache.get(fixturePath);
+		return fixtureCache.get(fixturePath)!;
 	}
 
 	const rootDir = getRootDir();
@@ -53,24 +38,7 @@ export function getFixture(fixturePath: string): Uint8Array {
 		fixtureCache.set(fixturePath, data);
 		return data;
 	} catch (error) {
-		throw new Error("Fixture not found: " + fixturePath + " (looked in: " + fullPath + ")");
-	}
-}
-
-export async function getFixtureAsync(fixturePath: string): Promise<Uint8Array> {
-	if (fixtureCache.has(fixturePath)) {
-		return fixtureCache.get(fixturePath);
-	}
-
-	const rootDir = getRootDir();
-	const fullPath = path.join(rootDir, "test_documents", fixturePath);
-
-	try {
-		const data = await fs.readFile(fullPath);
-		fixtureCache.set(fixturePath, data);
-		return data;
-	} catch (error) {
-		throw new Error("Fixture not found: " + fixturePath + " (looked in: " + fullPath + ")");
+		throw new Error(`Fixture not found: ${fixturePath} (looked in: ${fullPath})`);
 	}
 }
 
@@ -257,7 +225,7 @@ export function shouldSkipFixture(
 		return false;
 	}
 
-	const message = error.name + ": " + error.message;
+	const message = `${error.name}: ${error.message}`;
 	const lower = message.toLowerCase();
 
 	const requirementHit = requirements.some((req) => lower.includes(req.toLowerCase()));
@@ -270,9 +238,9 @@ export function shouldSkipFixture(
 			: unsupportedFormat
 				? "unsupported format"
 				: requirements.join(", ");
-		console.warn("Skipping " + fixtureId + ": " + reason + ". " + message);
+		console.warn(`Skipping ${fixtureId}: ${reason}. ${message}`);
 		if (notes) {
-			console.warn("Notes: " + notes);
+			console.warn(`Notes: ${notes}`);
 		}
 		return true;
 	}
@@ -340,12 +308,12 @@ export const assertions = {
 
 	assertMetadataExpectation(result: ExtractionResult, path: string, expectation: PlainRecord): void {
 		if (!isPlainRecord(result.metadata)) {
-			throw new Error("Metadata is not a record for path " + path);
+			throw new Error(`Metadata is not a record for path ${path}`);
 		}
 
 		const value = getMetadataPath(result.metadata as PlainRecord, path);
 		if (value === undefined || value === null) {
-			throw new Error("Metadata path '" + path + "' missing in " + JSON.stringify(result.metadata));
+			throw new Error(`Metadata path '${path}' missing in ${JSON.stringify(result.metadata)}`);
 		}
 
 		if ("eq" in expectation) {
@@ -367,7 +335,7 @@ export const assertions = {
 			} else if (Array.isArray(value) && Array.isArray(contains)) {
 				expect(contains.every((item) => value.includes(item))).toBe(true);
 			} else {
-				throw new Error("Unsupported contains expectation for path '" + path + "'");
+				throw new Error(`Unsupported contains expectation for path '${path}'`);
 			}
 		}
 	},

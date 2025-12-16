@@ -3,15 +3,9 @@
 
 package e2e
 
-import (
-	"runtime"
-	"testing"
-)
+import "testing"
 
 func TestOfficeOfficeDocLegacy(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("LibreOffice conversion hangs on Windows CI")
-	}
 	result := runExtraction(t, "legacy_office/unit_test_lists.doc", nil)
 	assertExpectedMime(t, result, []string{"application/msword"})
 	assertMinContentLength(t, result, 20)
@@ -62,9 +56,6 @@ func TestOfficeOfficeDocxTables(t *testing.T) {
 }
 
 func TestOfficeOfficePptLegacy(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("LibreOffice conversion hangs on Windows CI")
-	}
 	result := runExtraction(t, "legacy_office/simple.ppt", nil)
 	assertExpectedMime(t, result, []string{"application/vnd.ms-powerpoint"})
 	assertMinContentLength(t, result, 10)
@@ -89,9 +80,6 @@ func TestOfficeOfficePptxPitchDeck(t *testing.T) {
 }
 
 func TestOfficeOfficeXlsLegacy(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("LibreOffice conversion hangs on Windows CI")
-	}
 	result := runExtraction(t, "spreadsheets/test_excel.xls", nil)
 	assertExpectedMime(t, result, []string{"application/vnd.ms-excel"})
 	assertMinContentLength(t, result, 10)

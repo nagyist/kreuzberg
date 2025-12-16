@@ -1,17 +1,17 @@
 use anyhow::{Context, Result};
-use base64::{Engine as _, engine::general_purpose::STANDARD};
 use camino::Utf8Path;
 use itertools::Itertools;
 use serde_json::{Map, Value};
 use std::collections::BTreeSet;
 use std::fmt::Write as _;
 use std::fs;
-use std::path::PathBuf;
 
 use crate::fixtures::{Assertions, Fixture, WasmTarget};
 
-// Helpers template with embedded fixtures support for Cloudflare Workers
+// Helpers template for Cloudflare Workers with disk-based fixture loading
 const WORKERS_HELPERS_TEMPLATE: &str = r#"import { describe, it, expect } from "vitest";
+import { readFileSync } from "fs";
+import path from "path";
 import type {
     ChunkingConfig,
     ExtractionConfig,
@@ -25,25 +25,38 @@ import type {
     TokenReductionConfig,
 } from "@kreuzberg/wasm";
 
-// Fixtures embedded as base64 (generated at build time)
-const FIXTURES: Record<string, string> = {
-{{EMBEDDED_FIXTURES}}
-};
+// Fixture loading from disk instead of embedded base64 data
+// This eliminates repository bloat
+
+function getRootDir(): string {
+    const __filename = new URL(import.meta.url).pathname;
+    const __dirname = path.dirname(__filename);
+    return path.resolve(__dirname, "../../");
+}
+
+const fixtureCache = new Map<string, Uint8Array>();
+
+export function getFixture(fixturePath: string): Uint8Array {
+    if (fixtureCache.has(fixturePath)) {
+        return fixtureCache.get(fixturePath)!;
+    }
+
+    const rootDir = getRootDir();
+    const fullPath = path.join(rootDir, "test_documents", fixturePath);
+
+    try {
+        const data = readFileSync(fullPath);
+        fixtureCache.set(fixturePath, data);
+        return data;
+    } catch (error) {
+        throw new Error(`Fixture not found: ${fixturePath} (looked in: ${fullPath})`);
+    }
+}
 
 type PlainRecord = Record<string, unknown>;
 
 function isPlainRecord(value: unknown): value is PlainRecord {
     return typeof value === "object" && value !== null;
-}
-
-export function getFixture(path: string): Uint8Array {
-    const base64 = FIXTURES[path];
-    if (!base64) {
-        throw new Error(`Fixture not found: ${path}`);
-    }
-    // Decode base64 to Uint8Array
-    const decoded = atob(base64);
-    return Uint8Array.from(decoded, c => c.charCodeAt(0));
 }
 
 function assignBooleanField(target: PlainRecord, source: PlainRecord, sourceKey: string, targetKey: string): void {
@@ -387,9 +400,8 @@ pub fn generate(fixtures: &[Fixture], output_root: &Utf8Path) -> Result<()> {
 
     let plugin_fixtures: Vec<_> = fixtures.iter().filter(|f| f.is_plugin_api()).collect();
 
-    // Generate helpers with embedded fixtures
-    let embedded_fixtures = collect_and_encode_fixtures(&doc_fixtures)?;
-    write_helpers(&output_dir, &embedded_fixtures)?;
+    // Generate helpers (fixtures are loaded from disk at runtime)
+    write_helpers(&output_dir)?;
 
     // Group document fixtures by category
     let mut grouped = doc_fixtures
@@ -444,36 +456,9 @@ fn clean_test_files(dir: &Utf8Path) -> Result<()> {
     Ok(())
 }
 
-fn collect_and_encode_fixtures(fixtures: &[&Fixture]) -> Result<Vec<(String, String)>> {
-    let mut encoded = Vec::new();
-
-    for fixture in fixtures {
-        let doc_path = fixture.document().path.clone();
-        let full_path = PathBuf::from("test_documents").join(&doc_path);
-
-        if let Ok(bytes) = fs::read(&full_path) {
-            let base64_str = STANDARD.encode(&bytes);
-            encoded.push((doc_path, base64_str));
-        }
-    }
-
-    // Sort for consistent output
-    encoded.sort_by(|a, b| a.0.cmp(&b.0));
-
-    Ok(encoded)
-}
-
-fn write_helpers(output_dir: &Utf8Path, embedded_fixtures: &[(String, String)]) -> Result<()> {
-    // Build the FIXTURES object
-    let mut fixtures_str = String::new();
-    for (path, base64) in embedded_fixtures {
-        writeln!(fixtures_str, "    \"{}\": \"{}\",", escape_ts_string(path), base64)?;
-    }
-
-    let helpers_content = WORKERS_HELPERS_TEMPLATE.replace("{{EMBEDDED_FIXTURES}}", &fixtures_str);
-
+fn write_helpers(output_dir: &Utf8Path) -> Result<()> {
     let helpers_path = output_dir.join("helpers.ts");
-    fs::write(&helpers_path, helpers_content).context("Failed to write helpers.ts")?;
+    fs::write(&helpers_path, WORKERS_HELPERS_TEMPLATE).context("Failed to write helpers.ts")?;
     Ok(())
 }
 
