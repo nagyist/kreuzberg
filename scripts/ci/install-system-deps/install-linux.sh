@@ -63,16 +63,24 @@ fi
 
 echo ""
 echo "Tesseract:"
-if tesseract --version 2>/dev/null | head -1; then
-	echo "✓ Tesseract available"
+if command -v tesseract >/dev/null 2>&1; then
+	if tesseract --version 2>/dev/null | head -1; then
+		echo "✓ Tesseract CLI available"
+	else
+		echo "::warning::Tesseract CLI present but failed to run"
+	fi
 else
-	echo "::error::Tesseract not found or failed to run"
-	exit 1
+	# OCR in Kreuzberg uses the bundled kreuzberg-tesseract build; the system tesseract CLI is optional.
+	echo "::warning::Tesseract CLI not found; continuing (OCR will rely on bundled Tesseract)"
 fi
 
 echo ""
 echo "Available Tesseract languages:"
-tesseract --list-langs | head -10
+if command -v tesseract >/dev/null 2>&1; then
+	tesseract --list-langs | head -10 || true
+else
+	echo "(tesseract CLI not available)"
+fi
 
 echo ""
 echo "Checking Tesseract data path..."
