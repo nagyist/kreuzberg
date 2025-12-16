@@ -226,6 +226,15 @@ module Kreuzberg
   # Alias for Config::Extraction (for API consistency with other language bindings)
   ExtractionConfig: singleton(Config::Extraction)
 
+  # Alias for Config::PageConfig (for API consistency with other language bindings)
+  PageConfig: singleton(Config::PageConfig)
+
+  # Keyword algorithm constants
+  module KeywordAlgorithm
+    YAKE: Symbol
+    RAKE: Symbol
+  end
+
   # Extraction result type
   type extraction_result_hash = {
     content: String,

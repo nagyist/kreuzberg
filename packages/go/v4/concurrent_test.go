@@ -159,8 +159,6 @@ func TestContextTimeoutBeforeExtraction(t *testing.T) {
 
 // TestBatchConcurrentExtraction verifies batch operations are thread-safe.
 func TestBatchConcurrentExtraction(t *testing.T) {
-	pdfBytes := generateTestPDFBytes(t)
-
 	paths := []string{}
 	for i := 0; i < 3; i++ {
 		pdfPath := createTestPDF(t)

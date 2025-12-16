@@ -52,10 +52,46 @@ public sealed class ExtractionResult
     public List<ExtractedImage>? Images { get; set; }
 
     /// <summary>
+    /// Per-page extracted content when page extraction is enabled.
+    /// </summary>
+    [JsonPropertyName("pages")]
+    public List<PageContent>? Pages { get; set; }
+
+    /// <summary>
     /// Indicates whether extraction completed successfully.
     /// </summary>
     [JsonPropertyName("success")]
     public bool Success { get; set; }
+}
+
+/// <summary>
+/// Extracted content for a single page when page extraction is enabled.
+/// </summary>
+public sealed class PageContent
+{
+    /// <summary>
+    /// The page number (1-indexed).
+    /// </summary>
+    [JsonPropertyName("page_number")]
+    public int PageNumber { get; set; }
+
+    /// <summary>
+    /// The extracted text content for this page.
+    /// </summary>
+    [JsonPropertyName("content")]
+    public string Content { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Tables extracted from this page, if any.
+    /// </summary>
+    [JsonPropertyName("tables")]
+    public List<Table>? Tables { get; set; }
+
+    /// <summary>
+    /// Images extracted from this page, if any.
+    /// </summary>
+    [JsonPropertyName("images")]
+    public List<ExtractedImage>? Images { get; set; }
 }
 
 /// <summary>
@@ -686,6 +722,12 @@ public sealed class ExtractionConfig
     public KeywordConfig? Keywords { get; set; }
 
     /// <summary>
+    /// Page extraction and tracking configuration.
+    /// </summary>
+    [JsonPropertyName("pages")]
+    public PageConfig? Pages { get; set; }
+
+    /// <summary>
     /// Maximum number of concurrent extractions in batch operations. Default is null.
     /// </summary>
     [JsonPropertyName("max_concurrent_extractions")]
@@ -995,6 +1037,17 @@ public sealed class HtmlPreprocessingOptions
     public bool? RemoveForms { get; set; }
 }
 
+/// <summary>
+/// Keyword extraction algorithms supported by Kreuzberg.
+/// </summary>
+public static class KeywordAlgorithm
+{
+    public const string Yake = "yake";
+    public const string Rake = "rake";
+    public const string YAKE = Yake;
+    public const string RAKE = Rake;
+}
+
 public sealed class KeywordConfig
 {
     [JsonPropertyName("algorithm")]
@@ -1017,6 +1070,21 @@ public sealed class KeywordConfig
 
     [JsonPropertyName("rake_params")]
     public Dictionary<string, object?>? RakeParams { get; set; }
+}
+
+/// <summary>
+/// Configuration for page tracking during extraction.
+/// </summary>
+public sealed class PageConfig
+{
+    [JsonPropertyName("extract_pages")]
+    public bool? ExtractPages { get; set; }
+
+    [JsonPropertyName("insert_page_markers")]
+    public bool? InsertPageMarkers { get; set; }
+
+    [JsonPropertyName("marker_format")]
+    public string? MarkerFormat { get; set; }
 }
 
 /// <summary>

@@ -42,7 +42,6 @@ impl Clone for ExtractionConfig {
 #[pymethods]
 impl ExtractionConfig {
     #[new]
-    #[cfg(any(feature = "keywords-yake", feature = "keywords-rake"))]
     #[pyo3(signature = (
         use_cache=None,
         enable_quality_processing=None,
@@ -89,61 +88,6 @@ impl ExtractionConfig {
                 token_reduction: token_reduction.map(Into::into),
                 language_detection: language_detection.map(Into::into),
                 keywords: keywords.map(Into::into),
-                postprocessor: postprocessor.map(Into::into),
-                html_options: html_options_inner,
-                max_concurrent_extractions,
-                pages: pages.map(Into::into),
-            },
-            html_options_dict,
-        })
-    }
-
-    #[new]
-    #[cfg(not(any(feature = "keywords-yake", feature = "keywords-rake")))]
-    #[pyo3(signature = (
-        use_cache=None,
-        enable_quality_processing=None,
-        ocr=None,
-        force_ocr=None,
-        chunking=None,
-        images=None,
-        pdf_options=None,
-        token_reduction=None,
-        language_detection=None,
-        postprocessor=None,
-        html_options=None,
-        max_concurrent_extractions=None,
-        pages=None
-    ))]
-    #[allow(clippy::too_many_arguments)]
-    fn new(
-        use_cache: Option<bool>,
-        enable_quality_processing: Option<bool>,
-        ocr: Option<OcrConfig>,
-        force_ocr: Option<bool>,
-        chunking: Option<ChunkingConfig>,
-        images: Option<ImageExtractionConfig>,
-        pdf_options: Option<PdfConfig>,
-        token_reduction: Option<TokenReductionConfig>,
-        language_detection: Option<LanguageDetectionConfig>,
-        postprocessor: Option<PostProcessorConfig>,
-        html_options: Option<Bound<'_, PyDict>>,
-        max_concurrent_extractions: Option<usize>,
-        pages: Option<PageConfig>,
-    ) -> PyResult<Self> {
-        let (html_options_inner, html_options_dict) = parse_html_options_dict(html_options)?;
-        Ok(Self {
-            inner: kreuzberg::ExtractionConfig {
-                use_cache: use_cache.unwrap_or(true),
-                enable_quality_processing: enable_quality_processing.unwrap_or(true),
-                ocr: ocr.map(Into::into),
-                force_ocr: force_ocr.unwrap_or(false),
-                chunking: chunking.map(Into::into),
-                images: images.map(Into::into),
-                pdf_options: pdf_options.map(Into::into),
-                token_reduction: token_reduction.map(Into::into),
-                language_detection: language_detection.map(Into::into),
-                keywords: None,
                 postprocessor: postprocessor.map(Into::into),
                 html_options: html_options_inner,
                 max_concurrent_extractions,
@@ -2169,12 +2113,6 @@ impl From<KeywordConfig> for kreuzberg::keywords::KeywordConfig {
     }
 }
 
-impl From<kreuzberg::keywords::KeywordConfig> for KeywordConfig {
-    fn from(config: kreuzberg::keywords::KeywordConfig) -> Self {
-        Self { inner: config }
-    }
-}
-
 /// Page extraction and tracking configuration.
 ///
 /// Controls how pages are extracted, tracked, and represented in the extraction results.
@@ -2252,7 +2190,6 @@ impl From<kreuzberg::core::config::PageConfig> for PageConfig {
     }
 }
 
-#[cfg(any(feature = "keywords-yake", feature = "keywords-rake"))]
 impl From<kreuzberg::keywords::KeywordConfig> for KeywordConfig {
     fn from(config: kreuzberg::keywords::KeywordConfig) -> Self {
         Self { inner: config }

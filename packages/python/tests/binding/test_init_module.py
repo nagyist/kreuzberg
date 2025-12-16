@@ -45,3 +45,30 @@ def test_extraction_functions_exist() -> None:
     assert callable(kreuzberg.batch_extract_files_sync)
     assert callable(kreuzberg.batch_extract_bytes)
     assert callable(kreuzberg.batch_extract_bytes_sync)
+
+
+def test_ocr_config_import_and_usage() -> None:
+    """Test that OcrConfig can be imported and used."""
+    assert hasattr(kreuzberg, "OcrConfig")
+    config = kreuzberg.OcrConfig(backend="tesseract", language="eng")
+    assert config.backend == "tesseract"
+    assert config.language == "eng"
+
+
+def test_extraction_config_with_ocr() -> None:
+    """Test that ExtractionConfig can accept ocr parameter."""
+    ocr_config = kreuzberg.OcrConfig(backend="tesseract", language="eng")
+    config = kreuzberg.ExtractionConfig(ocr=ocr_config)
+    assert config.ocr is not None
+    assert config.ocr.backend == "tesseract"
+    assert config.ocr.language == "eng"
+
+
+def test_embedding_config_import_and_usage() -> None:
+    """Test that EmbeddingConfig can be imported and used."""
+    assert hasattr(kreuzberg, "EmbeddingConfig")
+    assert hasattr(kreuzberg, "EmbeddingModelType")
+    model = kreuzberg.EmbeddingModelType.preset("balanced")
+    config = kreuzberg.EmbeddingConfig(model=model)
+    assert config.normalize is True
+    assert config.batch_size == 32

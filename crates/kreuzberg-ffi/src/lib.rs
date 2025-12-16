@@ -23,7 +23,6 @@ use kreuzberg::plugins::registry::get_ocr_backend_registry;
 use kreuzberg::plugins::{OcrBackend, Plugin, ProcessingStage};
 use kreuzberg::types::ExtractionResult;
 use kreuzberg::{KreuzbergError, Result};
-#[cfg(feature = "embeddings")]
 use serde::Serialize;
 
 thread_local! {
@@ -54,7 +53,6 @@ fn string_to_c_string(value: String) -> std::result::Result<*mut c_char, String>
 
 type FfiResult<T> = std::result::Result<T, String>;
 
-#[cfg(feature = "html")]
 fn parse_extraction_config_from_json(config_str: &str) -> FfiResult<ExtractionConfig> {
     use html_to_markdown_rs::options::{
         CodeBlockStyle, ConversionOptions, HeadingStyle, HighlightStyle, ListIndentType, NewlineStyle,
@@ -405,13 +403,6 @@ fn parse_extraction_config_from_json(config_str: &str) -> FfiResult<ExtractionCo
     Ok(config)
 }
 
-#[cfg(not(feature = "html"))]
-fn parse_extraction_config_from_json(config_str: &str) -> FfiResult<ExtractionConfig> {
-    let config = serde_json::from_str::<ExtractionConfig>(config_str)
-        .map_err(|e| format!("Failed to parse config JSON: {}", e))?;
-    Ok(config)
-}
-
 /// RAII guard for C strings to prevent memory leaks on error paths.
 ///
 /// This wrapper ensures that if any allocation fails during the construction
@@ -752,7 +743,6 @@ pub unsafe extern "C" fn kreuzberg_validate_mime_type(mime_type: *const c_char) 
     })
 }
 
-#[cfg(feature = "embeddings")]
 #[derive(Serialize)]
 struct SerializableEmbeddingPreset<'a> {
     name: &'a str,
@@ -769,7 +759,6 @@ struct SerializableEmbeddingPreset<'a> {
 ///
 /// - Returned string is a JSON array and must be freed with `kreuzberg_free_string`
 /// - Returns NULL on error (check `kreuzberg_last_error`)
-#[cfg(feature = "embeddings")]
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn kreuzberg_list_embedding_presets() -> *mut c_char {
     ffi_panic_guard!("kreuzberg_list_embedding_presets", {
@@ -799,7 +788,6 @@ pub unsafe extern "C" fn kreuzberg_list_embedding_presets() -> *mut c_char {
 /// - `name` must be a valid null-terminated C string
 /// - Returned string is JSON object and must be freed with `kreuzberg_free_string`
 /// - Returns NULL on error (check `kreuzberg_last_error`)
-#[cfg(feature = "embeddings")]
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn kreuzberg_get_embedding_preset(name: *const c_char) -> *mut c_char {
     ffi_panic_guard!("kreuzberg_get_embedding_preset", {

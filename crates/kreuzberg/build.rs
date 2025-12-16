@@ -64,7 +64,6 @@ fn main() {
         return;
     }
 
-    validate_feature_exclusivity();
     let strategy = determine_link_strategy(&target);
 
     tracing::debug!("Using PDFium linking strategy: {:?}", strategy);
@@ -99,23 +98,6 @@ fn main() {
 // FEATURE & STRATEGY VALIDATION
 // ============================================================================
 
-/// Validate that only one linking strategy feature is enabled at a time
-fn validate_feature_exclusivity() {
-    let strategies = [
-        cfg!(feature = "pdf-static"),
-        cfg!(feature = "pdf-bundled"),
-        cfg!(feature = "pdf-system"),
-    ];
-    let count = strategies.iter().filter(|&&x| x).count();
-
-    if count > 1 {
-        panic!(
-            "Only one of pdf-static, pdf-bundled, pdf-system can be enabled at once.\n\
-             Please choose a single PDFium linking strategy."
-        );
-    }
-}
-
 /// Determine which linking strategy to use based on features and target
 fn determine_link_strategy(target: &str) -> PdfiumLinkStrategy {
     // WASM always uses static linking
@@ -123,14 +105,28 @@ fn determine_link_strategy(target: &str) -> PdfiumLinkStrategy {
         return PdfiumLinkStrategy::DownloadStatic;
     }
 
-    // Feature-based strategy selection (priority order)
-    if cfg!(feature = "pdf-system") {
-        return PdfiumLinkStrategy::System;
+    let pdf_system = cfg!(feature = "pdf-system");
+    let pdf_bundled = cfg!(feature = "pdf-bundled");
+    let pdf_static = cfg!(feature = "pdf-static");
+
+    let enabled_count = usize::from(pdf_system) + usize::from(pdf_bundled) + usize::from(pdf_static);
+    if enabled_count > 1 {
+        println!(
+            "cargo:warning=Multiple PDFium linking strategies enabled (pdf-static={}, pdf-bundled={}, pdf-system={}); using pdf-bundled for this build",
+            pdf_static, pdf_bundled, pdf_system
+        );
     }
-    if cfg!(feature = "pdf-bundled") {
+
+    // Feature-based strategy selection.
+    // Prefer pdf-bundled when multiple strategies are enabled (e.g. `--all-features`) because it
+    // does not require external PDFIUM_STATIC_LIB_PATH and does not depend on a system install.
+    if pdf_bundled {
         return PdfiumLinkStrategy::Bundled;
     }
-    if cfg!(feature = "pdf-static") {
+    if pdf_system {
+        return PdfiumLinkStrategy::System;
+    }
+    if pdf_static {
         return PdfiumLinkStrategy::DownloadStatic;
     }
 

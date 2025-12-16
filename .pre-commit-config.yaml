@@ -96,16 +96,16 @@ repos:
         pass_filenames: false
         require_serial: true
       - id: go-fmt
-        name: go fmt (packages/go)
-        entry: bash -c 'cd packages/go && go fmt ./...'
+        name: go fmt (packages/go/v4)
+        entry: bash -c 'cd packages/go/v4 && go fmt ./...'
         language: system
-        files: ^packages/go/.*\.go$
+        files: ^packages/go/v4/.*\.go$
         pass_filenames: false
       - id: golangci-lint
-        name: golangci-lint (packages/go)
-        entry: bash -c 'export PKG_CONFIG_PATH="$(cd . && pwd -P)/crates/kreuzberg-ffi:${PKG_CONFIG_PATH}" && cd packages/go && golangci-lint run --config ../../.golangci.yml --fix ./...'
+        name: golangci-lint (packages/go/v4)
+        entry: bash -c 'export PKG_CONFIG_PATH="$(cd . && pwd -P)/crates/kreuzberg-ffi:${PKG_CONFIG_PATH}" && cd packages/go/v4 && golangci-lint run --config ../../../.golangci.yml --fix ./...'
         language: system
-        files: ^packages/go/
+        files: ^packages/go/v4/
         pass_filenames: false
       - id: rubocop
         name: rubocop
