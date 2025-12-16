@@ -99,6 +99,11 @@ jobs:
         with:
           pdfium-version: ${{ env.PDFIUM_VERSION }}
 
+      - name: Setup static PDFium
+        uses: ./.github/actions/setup-pdfium-static
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
       - name: Configure bindgen compatibility headers (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -156,6 +161,11 @@ jobs:
 
       - name: Download PDFium
         uses: ./.github/actions/download-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Setup static PDFium
+        uses: ./.github/actions/setup-pdfium-static
         with:
           pdfium-version: ${{ env.PDFIUM_VERSION }}
 
@@ -284,6 +294,11 @@ jobs:
 
       - name: Download PDFium
         uses: ./.github/actions/download-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Setup static PDFium
+        uses: ./.github/actions/setup-pdfium-static
         with:
           pdfium-version: ${{ env.PDFIUM_VERSION }}
 

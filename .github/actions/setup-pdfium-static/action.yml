@@ -1,0 +1,76 @@
+name: Setup Static PDFium
+description: Download and configure static PDFium libraries for pdf-static feature builds
+
+inputs:
+  pdfium-version:
+    description: PDFium version to download
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Detect platform and architecture
+      shell: bash
+      run: |
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+
+        if [ "$OS" = "darwin" ]; then
+          if [ "$ARCH" = "arm64" ]; then
+            PLATFORM="macos-arm64"
+          else
+            PLATFORM="macos-x64"
+          fi
+        elif [ "$OS" = "linux" ]; then
+          if [ "$ARCH" = "aarch64" ]; then
+            PLATFORM="linux-arm64"
+          else
+            PLATFORM="linux-x64"
+          fi
+        elif [ "$OS" = "windows" ] || [[ "$OS" == *"mingw"* ]]; then
+          PLATFORM="windows-x64"
+        else
+          echo "Unsupported platform: $OS"
+          exit 1
+        fi
+
+        echo "PDFIUM_PLATFORM=$PLATFORM" >> $GITHUB_ENV
+
+    - name: Cache static PDFium
+      uses: actions/cache@v4
+      with:
+        path: ~/pdfium-static
+        key: pdfium-static-v1-${{ env.PDFIUM_PLATFORM }}-${{ inputs.pdfium-version }}
+        restore-keys: |
+          pdfium-static-v1-${{ env.PDFIUM_PLATFORM }}-
+
+    - name: Download static PDFium (if not cached)
+      shell: bash
+      run: |
+        if [ ! -d ~/pdfium-static/lib ]; then
+          mkdir -p ~/pdfium-static
+
+          # Download from pdfium-lib releases
+          URL="https://github.com/paulocoutinhox/pdfium-lib/releases/download/chromium/${{ inputs.pdfium-version }}-${{ env.PDFIUM_PLATFORM }}/pdfium-${{ inputs.pdfium-version }}-${{ env.PDFIUM_PLATFORM }}.tar.bz2"
+
+          echo "Downloading static PDFium from: $URL"
+          curl -L --retry 5 --retry-delay 2 -o /tmp/pdfium.tar.bz2 "$URL"
+
+          tar -xjf /tmp/pdfium.tar.bz2 -C ~/pdfium-static
+          rm /tmp/pdfium.tar.bz2
+
+          if [ ! -f ~/pdfium-static/lib/libpdfium.a ]; then
+            echo "Error: Static PDFium library not found after extraction"
+            exit 1
+          fi
+
+          echo "Static PDFium extracted successfully"
+        else
+          echo "Using cached static PDFium"
+        fi
+
+    - name: Export PDFIUM_STATIC_LIB_PATH
+      shell: bash
+      run: |
+        echo "PDFIUM_STATIC_LIB_PATH=$HOME/pdfium-static/lib" >> $GITHUB_ENV
+        echo "PKG_CONFIG_PATH=$HOME/pdfium-static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
