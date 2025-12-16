@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - WASM `Metadata` interface now aligned with Node binding for API parity
   - 100% JSDoc coverage on all public APIs (functions, parameters, return types)
   - Build success: zero TypeScript errors, zero linting warnings
+- **Ruby bindings: Complete YARD documentation coverage**
+  - Added comprehensive YARD documentation to ExtractionAPI module (8 extraction methods)
+  - Added YARD documentation to CacheAPI module (2 cache methods)
+  - Added @return tags to ErrorContext module (3 error handling methods)
+  - All 13 previously undocumented methods now have complete @param/@return/@raise/@example tags
+  - Documentation fully aligned with RBS type definitions and Node/WASM TypeScript bindings
+  - All tests passing (207 examples, 0 failures), Rubocop clean, Steep type checking passes
 
 ## [4.0.0-rc.9] - 2025-12-15
 
