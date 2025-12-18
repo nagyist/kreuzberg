@@ -5,7 +5,6 @@ use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata, PageContent};
 use async_trait::async_trait;
-use std::path::Path;
 
 #[cfg(feature = "pdf")]
 use crate::pdf::error::PdfError;
@@ -325,18 +324,31 @@ impl DocumentExtractor for PdfExtractor {
         config: &ExtractionConfig,
     ) -> Result<ExtractionResult> {
         #[cfg(feature = "pdf")]
-        let (pdf_metadata, native_text, tables, page_contents) = if crate::core::batch_mode::is_batch_mode() {
-            let content_owned = content.to_vec();
-            let span = tracing::Span::current();
-            let pages_config = config.pages.clone();
-            tokio::task::spawn_blocking(move || {
-                let _guard = span.entered();
-                let bindings =
-                    crate::pdf::bindings::bind_pdfium(PdfError::MetadataExtractionFailed, "initialize Pdfium")?;
-
+        let (pdf_metadata, native_text, tables, page_contents) = {
+            // WASM target: always synchronous (no tokio::task::spawn_blocking)
+            // Other targets: use spawn_blocking in batch mode for better parallelism
+            #[cfg(target_arch = "wasm32")]
+            {
+                // SAFETY: For WASM targets, this code path should only be reached if the
+                // WASM environment has properly initialized PDFium. The error message
+                // will direct users to the documentation for setup requirements.
+                let bindings = crate::pdf::bindings::bind_pdfium(PdfError::MetadataExtractionFailed, "initialize Pdfium")
+                    .map_err(|pdf_err| {
+                        // Provide context-specific error for WASM PDF failures
+                        if pdf_err.to_string().contains("WASM") || pdf_err.to_string().contains("Module") {
+                            crate::error::KreuzbergError::Parsing {
+                                message: "PDF extraction requires proper WASM module initialization. \
+                                         Ensure your WASM environment is set up with PDFium support. \
+                                         See: https://docs.kreuzberg.dev/wasm/pdf".to_string(),
+                                source: None,
+                            }
+                        } else {
+                            pdf_err.into()
+                        }
+                    })?;
                 let pdfium = Pdfium::new(bindings);
 
-                let document = pdfium.load_pdf_from_byte_slice(&content_owned, None).map_err(|e| {
+                let document = pdfium.load_pdf_from_byte_slice(content, None).map_err(|e| {
                     let err_msg = e.to_string();
                     if err_msg.contains("password") || err_msg.contains("Password") {
                         PdfError::PasswordRequired
@@ -346,49 +358,83 @@ impl DocumentExtractor for PdfExtractor {
                 })?;
 
                 let (native_text, boundaries, page_contents) =
-                    crate::pdf::text::extract_text_from_pdf_document(&document, pages_config.as_ref())?;
+                    crate::pdf::text::extract_text_from_pdf_document(&document, config.pages.as_ref())?;
 
                 let pdf_metadata =
                     crate::pdf::metadata::extract_metadata_from_document(&document, boundaries.as_deref())?;
 
                 let tables = extract_tables_from_document(&document, &pdf_metadata)?;
 
-                if let Some(ref page_cfg) = pages_config
-                    && page_cfg.extract_pages
-                    && page_contents.is_none()
-                {
-                    return Err(PdfError::ExtractionFailed(
-                        "Page extraction was configured but no page data was extracted in batch mode".to_string(),
-                    )
-                    .into());
-                }
+                (pdf_metadata, native_text, tables, page_contents)
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                if crate::core::batch_mode::is_batch_mode() {
+                    let content_owned = content.to_vec();
+                    let span = tracing::Span::current();
+                    let pages_config = config.pages.clone();
+                    tokio::task::spawn_blocking(move || {
+                        let _guard = span.entered();
+                        let bindings =
+                            crate::pdf::bindings::bind_pdfium(PdfError::MetadataExtractionFailed, "initialize Pdfium")?;
 
-                Ok::<_, crate::error::KreuzbergError>((pdf_metadata, native_text, tables, page_contents))
-            })
-            .await
-            .map_err(|e| crate::error::KreuzbergError::Other(format!("PDF extraction task failed: {}", e)))??
-        } else {
-            let bindings = crate::pdf::bindings::bind_pdfium(PdfError::MetadataExtractionFailed, "initialize Pdfium")?;
+                        let pdfium = Pdfium::new(bindings);
 
-            let pdfium = Pdfium::new(bindings);
+                        let document = pdfium.load_pdf_from_byte_slice(&content_owned, None).map_err(|e| {
+                            let err_msg = e.to_string();
+                            if err_msg.contains("password") || err_msg.contains("Password") {
+                                PdfError::PasswordRequired
+                            } else {
+                                PdfError::InvalidPdf(err_msg)
+                            }
+                        })?;
 
-            let document = pdfium.load_pdf_from_byte_slice(content, None).map_err(|e| {
-                let err_msg = e.to_string();
-                if err_msg.contains("password") || err_msg.contains("Password") {
-                    PdfError::PasswordRequired
+                        let (native_text, boundaries, page_contents) =
+                            crate::pdf::text::extract_text_from_pdf_document(&document, pages_config.as_ref())?;
+
+                        let pdf_metadata =
+                            crate::pdf::metadata::extract_metadata_from_document(&document, boundaries.as_deref())?;
+
+                        let tables = extract_tables_from_document(&document, &pdf_metadata)?;
+
+                        if let Some(ref page_cfg) = pages_config
+                            && page_cfg.extract_pages
+                            && page_contents.is_none()
+                        {
+                            return Err(PdfError::ExtractionFailed(
+                                "Page extraction was configured but no page data was extracted in batch mode".to_string(),
+                            )
+                            .into());
+                        }
+
+                        Ok::<_, crate::error::KreuzbergError>((pdf_metadata, native_text, tables, page_contents))
+                    })
+                    .await
+                    .map_err(|e| crate::error::KreuzbergError::Other(format!("PDF extraction task failed: {}", e)))??
                 } else {
-                    PdfError::InvalidPdf(err_msg)
+                    let bindings = crate::pdf::bindings::bind_pdfium(PdfError::MetadataExtractionFailed, "initialize Pdfium")?;
+
+                    let pdfium = Pdfium::new(bindings);
+
+                    let document = pdfium.load_pdf_from_byte_slice(content, None).map_err(|e| {
+                        let err_msg = e.to_string();
+                        if err_msg.contains("password") || err_msg.contains("Password") {
+                            PdfError::PasswordRequired
+                        } else {
+                            PdfError::InvalidPdf(err_msg)
+                        }
+                    })?;
+
+                    let (native_text, boundaries, page_contents) =
+                        crate::pdf::text::extract_text_from_pdf_document(&document, config.pages.as_ref())?;
+
+                    let pdf_metadata = crate::pdf::metadata::extract_metadata_from_document(&document, boundaries.as_deref())?;
+
+                    let tables = extract_tables_from_document(&document, &pdf_metadata)?;
+
+                    (pdf_metadata, native_text, tables, page_contents)
                 }
-            })?;
-
-            let (native_text, boundaries, page_contents) =
-                crate::pdf::text::extract_text_from_pdf_document(&document, config.pages.as_ref())?;
-
-            let pdf_metadata = crate::pdf::metadata::extract_metadata_from_document(&document, boundaries.as_deref())?;
-
-            let tables = extract_tables_from_document(&document, &pdf_metadata)?;
-
-            (pdf_metadata, native_text, tables, page_contents)
+            }
         };
 
         #[cfg(feature = "ocr")]

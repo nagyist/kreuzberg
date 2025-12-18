@@ -97,11 +97,12 @@ fn determine_link_strategy(target: &str) -> PdfiumLinkStrategy {
             println!("cargo:rustc-link-lib=static=pdfium");
             return PdfiumLinkStrategy::DownloadStatic;
         }
-        // For edge runtimes without PDFIUM_WASM_LIB, use system (falls back to lopdf)
+        // For WASM without explicit PDFIUM_WASM_LIB, use bundled strategy
+        // This downloads pdfium-lib which provides WASM-compatible builds
         println!(
-            "cargo:warning=WASM build without PDFium (edge runtime - set PDFIUM_WASM_LIB for native WASM support)"
+            "cargo:warning=WASM build using bundled PDFium (set PDFIUM_WASM_LIB to link custom WASM PDFium)"
         );
-        return PdfiumLinkStrategy::System;
+        return PdfiumLinkStrategy::Bundled;
     }
 
     let system_pdfium = cfg!(feature = "system-pdfium");
@@ -729,6 +730,8 @@ fn link_statically(pdfium_dir: &Path, target: &str) {
 /// Links dynamically but copies library to OUT_DIR for embedding in binary.
 /// Each binary extracts and uses its own copy of the PDFium library.
 /// Supports flexible archive structures by finding library in multiple locations.
+///
+/// For WASM targets, links statically using the bundled static library.
 fn link_bundled(pdfium_dir: &Path, target: &str, out_dir: &Path) {
     // Copy library to OUT_DIR for bundling using flexible detection
     let (runtime_lib_name, runtime_subdir) = runtime_library_info(target);
@@ -747,7 +750,17 @@ fn link_bundled(pdfium_dir: &Path, target: &str, out_dir: &Path) {
         .unwrap_or_else(|| panic!("Non-UTF8 path for bundled library: {}", bundled_lib.display()));
     println!("cargo:rustc-env=KREUZBERG_PDFIUM_BUNDLED_PATH={}", bundled_path);
 
-    tracing::debug!("Bundled PDFium library at: {}", bundled_path);
+    // For WASM, link statically using the bundled library
+    if target.contains("wasm") {
+        let lib_dir = bundled_lib
+            .parent()
+            .unwrap_or_else(|| panic!("Invalid bundled library path: {}", bundled_lib.display()));
+        println!("cargo:rustc-link-search=native={}", lib_dir.display());
+        println!("cargo:rustc-link-lib=static=pdfium");
+        tracing::debug!("Bundled PDFium static library linked for WASM at: {}", bundled_path);
+    } else {
+        tracing::debug!("Bundled PDFium library at: {}", bundled_path);
+    }
 }
 
 /// Link system-installed PDFium (system-pdfium feature)

@@ -89,10 +89,16 @@ fn is_extracted_library_valid(lib_path: &Path, embedded_size: usize) -> bool {
 /// # Behavior
 ///
 /// - Embeds PDFium library using `include_bytes!`
-/// - Extracts to `$TMPDIR/kreuzberg-pdfium/`
+/// - Extracts to `$TMPDIR/kreuzberg-pdfium/` (non-WASM only)
 /// - Reuses extracted library if size matches
 /// - Sets permissions to 0755 on Unix
 /// - Returns path to extracted library
+///
+/// # WASM Handling
+///
+/// On WASM targets (wasm32-*), this function returns an error with a helpful
+/// message directing users to use WASM-specific initialization. WASM PDFium
+/// is initialized through the runtime, not via file extraction.
 ///
 /// # Errors
 ///
@@ -100,6 +106,7 @@ fn is_extracted_library_valid(lib_path: &Path, embedded_size: usize) -> bool {
 /// - Cannot create extraction directory
 /// - Cannot write library file
 /// - Cannot set file permissions (Unix only)
+/// - Target is WASM (filesystem access not available)
 ///
 /// # Platform-Specific Library Names
 ///
@@ -107,6 +114,17 @@ fn is_extracted_library_valid(lib_path: &Path, embedded_size: usize) -> bool {
 /// - macOS: `libpdfium.dylib`
 /// - Windows: `pdfium.dll`
 pub fn extract_bundled_pdfium() -> io::Result<PathBuf> {
+    // WASM targets cannot use file extraction
+    #[cfg(target_arch = "wasm32")]
+    {
+        return Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "File extraction is not available in WASM. \
+             PDFium for WASM must be initialized via the WebAssembly runtime. \
+             Use a WASM-compatible environment with proper module initialization.",
+        ));
+    }
+
     let (lib_name, _) = bundled_library_info();
     let extract_dir = get_extraction_dir()?;
 

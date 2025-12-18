@@ -494,11 +494,17 @@ fn render_test(fixture: &Fixture) -> Result<String> {
     }
 
     let requirements = collect_requirements(fixture);
+    let mime_type = fixture
+        .document()
+        .media_type
+        .as_deref()
+        .unwrap_or("application/octet-stream");
     writeln!(body, "        let result: ExtractionResult | null = null;")?;
     writeln!(body, "        try {{")?;
     writeln!(
         body,
-        "            result = await extractBytes(documentBytes, \"application/pdf\", config);"
+        "            result = await extractBytes(documentBytes, \"{}\", config);",
+        escape_ts_string(mime_type)
     )?;
     writeln!(body, "        }} catch (error) {{")?;
     if !requirements.is_empty()
