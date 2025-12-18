@@ -89,7 +89,7 @@ mcp-http = ["mcp", "api"]                                          # NEW - enabl
 otel = ["dep:opentelemetry", "dep:opentelemetry_sdk", "dep:tracing-opentelemetry"]
 
 # WASM-compatible feature bundle
-wasm-target = ["html", "xml", "email", "language-detection", "chunking", "quality"]
+wasm-target = ["pdf", "html", "xml", "email", "language-detection", "chunking", "quality"]
 wasm-threads = ["dep:wasm-bindgen-rayon"]
 
 # Convenience bundles (all use static PDF linking except wasm)
