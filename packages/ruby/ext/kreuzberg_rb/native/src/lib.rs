@@ -54,10 +54,15 @@ impl Drop for GcGuardedValue {
     }
 }
 
-unsafe extern "C" {
-    fn kreuzberg_last_error_code() -> i32;
-    fn kreuzberg_last_panic_context() -> *const std::ffi::c_char;
-    fn kreuzberg_free_string(s: *mut std::ffi::c_char);
+use std::ffi::c_char;
+
+// These C ABI functions are provided by the kreuzberg-ffi crate
+// We declare them here to ensure proper linking on all platforms
+#[link(name = "kreuzberg_ffi", kind = "static")]
+extern "C" {
+    pub fn kreuzberg_last_error_code() -> i32;
+    pub fn kreuzberg_last_panic_context() -> *mut c_char;
+    pub fn kreuzberg_free_string(s: *mut c_char);
 }
 
 /// Retrieve panic context from FFI if available
