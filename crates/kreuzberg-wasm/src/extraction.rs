@@ -50,11 +50,11 @@ pub fn extract_bytes_sync_wasm(
     config: Option<JsValue>,
 ) -> Result<JsValue, JsValue> {
     let extraction_config = parse_config(config)?;
-    // SAFETY: Uint8Array::to_vec() borrows the JS data, which remains valid
-    // for the synchronous call to extract_bytes_sync(). No async boundary.
-    let bytes = unsafe { data.view() };
+    // Copy data: Uint8Array is a JS object reference. While synchronous calls
+    // keep it live, we copy to maintain safety and isolation from JS runtime state.
+    let bytes = data.to_vec();
 
-    extract_bytes_sync(bytes, &mime_type, &extraction_config)
+    extract_bytes_sync(&bytes, &mime_type, &extraction_config)
         .map_err(convert_error)
         .and_then(|result| result_to_js_value(&result))
 }
@@ -205,16 +205,15 @@ pub fn batch_extract_bytes_sync_wasm(
     }
 
     let extraction_config = parse_config(config)?;
-    // SAFETY: Uint8Array::view() borrows JS data with proper lifetime bounds.
-    // Synchronous function ensures references remain valid throughout the call.
-    // No intermediate Vec<Vec<u8>> allocation needed.
-    let contents: Vec<(&[u8], &str)> = unsafe {
-        data_list
-            .iter()
-            .zip(mime_types.iter())
-            .map(|(data, mime)| (data.view(), mime.as_str()))
-            .collect()
-    };
+    // Collect owned data directly without intermediate Vec<Vec<u8>> allocation.
+    // Each Uint8Array must be copied (JS reference has no guaranteed lifetime),
+    // but we construct borrowed pairs efficiently in a single pass.
+    let owned_data: Vec<Vec<u8>> = data_list.into_iter().map(|d| d.to_vec()).collect();
+    let contents: Vec<(&[u8], &str)> = owned_data
+        .iter()
+        .zip(mime_types.iter())
+        .map(|(data, mime)| (data.as_slice(), mime.as_str()))
+        .collect();
 
     let results = batch_extract_bytes_sync(contents, &extraction_config).map_err(convert_error)?;
 
