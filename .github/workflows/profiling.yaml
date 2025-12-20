@@ -57,7 +57,7 @@ jobs:
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-setup
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Cache PDFium
@@ -127,7 +127,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-native
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup ONNX Runtime
@@ -195,7 +195,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-python-sync
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Python
@@ -272,7 +272,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-python-async
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Python
@@ -349,7 +349,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-python-batch
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Python
@@ -426,7 +426,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-node-async
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Node
@@ -505,7 +505,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-node-batch
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Node
@@ -584,7 +584,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-wasm-async
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Node
@@ -653,7 +653,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-wasm-batch
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Node
@@ -722,7 +722,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-ruby-sync
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Ruby
@@ -803,7 +803,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-ruby-batch
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Ruby
@@ -884,7 +884,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-go-sync
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Go
@@ -966,7 +966,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-go-batch
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Go
@@ -1048,7 +1048,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-java-sync
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup Java
@@ -1125,7 +1125,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: profiling-csharp-sync
+          cache-key-prefix: profiling
           use-sccache: true
 
       - name: Setup .NET
