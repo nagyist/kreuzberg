@@ -162,6 +162,31 @@
                         <exclude>**/TikaExtract.java</exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <!-- Compile benchmark helper script -->
+                    <execution>
+                        <id>compile-benchmark-helper</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <compileSourceRoots>
+                                <compileSourceRoot>${project.basedir}/../../tools/benchmark-harness/scripts</compileSourceRoot>
+                            </compileSourceRoots>
+                            <includes>
+                                <include>KreuzbergExtractJava.java</include>
+                            </includes>
+                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                            <classpathElements>
+                                <classpathElement>${project.build.outputDirectory}</classpathElement>
+                            </classpathElements>
+                            <compilerArgs>
+                                <arg>--enable-preview</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Maven Enforcer Plugin to enforce Maven version -->

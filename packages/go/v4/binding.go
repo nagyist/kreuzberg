@@ -26,6 +26,24 @@ char *kreuzberg_validate_mime_type(const char *mime_type);
 char *kreuzberg_load_extraction_config_from_file(const char *path);
 char *kreuzberg_list_embedding_presets(void);
 char *kreuzberg_get_embedding_preset(const char *name);
+
+// Validation FFI functions
+int32_t kreuzberg_validate_binarization_method(const char *method);
+int32_t kreuzberg_validate_ocr_backend(const char *backend);
+int32_t kreuzberg_validate_language_code(const char *code);
+int32_t kreuzberg_validate_token_reduction_level(const char *level);
+int32_t kreuzberg_validate_tesseract_psm(int32_t psm);
+int32_t kreuzberg_validate_tesseract_oem(int32_t oem);
+int32_t kreuzberg_validate_output_format(const char *format);
+int32_t kreuzberg_validate_confidence(double confidence);
+int32_t kreuzberg_validate_dpi(int32_t dpi);
+int32_t kreuzberg_validate_chunking_params(uintptr_t max_chars, uintptr_t max_overlap);
+
+// List validation functions
+char *kreuzberg_get_valid_binarization_methods(void);
+char *kreuzberg_get_valid_language_codes(void);
+char *kreuzberg_get_valid_ocr_backends(void);
+char *kreuzberg_get_valid_token_reduction_levels(void);
 */
 import "C"
 

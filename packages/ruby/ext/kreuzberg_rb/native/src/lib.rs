@@ -63,6 +63,25 @@ unsafe extern "C" {
     pub fn kreuzberg_last_error_code() -> i32;
     pub fn kreuzberg_last_panic_context() -> *mut c_char;
     pub fn kreuzberg_free_string(s: *mut c_char);
+
+    // Validation functions
+    pub fn kreuzberg_validate_binarization_method(method: *const c_char) -> i32;
+    pub fn kreuzberg_validate_ocr_backend(backend: *const c_char) -> i32;
+    pub fn kreuzberg_validate_language_code(code: *const c_char) -> i32;
+    pub fn kreuzberg_validate_token_reduction_level(level: *const c_char) -> i32;
+    pub fn kreuzberg_validate_tesseract_psm(psm: i32) -> i32;
+    pub fn kreuzberg_validate_tesseract_oem(oem: i32) -> i32;
+    pub fn kreuzberg_validate_output_format(format: *const c_char) -> i32;
+    pub fn kreuzberg_validate_confidence(confidence: f64) -> i32;
+    pub fn kreuzberg_validate_dpi(dpi: i32) -> i32;
+    pub fn kreuzberg_validate_chunking_params(max_chars: usize, max_overlap: usize) -> i32;
+
+    // List functions that return JSON strings (caller must free)
+    pub fn kreuzberg_get_valid_binarization_methods() -> *mut c_char;
+    pub fn kreuzberg_get_valid_language_codes() -> *mut c_char;
+    pub fn kreuzberg_get_valid_ocr_backends() -> *mut c_char;
+    pub fn kreuzberg_get_valid_token_reduction_levels() -> *mut c_char;
+    pub fn kreuzberg_get_last_error_message() -> *const c_char;
 }
 
 /// Retrieve panic context from FFI if available
@@ -2910,6 +2929,197 @@ fn last_panic_context_json(ruby: &Ruby) -> Value {
     }
 }
 
+// ============================================================================
+// Validation FFI Wrappers
+// ============================================================================
+
+/// Validates a binarization method string
+///
+/// @param method [String] The binarization method (e.g., "otsu", "adaptive", "sauvola")
+/// @return [Integer] 1 if valid, 0 if invalid (error message available via Kreuzberg::_last_error_code_native)
+fn validate_binarization_method(method: String) -> Result<i32, Error> {
+    let c_method = std::ffi::CString::new(method).map_err(|_| runtime_error("Invalid method string"))?;
+
+    Ok(unsafe { kreuzberg_validate_binarization_method(c_method.as_ptr()) })
+}
+
+/// Validates an OCR backend string
+///
+/// @param backend [String] The OCR backend (e.g., "tesseract", "easyocr", "paddleocr")
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_ocr_backend(backend: String) -> Result<i32, Error> {
+    let c_backend = std::ffi::CString::new(backend).map_err(|_| runtime_error("Invalid backend string"))?;
+
+    Ok(unsafe { kreuzberg_validate_ocr_backend(c_backend.as_ptr()) })
+}
+
+/// Validates a language code (ISO 639-1 or 639-3)
+///
+/// @param code [String] The language code (e.g., "en", "eng", "de", "deu")
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_language_code(code: String) -> Result<i32, Error> {
+    let c_code = std::ffi::CString::new(code).map_err(|_| runtime_error("Invalid language code string"))?;
+
+    Ok(unsafe { kreuzberg_validate_language_code(c_code.as_ptr()) })
+}
+
+/// Validates a token reduction level
+///
+/// @param level [String] The token reduction level (e.g., "off", "light", "moderate", "aggressive", "maximum")
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_token_reduction_level(level: String) -> Result<i32, Error> {
+    let c_level = std::ffi::CString::new(level).map_err(|_| runtime_error("Invalid token reduction level string"))?;
+
+    Ok(unsafe { kreuzberg_validate_token_reduction_level(c_level.as_ptr()) })
+}
+
+/// Validates a tesseract PSM (Page Segmentation Mode) value
+///
+/// @param psm [Integer] The PSM value (0-13)
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_tesseract_psm(psm: i32) -> Result<i32, Error> {
+    Ok(unsafe { kreuzberg_validate_tesseract_psm(psm) })
+}
+
+/// Validates a tesseract OEM (OCR Engine Mode) value
+///
+/// @param oem [Integer] The OEM value (0-3)
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_tesseract_oem(oem: i32) -> Result<i32, Error> {
+    Ok(unsafe { kreuzberg_validate_tesseract_oem(oem) })
+}
+
+/// Validates an output format string
+///
+/// @param format [String] The output format (e.g., "text", "markdown")
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_output_format(format: String) -> Result<i32, Error> {
+    let c_format = std::ffi::CString::new(format).map_err(|_| runtime_error("Invalid format string"))?;
+
+    Ok(unsafe { kreuzberg_validate_output_format(c_format.as_ptr()) })
+}
+
+/// Validates a confidence threshold value
+///
+/// @param confidence [Float] The confidence value (0.0-1.0)
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_confidence(confidence: f64) -> Result<i32, Error> {
+    Ok(unsafe { kreuzberg_validate_confidence(confidence) })
+}
+
+/// Validates a DPI (dots per inch) value
+///
+/// @param dpi [Integer] The DPI value
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_dpi(dpi: i32) -> Result<i32, Error> {
+    Ok(unsafe { kreuzberg_validate_dpi(dpi) })
+}
+
+/// Validates chunking parameters
+///
+/// @param max_chars [Integer] Maximum characters per chunk
+/// @param max_overlap [Integer] Maximum overlap between chunks
+/// @return [Integer] 1 if valid, 0 if invalid
+fn validate_chunking_params(max_chars: usize, max_overlap: usize) -> Result<i32, Error> {
+    Ok(unsafe { kreuzberg_validate_chunking_params(max_chars, max_overlap) })
+}
+
+/// Gets valid binarization methods as a JSON string
+///
+/// @return [String] JSON array of valid binarization methods
+fn get_valid_binarization_methods(ruby: &Ruby) -> Result<String, Error> {
+    let ptr = unsafe { kreuzberg_get_valid_binarization_methods() };
+    if ptr.is_null() {
+        return Err(runtime_error("Failed to get valid binarization methods"));
+    }
+
+    // SAFETY: ptr comes from FFI and must be valid
+    let c_str = unsafe { std::ffi::CStr::from_ptr(ptr) };
+    let result = c_str
+        .to_str()
+        .map_err(|_| runtime_error("Invalid UTF-8 in binarization methods"))?
+        .to_string();
+
+    // Free the allocated string
+    unsafe {
+        kreuzberg_free_string(ptr as *mut c_char);
+    }
+
+    Ok(result)
+}
+
+/// Gets valid language codes as a JSON string
+///
+/// @return [String] JSON array of valid language codes
+fn get_valid_language_codes(ruby: &Ruby) -> Result<String, Error> {
+    let ptr = unsafe { kreuzberg_get_valid_language_codes() };
+    if ptr.is_null() {
+        return Err(runtime_error("Failed to get valid language codes"));
+    }
+
+    // SAFETY: ptr comes from FFI and must be valid
+    let c_str = unsafe { std::ffi::CStr::from_ptr(ptr) };
+    let result = c_str
+        .to_str()
+        .map_err(|_| runtime_error("Invalid UTF-8 in language codes"))?
+        .to_string();
+
+    // Free the allocated string
+    unsafe {
+        kreuzberg_free_string(ptr as *mut c_char);
+    }
+
+    Ok(result)
+}
+
+/// Gets valid OCR backends as a JSON string
+///
+/// @return [String] JSON array of valid OCR backends
+fn get_valid_ocr_backends(ruby: &Ruby) -> Result<String, Error> {
+    let ptr = unsafe { kreuzberg_get_valid_ocr_backends() };
+    if ptr.is_null() {
+        return Err(runtime_error("Failed to get valid OCR backends"));
+    }
+
+    // SAFETY: ptr comes from FFI and must be valid
+    let c_str = unsafe { std::ffi::CStr::from_ptr(ptr) };
+    let result = c_str
+        .to_str()
+        .map_err(|_| runtime_error("Invalid UTF-8 in OCR backends"))?
+        .to_string();
+
+    // Free the allocated string
+    unsafe {
+        kreuzberg_free_string(ptr as *mut c_char);
+    }
+
+    Ok(result)
+}
+
+/// Gets valid token reduction levels as a JSON string
+///
+/// @return [String] JSON array of valid token reduction levels
+fn get_valid_token_reduction_levels(ruby: &Ruby) -> Result<String, Error> {
+    let ptr = unsafe { kreuzberg_get_valid_token_reduction_levels() };
+    if ptr.is_null() {
+        return Err(runtime_error("Failed to get valid token reduction levels"));
+    }
+
+    // SAFETY: ptr comes from FFI and must be valid
+    let c_str = unsafe { std::ffi::CStr::from_ptr(ptr) };
+    let result = c_str
+        .to_str()
+        .map_err(|_| runtime_error("Invalid UTF-8 in token reduction levels"))?
+        .to_string();
+
+    // Free the allocated string
+    unsafe {
+        kreuzberg_free_string(ptr as *mut c_char);
+    }
+
+    Ok(result)
+}
+
 /// Initialize the Kreuzberg Ruby module
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
@@ -2963,6 +3173,40 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
 
     module.define_module_function("_last_error_code_native", function!(last_error_code, 0))?;
     module.define_module_function("_last_panic_context_json_native", function!(last_panic_context_json, 0))?;
+
+    // Validation functions
+    module.define_module_function(
+        "_validate_binarization_method_native",
+        function!(validate_binarization_method, 1),
+    )?;
+    module.define_module_function("_validate_ocr_backend_native", function!(validate_ocr_backend, 1))?;
+    module.define_module_function("_validate_language_code_native", function!(validate_language_code, 1))?;
+    module.define_module_function(
+        "_validate_token_reduction_level_native",
+        function!(validate_token_reduction_level, 1),
+    )?;
+    module.define_module_function("_validate_tesseract_psm_native", function!(validate_tesseract_psm, 1))?;
+    module.define_module_function("_validate_tesseract_oem_native", function!(validate_tesseract_oem, 1))?;
+    module.define_module_function("_validate_output_format_native", function!(validate_output_format, 1))?;
+    module.define_module_function("_validate_confidence_native", function!(validate_confidence, 1))?;
+    module.define_module_function("_validate_dpi_native", function!(validate_dpi, 1))?;
+    module.define_module_function(
+        "_validate_chunking_params_native",
+        function!(validate_chunking_params, 2),
+    )?;
+    module.define_module_function(
+        "_get_valid_binarization_methods_native",
+        function!(get_valid_binarization_methods, 0),
+    )?;
+    module.define_module_function(
+        "_get_valid_language_codes_native",
+        function!(get_valid_language_codes, 0),
+    )?;
+    module.define_module_function("_get_valid_ocr_backends_native", function!(get_valid_ocr_backends, 0))?;
+    module.define_module_function(
+        "_get_valid_token_reduction_levels_native",
+        function!(get_valid_token_reduction_levels, 0),
+    )?;
 
     Ok(())
 }
