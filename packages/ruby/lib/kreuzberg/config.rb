@@ -308,10 +308,9 @@ module Kreuzberg
         @binarization_method = binarization_method.to_s
         @invert_colors = invert_colors ? true : false
 
-        valid_methods = %w[otsu sauvola adaptive]
-        return if valid_methods.include?(@binarization_method)
-
-        raise ArgumentError, "binarization_method must be one of: #{valid_methods.join(', ')}"
+        # Validate binarization method via FFI
+        result = Kreuzberg._validate_binarization_method_native(@binarization_method)
+        raise ArgumentError, "Invalid binarization_method: #{@binarization_method}" if result.zero?
       end
 
       def to_h
@@ -345,10 +344,9 @@ module Kreuzberg
         @mode = mode.to_s
         @preserve_important_words = preserve_important_words ? true : false
 
-        valid_modes = %w[off light moderate aggressive maximum]
-        return if valid_modes.include?(@mode)
-
-        raise ArgumentError, "mode must be one of: #{valid_modes.join(', ')}"
+        # Validate token reduction level via FFI
+        result = Kreuzberg._validate_token_reduction_level_native(@mode)
+        raise ArgumentError, "Invalid token reduction mode: #{@mode}" if result.zero?
       end
 
       def to_h

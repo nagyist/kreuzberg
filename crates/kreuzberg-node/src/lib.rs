@@ -51,6 +51,24 @@ unsafe extern "C" {
     ///
     /// Maps to kreuzberg_free_string() in the FFI library.
     pub fn kreuzberg_free_string(ptr: *mut c_char);
+
+    // Validation functions from kreuzberg_ffi
+    pub fn kreuzberg_validate_binarization_method(method: *const c_char) -> i32;
+    pub fn kreuzberg_validate_ocr_backend(backend: *const c_char) -> i32;
+    pub fn kreuzberg_validate_language_code(code: *const c_char) -> i32;
+    pub fn kreuzberg_validate_token_reduction_level(level: *const c_char) -> i32;
+    pub fn kreuzberg_validate_tesseract_psm(psm: i32) -> i32;
+    pub fn kreuzberg_validate_tesseract_oem(oem: i32) -> i32;
+    pub fn kreuzberg_validate_output_format(format: *const c_char) -> i32;
+    pub fn kreuzberg_validate_confidence(confidence: f64) -> i32;
+    pub fn kreuzberg_validate_dpi(dpi: i32) -> i32;
+    pub fn kreuzberg_validate_chunking_params(max_chars: usize, max_overlap: usize) -> i32;
+
+    // List functions that return JSON arrays as C strings
+    pub fn kreuzberg_get_valid_binarization_methods() -> *mut c_char;
+    pub fn kreuzberg_get_valid_language_codes() -> *mut c_char;
+    pub fn kreuzberg_get_valid_ocr_backends() -> *mut c_char;
+    pub fn kreuzberg_get_valid_token_reduction_levels() -> *mut c_char;
 }
 
 lazy_static! {
@@ -2183,14 +2201,13 @@ impl RustValidator for JsValidator {
                 message: format!("Failed to convert result for JavaScript Validator: {}", e),
                 plugin_name: self.name.clone(),
             })?;
-        let encoded = rmp_serde::to_vec(&js_result).map_err(|e| kreuzberg::KreuzbergError::Plugin {
+        let json_string = serde_json::to_string(&js_result).map_err(|e| kreuzberg::KreuzbergError::Plugin {
             message: format!("Failed to encode result for JavaScript Validator: {}", e),
             plugin_name: self.name.clone(),
         })?;
-        let encoded_b64 = BASE64.encode(&encoded);
 
         self.validate_fn
-            .call_async(encoded_b64)
+            .call_async(json_string)
             .await
             .map_err(|e| {
                 let err_msg = e.to_string();
@@ -3074,6 +3091,493 @@ pub fn get_last_error_code() -> i32 {
 #[napi(js_name = "getLastPanicContext")]
 pub fn get_last_panic_context() -> Option<serde_json::Value> {
     get_panic_context()
+}
+
+// ============================================================================
+// Validation Functions
+// ============================================================================
+
+/// Validates a binarization method string.
+///
+/// Valid methods: "otsu", "adaptive", "sauvola"
+///
+/// # Arguments
+///
+/// * `method` - The binarization method to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateBinarizationMethod } from '@kreuzberg/node';
+///
+/// if (validateBinarizationMethod('otsu')) {
+///   console.log('Valid method');
+/// } else {
+///   console.log('Invalid method');
+/// }
+/// ```
+#[napi(js_name = "validateBinarizationMethod")]
+pub fn validate_binarization_method(method: String) -> Result<bool> {
+    let c_str = std::ffi::CString::new(method.clone()).map_err(|_| {
+        napi::Error::new(
+            napi::Status::InvalidArg,
+            format!("Invalid UTF-8 in binarization method: {}", method),
+        )
+    })?;
+
+    let result = unsafe { kreuzberg_validate_binarization_method(c_str.as_ptr()) };
+    Ok(result == 1)
+}
+
+/// Validates an OCR backend string.
+///
+/// Valid backends: "tesseract", "easyocr", "paddleocr"
+///
+/// # Arguments
+///
+/// * `backend` - The OCR backend to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateOcrBackend } from '@kreuzberg/node';
+///
+/// if (validateOcrBackend('tesseract')) {
+///   console.log('Valid backend');
+/// }
+/// ```
+#[napi(js_name = "validateOcrBackend")]
+pub fn validate_ocr_backend(backend: String) -> Result<bool> {
+    let c_str = std::ffi::CString::new(backend.clone()).map_err(|_| {
+        napi::Error::new(
+            napi::Status::InvalidArg,
+            format!("Invalid UTF-8 in OCR backend: {}", backend),
+        )
+    })?;
+
+    let result = unsafe { kreuzberg_validate_ocr_backend(c_str.as_ptr()) };
+    Ok(result == 1)
+}
+
+/// Validates a language code (ISO 639-1 or 639-3 format).
+///
+/// Accepts both 2-letter codes (e.g., "en", "de") and 3-letter codes (e.g., "eng", "deu").
+///
+/// # Arguments
+///
+/// * `code` - The language code to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateLanguageCode } from '@kreuzberg/node';
+///
+/// if (validateLanguageCode('en')) {
+///   console.log('Valid language code');
+/// }
+/// ```
+#[napi(js_name = "validateLanguageCode")]
+pub fn validate_language_code(code: String) -> Result<bool> {
+    let c_str = std::ffi::CString::new(code.clone()).map_err(|_| {
+        napi::Error::new(
+            napi::Status::InvalidArg,
+            format!("Invalid UTF-8 in language code: {}", code),
+        )
+    })?;
+
+    let result = unsafe { kreuzberg_validate_language_code(c_str.as_ptr()) };
+    Ok(result == 1)
+}
+
+/// Validates a token reduction level string.
+///
+/// Valid levels: "off", "light", "moderate", "aggressive", "maximum"
+///
+/// # Arguments
+///
+/// * `level` - The token reduction level to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateTokenReductionLevel } from '@kreuzberg/node';
+///
+/// if (validateTokenReductionLevel('moderate')) {
+///   console.log('Valid token reduction level');
+/// }
+/// ```
+#[napi(js_name = "validateTokenReductionLevel")]
+pub fn validate_token_reduction_level(level: String) -> Result<bool> {
+    let c_str = std::ffi::CString::new(level.clone()).map_err(|_| {
+        napi::Error::new(
+            napi::Status::InvalidArg,
+            format!("Invalid UTF-8 in token reduction level: {}", level),
+        )
+    })?;
+
+    let result = unsafe { kreuzberg_validate_token_reduction_level(c_str.as_ptr()) };
+    Ok(result == 1)
+}
+
+/// Validates a Tesseract Page Segmentation Mode (PSM) value.
+///
+/// Valid range: 0-13
+///
+/// # Arguments
+///
+/// * `psm` - The PSM value to validate
+///
+/// # Returns
+///
+/// `true` if valid (0-13), `false` otherwise.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateTesseractPsm } from '@kreuzberg/node';
+///
+/// if (validateTesseractPsm(3)) {
+///   console.log('Valid PSM');
+/// }
+/// ```
+#[napi(js_name = "validateTesseractPsm")]
+pub fn validate_tesseract_psm(psm: i32) -> bool {
+    unsafe { kreuzberg_validate_tesseract_psm(psm) == 1 }
+}
+
+/// Validates a Tesseract OCR Engine Mode (OEM) value.
+///
+/// Valid range: 0-3
+///
+/// # Arguments
+///
+/// * `oem` - The OEM value to validate
+///
+/// # Returns
+///
+/// `true` if valid (0-3), `false` otherwise.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateTesseractOem } from '@kreuzberg/node';
+///
+/// if (validateTesseractOem(1)) {
+///   console.log('Valid OEM');
+/// }
+/// ```
+#[napi(js_name = "validateTesseractOem")]
+pub fn validate_tesseract_oem(oem: i32) -> bool {
+    unsafe { kreuzberg_validate_tesseract_oem(oem) == 1 }
+}
+
+/// Validates a tesseract output format string.
+///
+/// Valid formats: "text", "markdown"
+///
+/// # Arguments
+///
+/// * `format` - The output format to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateOutputFormat } from '@kreuzberg/node';
+///
+/// if (validateOutputFormat('markdown')) {
+///   console.log('Valid output format');
+/// }
+/// ```
+#[napi(js_name = "validateOutputFormat")]
+pub fn validate_output_format(format: String) -> Result<bool> {
+    let c_str = std::ffi::CString::new(format.clone()).map_err(|_| {
+        napi::Error::new(
+            napi::Status::InvalidArg,
+            format!("Invalid UTF-8 in output format: {}", format),
+        )
+    })?;
+
+    let result = unsafe { kreuzberg_validate_output_format(c_str.as_ptr()) };
+    Ok(result == 1)
+}
+
+/// Validates a confidence threshold value.
+///
+/// Valid range: 0.0 to 1.0 (inclusive)
+///
+/// # Arguments
+///
+/// * `confidence` - The confidence threshold to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateConfidence } from '@kreuzberg/node';
+///
+/// if (validateConfidence(0.75)) {
+///   console.log('Valid confidence threshold');
+/// }
+/// ```
+#[napi(js_name = "validateConfidence")]
+pub fn validate_confidence(confidence: f64) -> bool {
+    unsafe { kreuzberg_validate_confidence(confidence) == 1 }
+}
+
+/// Validates a DPI (dots per inch) value.
+///
+/// Valid range: 1-2400
+///
+/// # Arguments
+///
+/// * `dpi` - The DPI value to validate
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateDpi } from '@kreuzberg/node';
+///
+/// if (validateDpi(300)) {
+///   console.log('Valid DPI');
+/// }
+/// ```
+#[napi(js_name = "validateDpi")]
+pub fn validate_dpi(dpi: i32) -> bool {
+    unsafe { kreuzberg_validate_dpi(dpi) == 1 }
+}
+
+/// Validates chunking parameters.
+///
+/// Checks that `maxChars > 0` and `maxOverlap < maxChars`.
+///
+/// # Arguments
+///
+/// * `max_chars` - Maximum characters per chunk
+/// * `max_overlap` - Maximum overlap between chunks
+///
+/// # Returns
+///
+/// `true` if valid, `false` if invalid.
+///
+/// # Example
+///
+/// ```typescript
+/// import { validateChunkingParams } from '@kreuzberg/node';
+///
+/// if (validateChunkingParams(1000, 200)) {
+///   console.log('Valid chunking parameters');
+/// }
+/// ```
+#[napi(js_name = "validateChunkingParams")]
+pub fn validate_chunking_params(max_chars: u32, max_overlap: u32) -> bool {
+    unsafe { kreuzberg_validate_chunking_params(max_chars as usize, max_overlap as usize) == 1 }
+}
+
+/// Get valid binarization methods.
+///
+/// Returns a list of all valid binarization method values.
+///
+/// # Returns
+///
+/// Array of valid binarization methods: ["otsu", "adaptive", "sauvola"]
+///
+/// # Example
+///
+/// ```typescript
+/// import { getValidBinarizationMethods } from '@kreuzberg/node';
+///
+/// const methods = getValidBinarizationMethods();
+/// console.log(methods); // ['otsu', 'adaptive', 'sauvola']
+/// ```
+#[napi(js_name = "getValidBinarizationMethods")]
+pub fn get_valid_binarization_methods() -> Result<Vec<String>> {
+    let json_str = unsafe {
+        let ptr = kreuzberg_get_valid_binarization_methods();
+        if ptr.is_null() {
+            return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Failed to get valid binarization methods",
+            ));
+        }
+
+        let c_str = CStr::from_ptr(ptr);
+        let result = c_str
+            .to_str()
+            .map_err(|_| napi::Error::new(napi::Status::GenericFailure, "Invalid UTF-8 in binarization methods"))?
+            .to_string();
+
+        kreuzberg_free_string(ptr as *mut c_char);
+        result
+    };
+
+    let parsed: Vec<String> = serde_json::from_str(&json_str).map_err(|_| {
+        napi::Error::new(
+            napi::Status::GenericFailure,
+            "Failed to parse binarization methods JSON",
+        )
+    })?;
+
+    Ok(parsed)
+}
+
+/// Get valid language codes.
+///
+/// Returns a list of all valid language codes in ISO 639-1 and 639-3 formats.
+///
+/// # Returns
+///
+/// Array of valid language codes (both 2-letter and 3-letter codes)
+///
+/// # Example
+///
+/// ```typescript
+/// import { getValidLanguageCodes } from '@kreuzberg/node';
+///
+/// const codes = getValidLanguageCodes();
+/// console.log(codes); // ['en', 'de', 'fr', ..., 'eng', 'deu', 'fra', ...]
+/// ```
+#[napi(js_name = "getValidLanguageCodes")]
+pub fn get_valid_language_codes() -> Result<Vec<String>> {
+    let json_str = unsafe {
+        let ptr = kreuzberg_get_valid_language_codes();
+        if ptr.is_null() {
+            return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Failed to get valid language codes",
+            ));
+        }
+
+        let c_str = CStr::from_ptr(ptr);
+        let result = c_str
+            .to_str()
+            .map_err(|_| napi::Error::new(napi::Status::GenericFailure, "Invalid UTF-8 in language codes"))?
+            .to_string();
+
+        kreuzberg_free_string(ptr as *mut c_char);
+        result
+    };
+
+    let parsed: Vec<String> = serde_json::from_str(&json_str)
+        .map_err(|_| napi::Error::new(napi::Status::GenericFailure, "Failed to parse language codes JSON"))?;
+
+    Ok(parsed)
+}
+
+/// Get valid OCR backends.
+///
+/// Returns a list of all valid OCR backend values.
+///
+/// # Returns
+///
+/// Array of valid OCR backends: ["tesseract", "easyocr", "paddleocr"]
+///
+/// # Example
+///
+/// ```typescript
+/// import { getValidOcrBackends } from '@kreuzberg/node';
+///
+/// const backends = getValidOcrBackends();
+/// console.log(backends); // ['tesseract', 'easyocr', 'paddleocr']
+/// ```
+#[napi(js_name = "getValidOcrBackends")]
+pub fn get_valid_ocr_backends() -> Result<Vec<String>> {
+    let json_str = unsafe {
+        let ptr = kreuzberg_get_valid_ocr_backends();
+        if ptr.is_null() {
+            return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Failed to get valid OCR backends",
+            ));
+        }
+
+        let c_str = CStr::from_ptr(ptr);
+        let result = c_str
+            .to_str()
+            .map_err(|_| napi::Error::new(napi::Status::GenericFailure, "Invalid UTF-8 in OCR backends"))?
+            .to_string();
+
+        kreuzberg_free_string(ptr as *mut c_char);
+        result
+    };
+
+    let parsed: Vec<String> = serde_json::from_str(&json_str)
+        .map_err(|_| napi::Error::new(napi::Status::GenericFailure, "Failed to parse OCR backends JSON"))?;
+
+    Ok(parsed)
+}
+
+/// Get valid token reduction levels.
+///
+/// Returns a list of all valid token reduction level values.
+///
+/// # Returns
+///
+/// Array of valid levels: ["off", "light", "moderate", "aggressive", "maximum"]
+///
+/// # Example
+///
+/// ```typescript
+/// import { getValidTokenReductionLevels } from '@kreuzberg/node';
+///
+/// const levels = getValidTokenReductionLevels();
+/// console.log(levels); // ['off', 'light', 'moderate', 'aggressive', 'maximum']
+/// ```
+#[napi(js_name = "getValidTokenReductionLevels")]
+pub fn get_valid_token_reduction_levels() -> Result<Vec<String>> {
+    let json_str = unsafe {
+        let ptr = kreuzberg_get_valid_token_reduction_levels();
+        if ptr.is_null() {
+            return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Failed to get valid token reduction levels",
+            ));
+        }
+
+        let c_str = CStr::from_ptr(ptr);
+        let result = c_str
+            .to_str()
+            .map_err(|_| napi::Error::new(napi::Status::GenericFailure, "Invalid UTF-8 in token reduction levels"))?
+            .to_string();
+
+        kreuzberg_free_string(ptr as *mut c_char);
+        result
+    };
+
+    let parsed: Vec<String> = serde_json::from_str(&json_str).map_err(|_| {
+        napi::Error::new(
+            napi::Status::GenericFailure,
+            "Failed to parse token reduction levels JSON",
+        )
+    })?;
+
+    Ok(parsed)
 }
 
 // #[cfg(all(

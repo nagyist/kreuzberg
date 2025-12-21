@@ -78,6 +78,20 @@ final class KreuzbergFFI {
     static final MethodHandle KREUZBERG_CONFIG_DISCOVER;
     static final MethodHandle KREUZBERG_LIST_EMBEDDING_PRESETS;
     static final MethodHandle KREUZBERG_GET_EMBEDDING_PRESET;
+    static final MethodHandle KREUZBERG_VALIDATE_BINARIZATION_METHOD;
+    static final MethodHandle KREUZBERG_VALIDATE_OCR_BACKEND;
+    static final MethodHandle KREUZBERG_VALIDATE_LANGUAGE_CODE;
+    static final MethodHandle KREUZBERG_VALIDATE_TOKEN_REDUCTION_LEVEL;
+    static final MethodHandle KREUZBERG_VALIDATE_TESSERACT_PSM;
+    static final MethodHandle KREUZBERG_VALIDATE_TESSERACT_OEM;
+    static final MethodHandle KREUZBERG_VALIDATE_OUTPUT_FORMAT;
+    static final MethodHandle KREUZBERG_VALIDATE_CONFIDENCE;
+    static final MethodHandle KREUZBERG_VALIDATE_DPI;
+    static final MethodHandle KREUZBERG_VALIDATE_CHUNKING_PARAMS;
+    static final MethodHandle KREUZBERG_GET_VALID_BINARIZATION_METHODS;
+    static final MethodHandle KREUZBERG_GET_VALID_LANGUAGE_CODES;
+    static final MethodHandle KREUZBERG_GET_VALID_OCR_BACKENDS;
+    static final MethodHandle KREUZBERG_GET_VALID_TOKEN_REDUCTION_LEVELS;
 
     static final StructLayout C_EXTRACTION_RESULT_LAYOUT = MemoryLayout.structLayout(
         ValueLayout.ADDRESS.withName("content"),
@@ -387,6 +401,76 @@ final class KreuzbergFFI {
             KREUZBERG_GET_EMBEDDING_PRESET = linkFunction(
                 "kreuzberg_get_embedding_preset",
                 FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_VALIDATE_BINARIZATION_METHOD = linkFunction(
+                "kreuzberg_validate_binarization_method",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_VALIDATE_OCR_BACKEND = linkFunction(
+                "kreuzberg_validate_ocr_backend",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_VALIDATE_LANGUAGE_CODE = linkFunction(
+                "kreuzberg_validate_language_code",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_VALIDATE_TOKEN_REDUCTION_LEVEL = linkFunction(
+                "kreuzberg_validate_token_reduction_level",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_VALIDATE_TESSERACT_PSM = linkFunction(
+                "kreuzberg_validate_tesseract_psm",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT)
+            );
+
+            KREUZBERG_VALIDATE_TESSERACT_OEM = linkFunction(
+                "kreuzberg_validate_tesseract_oem",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT)
+            );
+
+            KREUZBERG_VALIDATE_OUTPUT_FORMAT = linkFunction(
+                "kreuzberg_validate_output_format",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_VALIDATE_CONFIDENCE = linkFunction(
+                "kreuzberg_validate_confidence",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_DOUBLE)
+            );
+
+            KREUZBERG_VALIDATE_DPI = linkFunction(
+                "kreuzberg_validate_dpi",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT)
+            );
+
+            KREUZBERG_VALIDATE_CHUNKING_PARAMS = linkFunction(
+                "kreuzberg_validate_chunking_params",
+                FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_LONG)
+            );
+
+            KREUZBERG_GET_VALID_BINARIZATION_METHODS = linkFunction(
+                "kreuzberg_get_valid_binarization_methods",
+                FunctionDescriptor.of(ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_GET_VALID_LANGUAGE_CODES = linkFunction(
+                "kreuzberg_get_valid_language_codes",
+                FunctionDescriptor.of(ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_GET_VALID_OCR_BACKENDS = linkFunction(
+                "kreuzberg_get_valid_ocr_backends",
+                FunctionDescriptor.of(ValueLayout.ADDRESS)
+            );
+
+            KREUZBERG_GET_VALID_TOKEN_REDUCTION_LEVELS = linkFunction(
+                "kreuzberg_get_valid_token_reduction_levels",
+                FunctionDescriptor.of(ValueLayout.ADDRESS)
             );
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
