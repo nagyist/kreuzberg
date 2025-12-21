@@ -250,7 +250,7 @@ pub mod noop {
         /// Create a no-op profiler (always succeeds)
         pub fn new(frequency: i32) -> Result<Self> {
             Ok(ProfileGuard {
-                sampling_frequency: frequency.max(100).min(10000),
+                sampling_frequency: frequency.clamp(100, 10000),
             })
         }
 

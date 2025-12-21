@@ -3626,9 +3626,15 @@ pub unsafe extern "C" fn kreuzberg_get_ocr_languages(backend: *const c_char) -> 
 ///     printf("English is supported by EasyOCR\n");
 /// }
 /// ```
+///
+/// # Safety
+///
+/// - `backend` and `language` must be valid pointers to valid UTF-8 C strings.
+/// - Both pointers can be checked for NULL; returns 0 if either is NULL.
+/// - The C strings must remain valid for the duration of the function call.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn kreuzberg_is_language_supported(backend: *const c_char, language: *const c_char) -> i32 {
-    ffi_panic_guard!("kreuzberg_is_language_supported", {
+    ffi_panic_guard_i32!("kreuzberg_is_language_supported", {
         clear_last_error();
 
         if backend.is_null() || language.is_null() {
@@ -3711,6 +3717,12 @@ pub unsafe extern "C" fn kreuzberg_list_ocr_backends_with_languages() -> *mut c_
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `method` must be a valid pointer to a valid UTF-8 C string or NULL.
+/// - If NULL is passed, an error is returned and error message is set.
+/// - The C string must remain valid for the duration of the function call.
 pub unsafe extern "C" fn kreuzberg_validate_binarization_method(method: *const c_char) -> i32 {
     clear_last_error();
 
@@ -3719,7 +3731,7 @@ pub unsafe extern "C" fn kreuzberg_validate_binarization_method(method: *const c
         return 1;
     }
 
-    let method_str = match CStr::from_ptr(method).to_str() {
+    let method_str = match unsafe { CStr::from_ptr(method).to_str() } {
         Ok(s) => s,
         Err(e) => {
             set_last_error(format!("Invalid UTF-8 in method string: {}", e));
@@ -3740,6 +3752,12 @@ pub unsafe extern "C" fn kreuzberg_validate_binarization_method(method: *const c
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `level` must be a valid pointer to a valid UTF-8 C string or NULL.
+/// - If NULL is passed, an error is returned and error message is set.
+/// - The C string must remain valid for the duration of the function call.
 pub unsafe extern "C" fn kreuzberg_validate_token_reduction_level(level: *const c_char) -> i32 {
     clear_last_error();
 
@@ -3748,7 +3766,7 @@ pub unsafe extern "C" fn kreuzberg_validate_token_reduction_level(level: *const 
         return 1;
     }
 
-    let level_str = match CStr::from_ptr(level).to_str() {
+    let level_str = match unsafe { CStr::from_ptr(level).to_str() } {
         Ok(s) => s,
         Err(e) => {
             set_last_error(format!("Invalid UTF-8 in level string: {}", e));
@@ -3769,6 +3787,12 @@ pub unsafe extern "C" fn kreuzberg_validate_token_reduction_level(level: *const 
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `backend` must be a valid pointer to a valid UTF-8 C string or NULL.
+/// - If NULL is passed, an error is returned and error message is set.
+/// - The C string must remain valid for the duration of the function call.
 pub unsafe extern "C" fn kreuzberg_validate_ocr_backend(backend: *const c_char) -> i32 {
     clear_last_error();
 
@@ -3777,7 +3801,7 @@ pub unsafe extern "C" fn kreuzberg_validate_ocr_backend(backend: *const c_char) 
         return 1;
     }
 
-    let backend_str = match CStr::from_ptr(backend).to_str() {
+    let backend_str = match unsafe { CStr::from_ptr(backend).to_str() } {
         Ok(s) => s,
         Err(e) => {
             set_last_error(format!("Invalid UTF-8 in backend string: {}", e));
@@ -3798,6 +3822,12 @@ pub unsafe extern "C" fn kreuzberg_validate_ocr_backend(backend: *const c_char) 
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `code` must be a valid pointer to a valid UTF-8 C string or NULL.
+/// - If NULL is passed, an error is returned and error message is set.
+/// - The C string must remain valid for the duration of the function call.
 pub unsafe extern "C" fn kreuzberg_validate_language_code(code: *const c_char) -> i32 {
     clear_last_error();
 
@@ -3806,7 +3836,7 @@ pub unsafe extern "C" fn kreuzberg_validate_language_code(code: *const c_char) -
         return 1;
     }
 
-    let code_str = match CStr::from_ptr(code).to_str() {
+    let code_str = match unsafe { CStr::from_ptr(code).to_str() } {
         Ok(s) => s,
         Err(e) => {
             set_last_error(format!("Invalid UTF-8 in code string: {}", e));
@@ -3827,6 +3857,11 @@ pub unsafe extern "C" fn kreuzberg_validate_language_code(code: *const c_char) -
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `psm` must be a valid Tesseract PSM value (typically 0-13).
+/// - Validation is performed on the numeric value with no pointer operations.
 pub unsafe extern "C" fn kreuzberg_validate_tesseract_psm(psm: i32) -> i32 {
     clear_last_error();
 
@@ -3843,6 +3878,11 @@ pub unsafe extern "C" fn kreuzberg_validate_tesseract_psm(psm: i32) -> i32 {
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `oem` must be a valid Tesseract OEM value (typically 0-3).
+/// - Validation is performed on the numeric value with no pointer operations.
 pub unsafe extern "C" fn kreuzberg_validate_tesseract_oem(oem: i32) -> i32 {
     clear_last_error();
 
@@ -3859,6 +3899,12 @@ pub unsafe extern "C" fn kreuzberg_validate_tesseract_oem(oem: i32) -> i32 {
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `format` must be a valid pointer to a valid UTF-8 C string or NULL.
+/// - If NULL is passed, an error is returned and error message is set.
+/// - The C string must remain valid for the duration of the function call.
 pub unsafe extern "C" fn kreuzberg_validate_output_format(format: *const c_char) -> i32 {
     clear_last_error();
 
@@ -3867,7 +3913,7 @@ pub unsafe extern "C" fn kreuzberg_validate_output_format(format: *const c_char)
         return 1;
     }
 
-    let format_str = match CStr::from_ptr(format).to_str() {
+    let format_str = match unsafe { CStr::from_ptr(format).to_str() } {
         Ok(s) => s,
         Err(e) => {
             set_last_error(format!("Invalid UTF-8 in format string: {}", e));
@@ -3888,6 +3934,11 @@ pub unsafe extern "C" fn kreuzberg_validate_output_format(format: *const c_char)
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `confidence` must be a valid f64 value in the range [0.0, 1.0].
+/// - Validation is performed on the numeric value with no pointer operations.
 pub unsafe extern "C" fn kreuzberg_validate_confidence(confidence: f64) -> i32 {
     clear_last_error();
 
@@ -3904,6 +3955,11 @@ pub unsafe extern "C" fn kreuzberg_validate_confidence(confidence: f64) -> i32 {
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - `dpi` must be a valid DPI value (typically >= 50).
+/// - Validation is performed on the numeric value with no pointer operations.
 pub unsafe extern "C" fn kreuzberg_validate_dpi(dpi: i32) -> i32 {
     clear_last_error();
 
@@ -3920,6 +3976,12 @@ pub unsafe extern "C" fn kreuzberg_validate_dpi(dpi: i32) -> i32 {
 ///
 /// Returns 0 if valid, non-zero error code if invalid.
 /// Check kreuzberg_last_error() for error message.
+///
+/// # Safety
+///
+/// - Both `max_chars` and `max_overlap` must be valid usize values.
+/// - Validation checks that max_chars > 0 and max_overlap < max_chars.
+/// - No pointer operations are performed on the numeric parameters.
 pub unsafe extern "C" fn kreuzberg_validate_chunking_params(max_chars: usize, max_overlap: usize) -> i32 {
     clear_last_error();
 

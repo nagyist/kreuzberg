@@ -1129,6 +1129,12 @@ char *kreuzberg_get_ocr_languages(const char *backend);
  *     printf("English is supported by EasyOCR\n");
  * }
  * ```
+ *
+ * # Safety
+ *
+ * - `backend` and `language` must be valid pointers to valid UTF-8 C strings.
+ * - Both pointers can be checked for NULL; returns 0 if either is NULL.
+ * - The C strings must remain valid for the duration of the function call.
  */
 int32_t kreuzberg_is_language_supported(const char *backend, const char *language);
 

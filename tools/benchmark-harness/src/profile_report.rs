@@ -192,6 +192,7 @@ impl ProfileReport {
     /// # Returns
     ///
     /// Vector of actionable recommendations
+    #[allow(dead_code)]
     fn generate_recommendations(sample_count: usize, framework_name: &str) -> Vec<String> {
         let mut recommendations = vec![format!(
             "Profiling data collected for {} framework with {} samples",

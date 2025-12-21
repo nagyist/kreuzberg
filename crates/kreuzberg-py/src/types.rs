@@ -278,7 +278,8 @@ impl ExtractionResult {
 
                 let page_tables = PyList::empty(py);
                 for table in page.tables {
-                    page_tables.append(ExtractedTable::from_rust(table, py)?)?;
+                    let table_ref = (*table).clone();
+                    page_tables.append(ExtractedTable::from_rust(table_ref, py)?)?;
                 }
                 page_dict.set_item("tables", page_tables)?;
 
