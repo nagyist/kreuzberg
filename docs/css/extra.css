@@ -1,5 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&display=swap");
 
+html {
+	scroll-behavior: smooth;
+}
+
+.md-sidebar__scrollwrap {
+	scroll-behavior: smooth;
+}
+
+.md-nav--secondary {
+	scroll-behavior: smooth;
+}
+
 :root > * {
 	--md-primary-fg-color: #323040;
 	--md-primary-fg-color--light: #4a4858;
