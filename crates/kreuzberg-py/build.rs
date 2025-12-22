@@ -9,12 +9,17 @@ fn main() {
     let cargo_manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let manifest_path = PathBuf::from(&cargo_manifest_dir);
 
-    // Navigate to the target directory (parent of parent parent, then /target)
+    // Prefer host target layout, but include target-triple layout for cross builds.
     if let Some(workspace_root) = manifest_path.parent().and_then(|p| p.parent()) {
-        let ffi_lib_dir = workspace_root.join("target").join(&target).join(&profile).join("deps");
+        let host_deps_dir = workspace_root.join("target").join(&profile).join("deps");
+        let host_lib_dir = workspace_root.join("target").join(&profile);
+        let target_deps_dir = workspace_root.join("target").join(&target).join(&profile).join("deps");
+        let target_lib_dir = workspace_root.join("target").join(&target).join(&profile);
 
-        if ffi_lib_dir.exists() {
-            println!("cargo:rustc-link-search=native={}", ffi_lib_dir.display());
+        for dir in [host_deps_dir, host_lib_dir, target_deps_dir, target_lib_dir] {
+            if dir.exists() {
+                println!("cargo:rustc-link-search=native={}", dir.display());
+            }
         }
     }
 
