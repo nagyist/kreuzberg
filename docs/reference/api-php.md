@@ -1788,3 +1788,544 @@ use Kreuzberg\Kreuzberg;
 
 echo "Kreuzberg version: " . Kreuzberg::version() . "\n";
 ```
+
+---
+
+## Troubleshooting
+
+### Extension Not Loading
+
+If you get an error that the Kreuzberg extension is not loaded:
+
+**Check if extension is installed:**
+
+```php title="check_extension.php"
+<?php
+
+if (!extension_loaded('kreuzberg')) {
+    echo "Extension not loaded!\n";
+    echo "Check your php.ini and ensure 'extension=kreuzberg.so' is present.\n";
+    exit(1);
+}
+
+echo "Extension loaded successfully!\n";
+```
+
+**Verify php.ini configuration:**
+
+```bash
+php --ini
+php -m | grep kreuzberg
+```
+
+**Check extension directory:**
+
+```bash
+php -i | grep extension_dir
+```
+
+### OCR Issues
+
+**Tesseract not found:**
+
+```php title="check_tesseract.php"
+<?php
+
+// Check if Tesseract is available
+$output = shell_exec('tesseract --version 2>&1');
+
+if ($output === null) {
+    echo "Tesseract not found in PATH!\n";
+    echo "Install: brew install tesseract (macOS) or apt install tesseract-ocr (Linux)\n";
+} else {
+    echo "Tesseract version:\n{$output}\n";
+}
+
+// Check for language data
+$langDataPaths = [
+    '/usr/local/share/tessdata/',  // macOS Homebrew
+    '/usr/share/tesseract-ocr/4.00/tessdata/',  // Ubuntu/Debian
+    '/usr/share/tessdata/',  // Alternative Linux path
+];
+
+foreach ($langDataPaths as $path) {
+    if (is_dir($path)) {
+        echo "\nLanguage data found in: {$path}\n";
+        $files = glob($path . '*.traineddata');
+        echo "Available languages: " . count($files) . "\n";
+        foreach ($files as $file) {
+            $lang = basename($file, '.traineddata');
+            echo "- {$lang}\n";
+        }
+        break;
+    }
+}
+```
+
+**Poor OCR accuracy:**
+
+Try these configurations:
+
+```php title="improve_ocr.php"
+<?php
+
+use Kreuzberg\Kreuzberg;
+use Kreuzberg\Config\ExtractionConfig;
+use Kreuzberg\Config\OcrConfig;
+use Kreuzberg\Config\TesseractConfig;
+use Kreuzberg\Config\ImagePreprocessingConfig;
+
+// Configuration 1: Increase DPI
+$config1 = new ExtractionConfig(
+    ocr: new OcrConfig(
+        backend: 'tesseract',
+        language: 'eng',
+        imagePreprocessing: new ImagePreprocessingConfig(
+            targetDpi: 600  // Higher DPI for small text
+        )
+    )
+);
+
+// Configuration 2: Enable denoising
+$config2 = new ExtractionConfig(
+    ocr: new OcrConfig(
+        backend: 'tesseract',
+        language: 'eng',
+        imagePreprocessing: new ImagePreprocessingConfig(
+            denoise: true
+        )
+    )
+);
+
+// Configuration 3: Different PSM mode
+$config3 = new ExtractionConfig(
+    ocr: new OcrConfig(
+        backend: 'tesseract',
+        language: 'eng',
+        tesseractConfig: new TesseractConfig(
+            psm: 11  // Sparse text mode
+        )
+    )
+);
+
+// Try each configuration
+$kreuzberg = new Kreuzberg();
+$result = $kreuzberg->extractFile('poor_quality_scan.pdf', config: $config1);
+```
+
+### Memory Issues
+
+**Out of memory errors:**
+
+```php title="memory_optimization.php"
+<?php
+
+use Kreuzberg\Kreuzberg;
+use Kreuzberg\Config\ExtractionConfig;
+use Kreuzberg\Config\ChunkingConfig;
+
+// Option 1: Increase memory limit
+ini_set('memory_limit', '512M');
+
+// Option 2: Use chunking
+$config = new ExtractionConfig(
+    chunking: new ChunkingConfig(
+        maxChunkSize: 1000,
+        chunkOverlap: 100
+    )
+);
+
+// Option 3: Process in batches
+$files = glob('documents/*.pdf');
+$batchSize = 10;
+
+foreach (array_chunk($files, $batchSize) as $batch) {
+    $results = batch_extract_files($batch);
+
+    // Process results...
+
+    // Free memory
+    unset($results);
+    gc_collect_cycles();
+}
+```
+
+### File Permission Errors
+
+```php title="check_permissions.php"
+<?php
+
+$file = 'document.pdf';
+
+// Check if file exists
+if (!file_exists($file)) {
+    echo "File not found: {$file}\n";
+    exit(1);
+}
+
+// Check if file is readable
+if (!is_readable($file)) {
+    echo "File not readable: {$file}\n";
+    echo "Current permissions: " . substr(sprintf('%o', fileperms($file)), -4) . "\n";
+    echo "Run: chmod 644 {$file}\n";
+    exit(1);
+}
+
+echo "File is accessible!\n";
+```
+
+---
+
+## Migration Guide
+
+### Upgrading from 3.x to 4.x
+
+**Breaking Changes:**
+
+1. **PHP Version Requirement**
+
+   - Old: PHP 8.1+
+   - New: PHP 8.2+
+
+2. **Configuration Classes Now Readonly**
+
+   ```php
+   // Old (PHP 8.1)
+   $config = new ExtractionConfig();
+   $config->extractImages = true;  // Not possible anymore
+
+   // New (PHP 8.2+)
+   $config = new ExtractionConfig(extractImages: true);
+   ```
+
+3. **Namespace Changes**
+
+   ```php
+   // Old
+   use Kreuzberg\Config\Config;
+
+   // New
+   use Kreuzberg\Config\ExtractionConfig;
+   ```
+
+4. **Method Signature Changes**
+
+   ```php
+   // Old
+   $result = $kreuzberg->extract('file.pdf');
+
+   // New
+   $result = $kreuzberg->extractFile('file.pdf');
+   ```
+
+**Migration Steps:**
+
+1. Update PHP to 8.2+:
+   ```bash
+   php -v  # Check current version
+   ```
+
+2. Update Composer dependency:
+   ```bash
+   composer require kreuzberg/kreuzberg:^4.0
+   ```
+
+3. Update extension:
+   ```bash
+   pie install kreuzberg/kreuzberg-ext:^4.0
+   ```
+
+4. Update code:
+   ```php
+   // Before
+   use Kreuzberg\Config\Config;
+
+   $config = new Config();
+   $config->extractImages = true;
+   $result = $kreuzberg->extract('file.pdf', $config);
+
+   // After
+   use Kreuzberg\Config\ExtractionConfig;
+
+   $config = new ExtractionConfig(extractImages: true);
+   $result = $kreuzberg->extractFile('file.pdf', config: $config);
+   ```
+
+---
+
+## Best Practices
+
+### 1. Error Handling
+
+Always wrap extraction calls in try-catch blocks:
+
+```php title="best_error_handling.php"
+<?php
+
+use Kreuzberg\Kreuzberg;
+use Kreuzberg\Exceptions\KreuzbergException;
+
+function extractDocument(string $path): ?string
+{
+    try {
+        $kreuzberg = new Kreuzberg();
+        $result = $kreuzberg->extractFile($path);
+        return $result->content;
+    } catch (KreuzbergException $e) {
+        // Log the error
+        error_log("Extraction failed for {$path}: " . $e->getMessage());
+
+        // Return null or throw
+        return null;
+    }
+}
+```
+
+### 2. Configuration Reuse
+
+Reuse configuration objects for better performance:
+
+```php title="reuse_config.php"
+<?php
+
+use Kreuzberg\Kreuzberg;
+use Kreuzberg\Config\ExtractionConfig;
+use Kreuzberg\Config\OcrConfig;
+
+// Good: Create config once
+$config = new ExtractionConfig(
+    ocr: new OcrConfig(backend: 'tesseract', language: 'eng'),
+    extractTables: true
+);
+
+$kreuzberg = new Kreuzberg($config);
+
+// Reuse for multiple files
+$result1 = $kreuzberg->extractFile('doc1.pdf');
+$result2 = $kreuzberg->extractFile('doc2.pdf');
+$result3 = $kreuzberg->extractFile('doc3.pdf');
+
+// Bad: Creating new config for each file
+foreach ($files as $file) {
+    $config = new ExtractionConfig(...);  // Wasteful
+    $result = (new Kreuzberg($config))->extractFile($file);
+}
+```
+
+### 3. Batch Processing
+
+Use batch APIs for multiple files:
+
+```php title="best_batch.php"
+<?php
+
+use Kreuzberg\Kreuzberg;
+
+$kreuzberg = new Kreuzberg();
+$files = glob('documents/*.pdf');
+
+// Good: Batch processing
+$results = $kreuzberg->batchExtractFiles($files);
+
+// Bad: Individual processing in a loop
+foreach ($files as $file) {
+    $result = $kreuzberg->extractFile($file);  // Inefficient
+}
+```
+
+### 4. Resource Management
+
+Free resources when processing large datasets:
+
+```php title="resource_management.php"
+<?php
+
+use function Kreuzberg\batch_extract_files;
+
+$files = glob('documents/*.pdf');
+
+// Process in chunks to manage memory
+foreach (array_chunk($files, 50) as $batch) {
+    $results = batch_extract_files($batch);
+
+    // Process results...
+    foreach ($results as $result) {
+        // Do something with result
+        processResult($result);
+    }
+
+    // Free memory
+    unset($results);
+    gc_collect_cycles();
+}
+```
+
+### 5. Type Validation
+
+Validate inputs before processing:
+
+```php title="validation.php"
+<?php
+
+use Kreuzberg\Kreuzberg;
+
+function extractSafely(string $path): ?ExtractionResult
+{
+    // Validate file exists
+    if (!file_exists($path)) {
+        throw new InvalidArgumentException("File not found: {$path}");
+    }
+
+    // Validate file is readable
+    if (!is_readable($path)) {
+        throw new RuntimeException("File not readable: {$path}");
+    }
+
+    // Validate file size (e.g., max 100MB)
+    $maxSize = 100 * 1024 * 1024;
+    if (filesize($path) > $maxSize) {
+        throw new RuntimeException("File too large: {$path}");
+    }
+
+    // Extract
+    $kreuzberg = new Kreuzberg();
+    return $kreuzberg->extractFile($path);
+}
+```
+
+---
+
+## Framework Integration
+
+### Laravel
+
+**Service Provider:**
+
+```php title="app/Providers/KreuzbergServiceProvider.php"
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Kreuzberg\Kreuzberg;
+use Kreuzberg\Config\ExtractionConfig;
+
+class KreuzbergServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->app->singleton(Kreuzberg::class, function ($app) {
+            $config = new ExtractionConfig(
+                extractTables: true,
+                extractImages: config('kreuzberg.extract_images', false),
+            );
+
+            return new Kreuzberg($config);
+        });
+    }
+}
+```
+
+**Configuration:**
+
+```php title="config/kreuzberg.php"
+<?php
+
+return [
+    'extract_images' => env('KREUZBERG_EXTRACT_IMAGES', false),
+    'extract_tables' => env('KREUZBERG_EXTRACT_TABLES', true),
+    'ocr_language' => env('KREUZBERG_OCR_LANGUAGE', 'eng'),
+];
+```
+
+**Usage:**
+
+```php title="app/Http/Controllers/DocumentController.php"
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Kreuzberg\Kreuzberg;
+
+class DocumentController extends Controller
+{
+    public function extract(Request $request, Kreuzberg $kreuzberg)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,docx,xlsx|max:10240',
+        ]);
+
+        $file = $request->file('document');
+        $result = $kreuzberg->extractFile($file->getPathname());
+
+        return response()->json([
+            'content' => $result->content,
+            'metadata' => $result->metadata,
+            'tables' => $result->tables,
+        ]);
+    }
+}
+```
+
+### Symfony
+
+**Service Configuration:**
+
+```yaml title="config/services.yaml"
+services:
+    Kreuzberg\Kreuzberg:
+        arguments:
+            $defaultConfig: '@Kreuzberg\Config\ExtractionConfig'
+
+    Kreuzberg\Config\ExtractionConfig:
+        factory: ['App\Factory\KreuzbergConfigFactory', 'create']
+```
+
+**Factory:**
+
+```php title="src/Factory/KreuzbergConfigFactory.php"
+<?php
+
+namespace App\Factory;
+
+use Kreuzberg\Config\ExtractionConfig;
+
+class KreuzbergConfigFactory
+{
+    public static function create(): ExtractionConfig
+    {
+        return new ExtractionConfig(
+            extractTables: true,
+            extractImages: false,
+        );
+    }
+}
+```
+
+**Usage:**
+
+```php title="src/Controller/DocumentController.php"
+<?php
+
+namespace App\Controller;
+
+use Kreuzberg\Kreuzberg;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+class DocumentController extends AbstractController
+{
+    public function extract(Request $request, Kreuzberg $kreuzberg): JsonResponse
+    {
+        $file = $request->files->get('document');
+        $result = $kreuzberg->extractFile($file->getPathname());
+
+        return $this->json([
+            'content' => $result->content,
+            'metadata' => $result->metadata,
+        ]);
+    }
+}
+```

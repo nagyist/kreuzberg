@@ -58,11 +58,33 @@ scoop install onnxruntime
 
 ## Installation
 
+### Option 1: Using PIE (Recommended)
+
+[PIE (PHP Installer for Extensions)](https://github.com/php/pie) is the modern way to install PHP extensions:
+
+```bash
+# Install PIE if you haven't already
+composer global require php/pie
+
+# Install Kreuzberg extension
+pie install kreuzberg/kreuzberg
+```
+
+PIE will automatically:
+- Download the extension source or pre-built binary
+- Compile it for your system (if needed)
+- Install it to the correct PHP extension directory
+- Update your php.ini configuration
+
+Then install the PHP library:
+
 ```bash
 composer require kreuzberg/kreuzberg
 ```
 
-The PHP extension (kreuzberg.so/.dll) must be installed separately. Download the appropriate extension for your platform from the [releases page](https://github.com/kreuzberg-dev/kreuzberg/releases).
+### Option 2: Manual Installation
+
+Download the appropriate extension for your platform from the [releases page](https://github.com/kreuzberg-dev/kreuzberg/releases).
 
 Add to your `php.ini`:
 
@@ -70,6 +92,27 @@ Add to your `php.ini`:
 extension=kreuzberg.so  ; Linux/macOS
 ; or
 extension=kreuzberg.dll  ; Windows
+```
+
+Then install the PHP library:
+
+```bash
+composer require kreuzberg/kreuzberg
+```
+
+### Verifying Installation
+
+Check that the extension is loaded:
+
+```bash
+php -m | grep kreuzberg
+```
+
+Or use the version function:
+
+```php
+<?php
+echo kreuzberg_version(); // Should output: 4.0.0-rc.20
 ```
 
 ## Quick Start
@@ -433,6 +476,234 @@ try {
 3. **Set appropriate chunk sizes** for your use case
 4. **Use page extraction** only when you need per-page content
 5. **Limit image extraction** with min width/height filters
+
+## Troubleshooting
+
+### Extension Not Loaded
+
+**Problem:** `extension_loaded('kreuzberg')` returns false
+
+**Solutions:**
+
+1. Verify extension file exists in PHP extension directory:
+   ```bash
+   php -i | grep extension_dir
+   ```
+
+2. Check the extension file is in the correct location:
+   ```bash
+   ls -la $(php -i | grep extension_dir | cut -d' ' -f 5)/kreuzberg.so
+   ```
+
+3. Verify php.ini configuration:
+   ```bash
+   php --ini
+   ```
+
+4. Add extension to php.ini:
+   ```ini
+   extension=kreuzberg.so
+   ```
+
+5. Restart PHP:
+   ```bash
+   sudo systemctl restart php-fpm
+   ```
+
+6. Check for loading errors:
+   ```bash
+   php -m 2>&1 | grep kreuzberg
+   ```
+
+### Version Mismatch
+
+**Problem:** Extension and PHP package versions don't match
+
+**Solution:**
+```bash
+# Check extension version
+php -r "echo phpversion('kreuzberg');"
+
+# Check package version
+composer show kreuzberg/kreuzberg
+
+# Update to match
+composer update kreuzberg/kreuzberg
+```
+
+### Memory Limits
+
+**Problem:** Out of memory errors when processing large files
+
+**Solutions:**
+
+1. Increase PHP memory limit:
+   ```ini
+   memory_limit = 512M  ; or higher
+   ```
+
+2. Use chunking for large documents:
+   ```php
+   $config = new ExtractionConfig(
+       chunking: new ChunkingConfig(maxChunkSize: 1000)
+   );
+   ```
+
+3. Process files in batches:
+   ```php
+   $chunks = array_chunk($files, 10);
+   foreach ($chunks as $chunk) {
+       $results = batch_extract_files($chunk);
+       // Process and clear memory
+       unset($results);
+       gc_collect_cycles();
+   }
+   ```
+
+### OCR Not Working
+
+**Problem:** Tesseract OCR not detecting text
+
+**Solutions:**
+
+1. Verify Tesseract is installed:
+   ```bash
+   tesseract --version
+   ```
+
+2. Check language data files:
+   ```bash
+   # macOS
+   ls /usr/local/share/tessdata/
+
+   # Linux
+   ls /usr/share/tesseract-ocr/*/tessdata/
+   ```
+
+3. Install missing language packs:
+   ```bash
+   # macOS
+   brew install tesseract-lang
+
+   # Ubuntu/Debian
+   sudo apt install tesseract-ocr-eng tesseract-ocr-fra
+   ```
+
+4. Specify correct language code:
+   ```php
+   $config = new ExtractionConfig(
+       ocr: new OcrConfig(
+           backend: 'tesseract',
+           language: 'eng'  // Use correct ISO 639-3 code
+       )
+   );
+   ```
+
+5. Try different PSM modes:
+   ```php
+   $config = new ExtractionConfig(
+       ocr: new OcrConfig(
+           backend: 'tesseract',
+           language: 'eng',
+           tesseractConfig: new TesseractConfig(
+               psm: 6  // Try values 3, 6, 11
+           )
+       )
+   );
+   ```
+
+### Permission Errors
+
+**Problem:** Cannot read/write files
+
+**Solutions:**
+
+1. Check file permissions:
+   ```bash
+   ls -la document.pdf
+   ```
+
+2. Ensure PHP can read the file:
+   ```bash
+   sudo chown www-data:www-data document.pdf
+   sudo chmod 644 document.pdf
+   ```
+
+3. Check directory permissions for writing:
+   ```bash
+   sudo chown www-data:www-data output_directory/
+   sudo chmod 755 output_directory/
+   ```
+
+### Poor OCR Accuracy
+
+**Problem:** OCR produces incorrect or garbled text
+
+**Solutions:**
+
+1. Increase target DPI:
+   ```php
+   $config = new ExtractionConfig(
+       ocr: new OcrConfig(
+           backend: 'tesseract',
+           language: 'eng',
+           imagePreprocessing: new ImagePreprocessingConfig(
+               targetDpi: 600  // Higher DPI for better accuracy
+           )
+       )
+   );
+   ```
+
+2. Enable denoising:
+   ```php
+   $config = new ExtractionConfig(
+       ocr: new OcrConfig(
+           backend: 'tesseract',
+           language: 'eng',
+           imagePreprocessing: new ImagePreprocessingConfig(
+               denoise: true
+           )
+       )
+   );
+   ```
+
+3. Use character whitelisting:
+   ```php
+   $config = new ExtractionConfig(
+       ocr: new OcrConfig(
+           backend: 'tesseract',
+           language: 'eng',
+           tesseractConfig: new TesseractConfig(
+               tesseditCharWhitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 '
+           )
+       )
+   );
+   ```
+
+### Common Error Messages
+
+**"Extension not loaded"**
+- Install and enable the Kreuzberg extension in php.ini
+
+**"File not found"**
+- Check file path is absolute or relative to current directory
+- Verify file exists and is readable
+
+**"Unsupported format"**
+- Check MIME type is supported
+- Try specifying MIME type explicitly:
+  ```php
+  $result = $kreuzberg->extractFile('file.unknown', 'application/pdf');
+  ```
+
+**"OCR backend not available"**
+- Install Tesseract OCR
+- Verify Tesseract is in system PATH
+
+**"Out of memory"**
+- Increase PHP memory_limit
+- Use chunking for large documents
+- Process files in smaller batches
 
 ## Development
 

@@ -14,13 +14,18 @@
 use ext_php_rs::prelude::*;
 
 mod config;
+mod embeddings;
 mod error;
 mod extraction;
 mod types;
+mod validation;
 
 use config::*;
+use embeddings::*;
+use error::*;
 use extraction::*;
 use types::*;
+use validation::*;
 
 /// Get the Kreuzberg library version.
 ///

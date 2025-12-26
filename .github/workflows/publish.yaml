@@ -1504,6 +1504,100 @@ jobs:
           path: packages/java/target/*.jar
           retention-days: 14
 
+  php-package:
+    name: Build PHP PIE package (${{ matrix.settings.label }})
+    needs: [prepare, check-packagist]
+    if: ${{ needs.prepare.outputs.release_php == 'true' && (needs.prepare.outputs.force_republish == 'true' || needs.check-packagist.outputs.exists != 'true') }}
+    runs-on: ${{ matrix.settings.os }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - os: ubuntu-latest
+            label: linux-x86_64
+            platform: linux-x86_64
+          - os: macos-14
+            label: macos-arm64
+            platform: macos-arm64
+          - os: windows-latest
+            label: windows-x86_64
+            platform: windows-x86_64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.checkout_ref }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Ensure target commit
+        if: ${{ needs.prepare.outputs.target_sha != '' }}
+        run: git checkout --progress --force ${{ needs.prepare.outputs.target_sha }}
+
+      - name: Free up disk space (Linux)
+        if: runner.os == 'Linux'
+        run: scripts/publish/ubuntu/free-disk-space.sh
+
+      - name: Install system dependencies
+        uses: ./.github/actions/install-system-deps
+
+      - name: Setup OpenSSL
+        uses: ./.github/actions/setup-openssl
+
+      - name: Setup Tesseract cache
+        id: tesseract-cache
+        uses: ./.github/actions/setup-tesseract-cache
+        with:
+          label: ${{ matrix.settings.label }}
+          enable-cache: "true"
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          cache-key-prefix: publish-php-${{ matrix.settings.label }}
+          use-sccache: ${{ runner.os != 'Windows' }}
+
+      - name: Cache PDFium
+        uses: ./.github/actions/cache-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Download PDFium
+        uses: ./.github/actions/download-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Stage PDFium into target/release
+        uses: ./.github/actions/stage-pdfium-runtime
+        with:
+          destination: target/release
+
+      - name: Setup ONNX Runtime
+        uses: ./.github/actions/setup-onnx-runtime
+        with:
+          ort-version: ${{ env.ORT_VERSION }}
+          dest-dir: target/release
+
+      - name: Build PHP extension (kreuzberg-ffi)
+        shell: bash
+        run: cargo build -p kreuzberg-ffi --release
+
+      - name: Build PIE package
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: scripts/publish/php/build-pie-package.sh "${{ matrix.settings.platform }}" "dist/php"
+
+      - name: Upload PHP PIE package artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: php-pie-${{ matrix.settings.label }}
+          path: dist/php/kreuzberg-*.tar.gz*
+          retention-days: 14
+
   csharp-package:
     name: Build C# package
     needs: [prepare, check-nuget, csharp-native-assets]
@@ -2464,6 +2558,81 @@ jobs:
         if: ${{ needs.prepare.outputs.dry_run == 'true' }}
         run: (echo "Dry run requested; NuGet publish skipped." && ls -1 dist/*.nupkg) >> "$GITHUB_STEP_SUMMARY"
 
+  publish-php:
+    name: Publish PHP package and PIE packages
+    needs: [prepare, validate-versions, check-packagist, php-package]
+    if: |
+      always() &&
+      needs.prepare.outputs.dry_run != 'true' &&
+      needs.prepare.outputs.is_tag == 'true' &&
+      needs.prepare.outputs.release_php == 'true' &&
+      (needs.prepare.outputs.force_republish == 'true' || needs.check-packagist.outputs.exists != 'true') &&
+      needs.php-package.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Download PHP PIE package artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: php-pie-*
+          path: dist/php
+          merge-multiple: true
+
+      - name: List PHP artifacts
+        run: ls -lah dist/php/
+
+      - name: Verify Packagist auto-update
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+          DRY_RUN: ${{ needs.prepare.outputs.dry_run }}
+        run: scripts/publish/php/publish-packagist.sh "${{ needs.prepare.outputs.version }}"
+
+      - name: Ensure GitHub release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
+
+      - name: Upload PIE packages to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          echo "Uploading PHP PIE packages to GitHub release ${TAG}..."
+          for file in dist/php/kreuzberg-*.tar.gz*; do
+            if [ -f "$file" ]; then
+              echo "Uploading: $file"
+              gh release upload "$TAG" "$file" --clobber
+            fi
+          done
+          echo "PHP PIE packages uploaded to GitHub release" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Generate release summary
+        run: |
+          {
+            echo "## PHP Package Published"
+            echo ""
+            echo "- **Package**: kreuzberg/kreuzberg"
+            echo "- **Version**: ${{ needs.prepare.outputs.version }}"
+            echo "- **Packagist**: https://packagist.org/packages/kreuzberg/kreuzberg#${{ needs.prepare.outputs.version }}"
+            echo "- **GitHub Release**: https://github.com/${{ github.repository }}/releases/tag/${{ needs.prepare.outputs.tag }}"
+            echo ""
+            echo "### PIE Packages (Platform-Specific Extensions)"
+            echo ""
+            echo "The following platform-specific PIE packages are available:"
+            echo ""
+            find dist/php -maxdepth 1 -name 'kreuzberg-*.tar.gz' -print0 | while IFS= read -r -d '' file; do
+              basename "$file"
+            done | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   publish-homebrew:
     name: Update Homebrew formula
     needs: [prepare, validate-versions, check-homebrew, upload-cli-release, upload-homebrew-bottles]
@@ -2530,6 +2699,7 @@ jobs:
       - check-rubygems
       - check-maven
       - check-nuget
+      - check-packagist
       - check-cratesio
       - check-homebrew
       - publish-pypi
@@ -2538,6 +2708,7 @@ jobs:
       - publish-rubygems
       - publish-maven
       - publish-nuget
+      - publish-php
       - publish-homebrew
       - publish-docker
       - upload-cli-release
@@ -2569,12 +2740,14 @@ jobs:
           CHECK_RUBYGEMS_EXISTS: ${{ needs.check-rubygems.outputs.exists }}
           CHECK_MAVEN_EXISTS: ${{ needs.check-maven.outputs.exists }}
           CHECK_NUGET_EXISTS: ${{ needs.check-nuget.outputs.exists }}
+          CHECK_PACKAGIST_EXISTS: ${{ needs.check-packagist.outputs.exists }}
           RESULT_PUBLISH_PYPI: ${{ needs.publish-pypi.result }}
           RESULT_PUBLISH_NODE: ${{ needs.publish-node.result }}
           RESULT_PUBLISH_WASM: ${{ needs.publish-wasm.result }}
           RESULT_PUBLISH_RUBYGEMS: ${{ needs.publish-rubygems.result }}
           RESULT_PUBLISH_MAVEN: ${{ needs.publish-maven.result }}
           RESULT_PUBLISH_NUGET: ${{ needs.publish-nuget.result }}
+          RESULT_PUBLISH_PHP: ${{ needs.publish-php.result }}
           RESULT_PUBLISH_HOMEBREW: ${{ needs.publish-homebrew.result }}
           RESULT_PUBLISH_DOCKER: ${{ needs.publish-docker.result }}
           RESULT_UPLOAD_CLI_RELEASE: ${{ needs.upload-cli-release.result }}

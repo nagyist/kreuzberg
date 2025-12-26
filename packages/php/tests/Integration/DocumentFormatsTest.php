@@ -160,7 +160,7 @@ final class DocumentFormatsTest extends TestCase
 
         // Check for common metadata fields
         $this->assertObjectHasProperty('title', $metadata);
-        $this->assertObjectHasProperty('author', $metadata);
+        $this->assertObjectHasProperty('authors', $metadata);
     }
 
     #[Test]
@@ -312,7 +312,9 @@ final class DocumentFormatsTest extends TestCase
         $kreuzberg = new Kreuzberg();
         $result = $kreuzberg->extractFile($filePath);
 
-        $this->assertNotEmpty($result->content,
-            'Documents with lists should have extractable content');
+        $this->assertNotEmpty(
+            $result->content,
+            'Documents with lists should have extractable content',
+        );
     }
 }

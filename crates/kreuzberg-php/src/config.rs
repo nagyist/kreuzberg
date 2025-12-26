@@ -116,6 +116,134 @@ impl ExtractionConfig {
     }
 }
 
+/// Convert an ExtractionConfig to JSON string.
+///
+/// # Parameters
+///
+/// - `config` (ExtractionConfig): The configuration to serialize
+///
+/// # Returns
+///
+/// JSON string representation of the configuration
+///
+/// # Throws
+///
+/// - Exception: If serialization fails
+///
+/// # Example
+///
+/// ```php
+/// $config = new ExtractionConfig();
+/// $config->use_cache = false;
+/// $json = kreuzberg_config_to_json($config);
+/// echo $json;
+/// ```
+#[php_function]
+pub fn kreuzberg_config_to_json(config: &ExtractionConfig) -> PhpResult<String> {
+    let rust_config = config.to_rust();
+    serde_json::to_string_pretty(&rust_config).map_err(|e| format!("Failed to serialize config: {}", e).into())
+}
+
+/// Get a specific field from an ExtractionConfig as JSON.
+///
+/// # Parameters
+///
+/// - `config` (ExtractionConfig): The configuration object
+/// - `field_name` (string): The field name to retrieve
+///
+/// # Returns
+///
+/// JSON string representation of the field value, or NULL if field doesn't exist
+///
+/// # Example
+///
+/// ```php
+/// $config = new ExtractionConfig();
+/// $value = kreuzberg_config_get_field($config, "use_cache");
+/// // Returns: "true"
+/// ```
+#[php_function]
+pub fn kreuzberg_config_get_field(config: &ExtractionConfig, field_name: String) -> Option<String> {
+    let rust_config = config.to_rust();
+    let json = serde_json::to_value(&rust_config).ok()?;
+    let obj = json.as_object()?;
+    let field = obj.get(&field_name)?;
+    serde_json::to_string(field).ok()
+}
+
+/// Merge two ExtractionConfig objects.
+///
+/// Values from `override_config` will override values in `base`.
+///
+/// # Parameters
+///
+/// - `base` (ExtractionConfig): The base configuration
+/// - `override_config` (ExtractionConfig): The configuration with override values
+///
+/// # Returns
+///
+/// New ExtractionConfig with merged values
+///
+/// # Example
+///
+/// ```php
+/// $base = new ExtractionConfig();
+/// $base->use_cache = true;
+///
+/// $override = new ExtractionConfig();
+/// $override->use_cache = false;
+///
+/// $merged = kreuzberg_config_merge($base, $override);
+/// // $merged->use_cache === false
+/// ```
+#[php_function]
+pub fn kreuzberg_config_merge(
+    base: &ExtractionConfig,
+    override_config: &ExtractionConfig,
+) -> PhpResult<ExtractionConfig> {
+    let mut base_rust = base.to_rust();
+    let override_rust = override_config.to_rust();
+
+    // Merge simple fields
+    base_rust.use_cache = override_rust.use_cache;
+    base_rust.enable_quality_processing = override_rust.enable_quality_processing;
+    base_rust.force_ocr = override_rust.force_ocr;
+
+    // Merge optional fields (override takes precedence if Some)
+    if override_rust.ocr.is_some() {
+        base_rust.ocr = override_rust.ocr;
+    }
+    if override_rust.pdf_options.is_some() {
+        base_rust.pdf_options = override_rust.pdf_options;
+    }
+    if override_rust.chunking.is_some() {
+        base_rust.chunking = override_rust.chunking;
+    }
+    if override_rust.images.is_some() {
+        base_rust.images = override_rust.images;
+    }
+    if override_rust.token_reduction.is_some() {
+        base_rust.token_reduction = override_rust.token_reduction;
+    }
+    if override_rust.language_detection.is_some() {
+        base_rust.language_detection = override_rust.language_detection;
+    }
+    if override_rust.keywords.is_some() {
+        base_rust.keywords = override_rust.keywords;
+    }
+    if override_rust.postprocessor.is_some() {
+        base_rust.postprocessor = override_rust.postprocessor;
+    }
+    if override_rust.max_concurrent_extractions.is_some() {
+        base_rust.max_concurrent_extractions = override_rust.max_concurrent_extractions;
+    }
+    if override_rust.pages.is_some() {
+        base_rust.pages = override_rust.pages;
+    }
+
+    Ok(ExtractionConfig::from_rust(base_rust))
+}
+
 /// OCR configuration.
 ///
 /// # Example
