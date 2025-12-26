@@ -5,6 +5,29 @@ All notable changes to Kreuzberg will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **PHP E2E test suite** - Generated 65 comprehensive E2E tests from fixtures
+  - Email extraction tests
+  - HTML processing tests
+  - Image extraction tests
+  - OCR functionality tests (5 scenarios)
+  - Office document tests (16 formats)
+  - PDF extraction tests (16 scenarios)
+  - Plugin API tests (14 API functions)
+  - Smoke tests (7 formats)
+  - Structured data tests (JSON/YAML)
+  - XML extraction tests
+
+### Changed
+
+- **CI workflows** - All language CI workflows now only run on pull requests to main
+  - Removed push event triggers from all ci-* workflows
+  - Preserved workflow_dispatch triggers where needed
+  - Reduced unnecessary CI runs while maintaining PR quality checks
+
 ## [4.0.0-rc.20] - 2025-12-25
 
 - **Font configuration API** - Configurable font provider with custom directory support and automatic path expansion
