@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    paths:
+        - src
+    stubFiles:
+        - stubs/kreuzberg_extension.php
+    ignoreErrors:
+        # Ignore FFI-related errors that are expected
+        - '#Call to method.*on FFI#'
+        - '#Access to an undefined property FFI#'

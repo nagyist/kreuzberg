@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Kreuzberg\Types;
+
+/**
+ * Content for a single page/slide.
+ *
+ * When page extraction is enabled, documents are split into per-page content
+ * with associated tables and images mapped to each page.
+ *
+ * @property-read int $pageNumber Page number (1-based)
+ * @property-read string $content Page text content
+ * @property-read array<Table> $tables Tables found on this page
+ * @property-read array<ExtractedImage> $images Images found on this page
+ */
+readonly class PageContent
+{
+    /**
+     * @param array<Table> $tables
+     * @param array<ExtractedImage> $images
+     */
+    public function __construct(
+        public int $pageNumber,
+        public string $content,
+        public array $tables = [],
+        public array $images = [],
+    ) {
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            pageNumber: $data['page_number'] ?? 0,
+            content: $data['content'] ?? '',
+            tables: array_map(
+                static fn (array $table): Table => Table::fromArray($table),
+                $data['tables'] ?? [],
+            ),
+            images: array_map(
+                static fn (array $image): ExtractedImage => ExtractedImage::fromArray($image),
+                $data['images'] ?? [],
+            ),
+        );
+    }
+}

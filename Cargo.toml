@@ -2,6 +2,7 @@
 members = [
     "crates/kreuzberg",
     "crates/kreuzberg-py",
+    "crates/kreuzberg-php",
     "crates/kreuzberg-ffi",
     "crates/kreuzberg-tesseract",
     "crates/kreuzberg-cli",

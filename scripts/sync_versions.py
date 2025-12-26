@@ -223,6 +223,26 @@ def normalize_rubygems_version(version: str) -> str:
     return f"{base}.pre.{prerelease.replace('-', '.')}"
 
 
+def update_composer_json(file_path: Path, version: str) -> Tuple[bool, str, str]:
+    """
+    Update a composer.json file.
+
+    Returns: (changed, old_version, new_version)
+    """
+    data = json.loads(file_path.read_text())
+    old_version = data.get("version", "N/A")
+    changed = False
+
+    if data.get("version") != version:
+        data["version"] = version
+        changed = True
+
+    if changed:
+        file_path.write_text(json.dumps(data, indent=4) + "\n")
+
+    return changed, old_version, version
+
+
 def main():
     repo_root = get_repo_root()
 
@@ -267,6 +287,17 @@ def main():
     if ruby_version.exists():
         changed, old_ver, new_ver = update_ruby_version(ruby_version, version)
         rel_path = ruby_version.relative_to(repo_root)
+
+        if changed:
+            print(f"✓ {rel_path}: {old_ver} → {new_ver}")
+            updated_files.append(str(rel_path))
+        else:
+            unchanged_files.append(str(rel_path))
+
+    php_composer = repo_root / "packages/php/composer.json"
+    if php_composer.exists():
+        changed, old_ver, new_ver = update_composer_json(php_composer, version)
+        rel_path = php_composer.relative_to(repo_root)
 
         if changed:
             print(f"✓ {rel_path}: {old_ver} → {new_ver}")

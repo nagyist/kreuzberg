@@ -1,0 +1,279 @@
+name: CI PHP
+
+on:
+  push:
+    branches-ignore:
+      - 'benchmarking-*'
+      - 'profiling-*'
+      - 'feat/profiling-flamegraphs'
+    paths:
+      - '.github/actions/**'
+      - 'crates/kreuzberg/**'
+      - 'crates/kreuzberg-php/**'
+      - 'crates/kreuzberg-ffi/**'
+      - 'crates/kreuzberg-tesseract/**'
+      - 'packages/php/**'
+      - 'e2e/php/**'
+      - 'test_documents/**'
+      - 'fixtures/**'
+      - 'tools/e2e-generator/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'scripts/ci/php/**'
+      - '.github/workflows/ci-php.yaml'
+      - '.cargo/config.toml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/actions/**'
+      - 'crates/kreuzberg/**'
+      - 'crates/kreuzberg-php/**'
+      - 'crates/kreuzberg-ffi/**'
+      - 'crates/kreuzberg-tesseract/**'
+      - 'packages/php/**'
+      - 'e2e/php/**'
+      - 'test_documents/**'
+      - 'fixtures/**'
+      - 'tools/e2e-generator/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'scripts/ci/php/**'
+      - '.github/workflows/ci-php.yaml'
+      - '.cargo/config.toml'
+
+concurrency:
+  group: ci-php-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: 0
+  RUST_BACKTRACE: full
+  RUST_MIN_STACK: 16777216
+  PDFIUM_VERSION: "7578"
+  ORT_VERSION: "1.23.2"
+  MACOSX_DEPLOYMENT_TARGET: "14.0"
+  CARGO_TARGET_DIR: target
+  CARGO_LOG: cargo::core::compiler::fingerprint=info
+  RUST_LOG: debug
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      php_matrix: ${{ steps.matrix.outputs.php_matrix }}
+      php_matrix_has_entries: ${{ steps.matrix.outputs.php_matrix_has_entries }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            php_unix:
+              - '.github/actions/**'
+              - 'crates/kreuzberg/**'
+              - 'crates/kreuzberg-php/**'
+              - 'crates/kreuzberg-ffi/**'
+              - 'crates/kreuzberg-tesseract/**'
+              - 'packages/php/**'
+              - 'e2e/php/**'
+              - 'test_documents/**'
+              - 'fixtures/**'
+              - 'tools/e2e-generator/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'scripts/ci/php/**'
+              - '.github/workflows/ci-php.yaml'
+              - '.cargo/config.toml'
+      - name: Build matrix
+        id: matrix
+        shell: bash
+        env:
+          PHP_UNIX: ${{ steps.filter.outputs.php_unix }}
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+          include = []
+          if os.environ.get("PHP_UNIX") == "true":
+              include.extend([
+                  {"os": "ubuntu-latest", "php-version": "8.2", "platform": "linux-x64"},
+                  {"os": "ubuntu-latest", "php-version": "8.3", "platform": "linux-x64"},
+                  {"os": "macos-latest", "php-version": "8.2", "platform": "macos-arm64"},
+                  {"os": "macos-latest", "php-version": "8.3", "platform": "macos-arm64"},
+              ])
+          print(f"php_matrix={json.dumps({'include': include})}")
+          print(f"php_matrix_has_entries={'true' if include else 'false'}")
+          PY
+
+  build-php-extension:
+    name: PHP Build (${{ matrix.os }}, PHP ${{ matrix.php-version }})
+    if: ${{ github.actor != 'dependabot[bot]' && needs.changes.outputs.php_matrix_has_entries == 'true' }}
+    needs: changes
+    timeout-minutes: 180
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJSON(needs.changes.outputs.php_matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        uses: ./.github/actions/install-system-deps
+
+      - name: Free disk space before setup
+        if: matrix.os == 'ubuntu-latest'
+        uses: ./.github/actions/free-disk-space-linux
+        with:
+          show-initial: "true"
+          show-final: "true"
+
+      - name: Setup OpenSSL
+        uses: ./.github/actions/setup-openssl
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          cache-key-prefix: php-${{ matrix.platform }}-${{ matrix.php-version }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ffi
+          tools: composer
+
+      - name: Print PHP environment
+        shell: bash
+        run: |
+          echo "=== PHP Environment ==="
+          echo "PHP version: $(php --version)"
+          echo "PHP config: $(php --ini)"
+          echo "Composer version: $(composer --version)"
+
+      - name: Install Composer dependencies
+        shell: bash
+        working-directory: packages/php
+        run: composer install --no-progress --prefer-dist
+
+      - name: Cache PDFium
+        uses: ./.github/actions/cache-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Download PDFium
+        uses: ./.github/actions/download-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Stage PDFium runtime
+        uses: ./.github/actions/stage-pdfium-runtime
+        with:
+          destination: target/release
+
+      - name: Setup ONNX Runtime
+        uses: ./.github/actions/setup-onnx-runtime
+        with:
+          ort-version: ${{ env.ORT_VERSION }}
+
+      - name: Build Rust FFI for PHP
+        uses: ./.github/actions/build-rust-ffi
+        with:
+          crate-name: kreuzberg-php
+          build-profile: release
+          verbose: true
+
+      - name: Build PHP extension
+        shell: bash
+        run: scripts/ci/php/build-extension.sh
+
+      - name: Cleanup Rust cache
+        if: always()
+        uses: ./.github/actions/cleanup-rust-cache
+
+  test-php:
+    name: PHP Tests (${{ matrix.os }}, PHP ${{ matrix.php-version }})
+    if: ${{ github.actor != 'dependabot[bot]' && needs.changes.outputs.php_matrix_has_entries == 'true' }}
+    needs: [changes, build-php-extension]
+    timeout-minutes: 180
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJSON(needs.changes.outputs.php_matrix) }}
+    runs-on: ${{ matrix.os }}
+    env:
+      RUSTC_WRAPPER: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        uses: ./.github/actions/install-system-deps
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          cache-key-prefix: php-test-${{ matrix.platform }}-${{ matrix.php-version }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ffi
+          tools: composer
+
+      - name: Install Composer dependencies
+        shell: bash
+        working-directory: packages/php
+        run: composer install --no-progress --prefer-dist
+
+      - name: Download PDFium
+        uses: ./.github/actions/download-pdfium
+        with:
+          pdfium-version: ${{ env.PDFIUM_VERSION }}
+
+      - name: Stage PDFium runtime
+        uses: ./.github/actions/stage-pdfium-runtime
+        with:
+          destination: target/release
+
+      - name: Setup ONNX Runtime
+        uses: ./.github/actions/setup-onnx-runtime
+        with:
+          ort-version: ${{ env.ORT_VERSION }}
+
+      - name: Build Rust FFI for PHP
+        uses: ./.github/actions/build-rust-ffi
+        with:
+          crate-name: kreuzberg-php
+          build-profile: release
+          verbose: true
+
+      - name: Build PHP extension
+        shell: bash
+        run: scripts/ci/php/build-extension.sh
+
+      - name: Run PHPStan
+        shell: bash
+        working-directory: packages/php
+        run: composer exec -- phpstan analyse
+
+      - name: Run PHP-CS-Fixer check
+        shell: bash
+        working-directory: packages/php
+        run: composer exec -- php-cs-fixer fix --dry-run --diff
+
+      - name: Run PHP tests
+        shell: bash
+        run: scripts/ci/php/run-tests.sh
+
+      - name: Build kreuzberg CLI binary
+        shell: bash
+        run: cargo build --release --package kreuzberg-cli
+
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
+      - name: Run E2E tests
+        shell: bash
+        run: task e2e:php:test

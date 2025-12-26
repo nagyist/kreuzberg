@@ -148,3 +148,15 @@ repos:
         language: system
         files: ^packages/csharp/
         pass_filenames: false
+      - id: phpstan
+        name: phpstan (packages/php)
+        entry: bash -c 'cd packages/php && composer exec -- phpstan analyse'
+        language: system
+        files: ^packages/php/.*\.php$
+        pass_filenames: false
+      - id: php-cs-fixer
+        name: php-cs-fixer (packages/php)
+        entry: bash -c 'cd packages/php && composer exec -- php-cs-fixer fix'
+        language: system
+        files: ^packages/php/.*\.php$
+        pass_filenames: false
