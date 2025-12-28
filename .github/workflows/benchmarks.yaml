@@ -699,6 +699,9 @@ jobs:
         with:
           ort-version: ${{ env.ORT_VERSION }}
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build or restore FFI from cache
         id: ffi
         uses: ./.github/actions/build-and-cache-ffi
@@ -717,9 +720,6 @@ jobs:
 
       - name: Vendor kreuzberg core for Ruby
         run: scripts/ci/ruby/vendor-kreuzberg-core.sh
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Build Ruby native gem
         env:
@@ -791,6 +791,9 @@ jobs:
         with:
           ort-version: ${{ env.ORT_VERSION }}
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build or restore FFI from cache
         id: ffi
         uses: ./.github/actions/build-and-cache-ffi
@@ -809,9 +812,6 @@ jobs:
 
       - name: Vendor kreuzberg core for Ruby
         run: scripts/ci/ruby/vendor-kreuzberg-core.sh
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Build Ruby native gem
         env:
@@ -1157,6 +1157,9 @@ jobs:
         with:
           ort-version: ${{ env.ORT_VERSION }}
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build or restore FFI from cache
         id: ffi
         uses: ./.github/actions/build-and-cache-ffi
@@ -1172,9 +1175,6 @@ jobs:
         run: |
           echo "PKG_CONFIG_PATH=${{ github.workspace }}/crates/kreuzberg-ffi:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=${{ github.workspace }}/target/release:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Build C# bindings
         run: task csharp:build:bindings

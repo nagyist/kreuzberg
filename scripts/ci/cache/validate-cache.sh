@@ -161,8 +161,36 @@ for path in "$@"; do
 					fi
 				done <<<"$node_files"
 			fi
+		# For FFI artifacts, look for library files recursively in the directory
+		elif [[ "$ARTIFACT_TYPE" == "ffi" ]]; then
+			ffi_files=$(find "$path" -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.a" -o -name "*.lib" \) 2>/dev/null || true)
+			if [[ -z "$ffi_files" ]]; then
+				warn "No FFI library files found in directory: $path"
+				((MISSING_COUNT++))
+			else
+				while IFS= read -r artifact; do
+					# File exists, check size
+					SIZE=$(du -sh "$artifact" 2>/dev/null | cut -f1 || echo "unknown")
+					FILE_SIZE=$(get_file_size "$artifact")
+
+					if [[ "$FILE_SIZE" -eq 0 ]]; then
+						warn "Empty file: $artifact"
+						((INVALID_COUNT++))
+						continue
+					fi
+
+					# Check for valid library file format
+					if file "$artifact" 2>/dev/null | grep -qE "(shared object|shared library|Mach-O|DLL|current ar archive)"; then
+						info "✓ Valid FFI library: $artifact ($SIZE)"
+						((VALID_COUNT++))
+					else
+						warn "Invalid FFI library format: $artifact"
+						((INVALID_COUNT++))
+					fi
+				done <<<"$ffi_files"
+			fi
 		else
-			# For non-WASM/non-Node, just check that the directory exists
+			# For other types, just check that the directory exists
 			info "✓ Directory exists: $path"
 			((VALID_COUNT++))
 		fi

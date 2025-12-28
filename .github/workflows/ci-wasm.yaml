@@ -158,7 +158,6 @@ jobs:
           task-command: wasm:build:ci
           cache-paths: |
             crates/kreuzberg-wasm/pkg/
-            crates/kreuzberg-wasm/dist/
           cache-version: v1
           rust-hash: "n/a"
           binding-files: |
