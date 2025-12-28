@@ -829,8 +829,6 @@ jobs:
         include:
           - runner: macos-14
             bottle_tag: arm64_sequoia
-          - runner: macos-13
-            bottle_tag: ventura
     steps:
       - name: Checkout
         uses: actions/checkout@v4
