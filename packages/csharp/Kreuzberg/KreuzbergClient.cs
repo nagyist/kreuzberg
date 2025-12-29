@@ -27,6 +27,13 @@ public static class KreuzbergClient
     private static readonly ConditionalWeakTable<ExtractionConfig, ConfigCacheEntry> ConfigJsonCache = new();
 
     /// <summary>
+    /// Lock to ensure thread-safe access to ConfigJsonCache.
+    /// ConditionalWeakTable.Add() is not thread-safe for concurrent calls with the same key,
+    /// so we must synchronize all cache operations (TryGetValue, Add) with a lock.
+    /// </summary>
+    private static readonly object s_configCacheLock = new object();
+
+    /// <summary>
     /// Detects the MIME type of raw document bytes by examining file signatures.
     /// </summary>
     /// <param name="data">Document bytes to analyze. Must not be empty.</param>
@@ -1188,6 +1195,7 @@ public static class KreuzbergClient
             result.Metadata = Serialization.ParseMetadata(InteropUtilities.ReadUtf8(cRes.MetadataJson));
             result.Chunks = DeserializeField<List<Chunk>>(cRes.ChunksJson);
             result.Images = DeserializeField<List<ExtractedImage>>(cRes.ImagesJson);
+            result.Pages = DeserializeField<List<PageContent>>(cRes.PagesJson);
 
             if (result.Metadata.Pages == null && cRes.PageStructureJson != IntPtr.Zero)
             {
@@ -1254,18 +1262,21 @@ public static class KreuzbergClient
             return IntPtr.Zero;
         }
 
-        string json;
-        if (ConfigJsonCache.TryGetValue(config, out var cacheEntry))
+        lock (s_configCacheLock)
         {
-            json = cacheEntry.JsonData;
-        }
-        else
-        {
-            json = JsonSerializer.Serialize(config, Serialization.Options);
-            ConfigJsonCache.Add(config, new ConfigCacheEntry(json));
-        }
+            string json;
+            if (ConfigJsonCache.TryGetValue(config, out var cacheEntry))
+            {
+                json = cacheEntry.JsonData;
+            }
+            else
+            {
+                json = JsonSerializer.Serialize(config, Serialization.ConfigOptions);
+                ConfigJsonCache.Add(config, new ConfigCacheEntry(json));
+            }
 
-        return InteropUtilities.AllocUtf8(json);
+            return InteropUtilities.AllocUtf8(json);
+        }
     }
 
     private static T? DeserializeField<T>(IntPtr ptr)
