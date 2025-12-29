@@ -56,83 +56,29 @@ env:
   BUILD_PROFILE: "ci"
 
 jobs:
-  changes:
-    name: Detect changes
-    runs-on: ubuntu-latest
-    outputs:
-      elixir_matrix: ${{ steps.matrix.outputs.elixir_matrix }}
-      elixir_matrix_has_entries: ${{ steps.matrix.outputs.elixir_matrix_has_entries }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            elixir_windows:
-              - '.github/actions/**'
-              - 'crates/kreuzberg/**'
-              - 'crates/kreuzberg-elixir/**'
-              - 'packages/elixir/**'
-              - 'e2e/elixir/**'
-              - 'test_documents/**'
-              - 'fixtures/**'
-              - 'tools/e2e-generator/**'
-              - 'Cargo.toml'
-              - 'Cargo.lock'
-              - 'packages/elixir/mix.exs'
-              - 'packages/elixir/mix.lock'
-              - 'scripts/ci/elixir/*.sh'
-              - 'scripts/ci/elixir/*.ps1'
-              - '.github/workflows/ci-elixir.yaml'
-              - '.cargo/config.toml'
-            elixir_unix:
-              - '.github/actions/**'
-              - 'crates/kreuzberg/**'
-              - 'crates/kreuzberg-elixir/**'
-              - 'packages/elixir/**'
-              - 'e2e/elixir/**'
-              - 'test_documents/**'
-              - 'fixtures/**'
-              - 'tools/e2e-generator/**'
-              - 'Cargo.toml'
-              - 'Cargo.lock'
-              - 'packages/elixir/mix.exs'
-              - 'packages/elixir/mix.lock'
-              - 'scripts/ci/elixir/*.sh'
-              - '.github/workflows/ci-elixir.yaml'
-              - '.cargo/config.toml'
-      - name: Build matrix
-        id: matrix
-        shell: bash
-        env:
-          ELIXIR_WINDOWS: ${{ steps.filter.outputs.elixir_windows }}
-          ELIXIR_UNIX: ${{ steps.filter.outputs.elixir_unix }}
-        run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          import os
-          include = []
-          if os.environ.get("ELIXIR_UNIX") == "true":
-              include.extend([
-                  {"os": "ubuntu-latest", "elixir-version": "1.14", "otp-version": "25.3"},
-                  {"os": "ubuntu-latest", "elixir-version": "1.15", "otp-version": "26.2"},
-                  {"os": "ubuntu-latest", "elixir-version": "1.16", "otp-version": "27.0"},
-                  {"os": "macos-latest", "elixir-version": "1.16", "otp-version": "27.0"},
-              ])
-          if os.environ.get("ELIXIR_WINDOWS") == "true":
-              include.append({"os": "windows-latest", "elixir-version": "1.16", "otp-version": "27.0"})
-          print(f"elixir_matrix={json.dumps({'include': include})}")
-          print(f"elixir_matrix_has_entries={'true' if include else 'false'}")
-          PY
-
   build-and-test:
     name: Elixir Build and Test (${{ matrix.os }}, Elixir ${{ matrix.elixir-version }}, OTP ${{ matrix.otp-version }})
-    if: ${{ github.actor != 'dependabot[bot]' && needs.changes.outputs.elixir_matrix_has_entries == 'true' }}
-    needs: changes
+    if: ${{ github.actor != 'dependabot[bot]' }}
     timeout-minutes: 180
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.changes.outputs.elixir_matrix) }}
+      matrix:
+        include:
+          - os: ubuntu-latest
+            elixir-version: "1.14"
+            otp-version: "25.3"
+          - os: ubuntu-latest
+            elixir-version: "1.15"
+            otp-version: "26.2"
+          - os: ubuntu-latest
+            elixir-version: "1.16"
+            otp-version: "27.0"
+          - os: macos-latest
+            elixir-version: "1.16"
+            otp-version: "27.0"
+          - os: windows-latest
+            elixir-version: "1.16"
+            otp-version: "27.0"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

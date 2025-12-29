@@ -105,7 +105,7 @@ jobs:
           submodules: recursive
 
       - name: Upload release metadata
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: release-metadata
           path: release-metadata.json
@@ -550,7 +550,7 @@ jobs:
         run: scripts/publish/ubuntu/docker-prune.sh
 
       - name: Upload wheel artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: target/wheels/*.whl
@@ -602,7 +602,7 @@ jobs:
         run: task python:build:sdist:publish
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: python-sdist
           path: dist/*.tar.gz
@@ -744,14 +744,14 @@ jobs:
 
       - name: Upload TypeScript definitions
         if: matrix.settings.target == 'x86_64-unknown-linux-gnu'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: node-typescript-defs
           path: typescript-defs
           retention-days: 14
 
       - name: Upload Node artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: node-bindings-${{ matrix.settings.target }}
           path: node-bindings-${{ matrix.settings.target }}.tar.gz
@@ -836,7 +836,7 @@ jobs:
 
       - name: Upload CLI artifact
         if: runner.os != 'Windows'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: cli-${{ matrix.target }}
           path: kreuzberg-cli-${{ matrix.target }}.tar.gz
@@ -844,7 +844,7 @@ jobs:
 
       - name: Upload CLI artifact (Windows)
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: cli-${{ matrix.target }}
           path: kreuzberg-cli-${{ matrix.target }}.zip
@@ -930,7 +930,7 @@ jobs:
           echo "SHA256: ${sha256}"
 
       - name: Upload bottle artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: homebrew-bottle-${{ matrix.bottle_tag }}
           path: kreuzberg--${{ steps.version.outputs.version }}.${{ matrix.bottle_tag }}.bottle.tar.gz
@@ -961,7 +961,7 @@ jobs:
         run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
 
       - name: Download bottle artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: homebrew-bottle-*
           path: dist/homebrew
@@ -1104,6 +1104,16 @@ jobs:
         working-directory: packages/ruby
         run: task ruby:build:release
 
+      - name: Verify gem was built
+        if: runner.os != 'Windows'
+        shell: bash
+        working-directory: packages/ruby
+        run: |
+          if [ ! -d pkg ] || [ -z "$(ls -A pkg/*.gem 2>/dev/null)" ]; then
+            echo "ERROR: Gem was not built successfully" >&2
+            exit 1
+          fi
+
       - name: Check disk space after build (Unix)
         if: runner.os != 'Windows'
         shell: bash
@@ -1199,7 +1209,7 @@ jobs:
           }
 
       - name: Upload gem artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: rubygems-${{ matrix.label }}
           path: packages/ruby/pkg/*.gem
@@ -1347,7 +1357,7 @@ jobs:
         run: scripts/ci/go/verify-ffi-artifact.sh "go-ffi-${{ matrix.settings.label }}.tar.gz"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: go-ffi-${{ matrix.settings.label }}
           path: go-ffi-${{ matrix.settings.label }}.tar.gz
@@ -1442,7 +1452,7 @@ jobs:
         run: scripts/ci/java/collect-native-artifacts.sh "${{ matrix.settings.rid }}" "java-natives/${{ matrix.settings.rid }}"
 
       - name: Upload native artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: java-natives-${{ matrix.settings.label }}
           path: java-natives/${{ matrix.settings.rid }}
@@ -1522,7 +1532,7 @@ jobs:
         uses: ./.github/actions/install-task
 
       - name: Download Java native artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: java-natives-*
           path: artifacts/java-natives
@@ -1545,7 +1555,7 @@ jobs:
         run: task java:build:release
 
       - name: Upload JAR artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: maven-packages
           path: packages/java/target/*.jar
@@ -1639,7 +1649,7 @@ jobs:
         run: scripts/publish/php/build-pie-package.sh "${{ matrix.settings.platform }}" "dist/php"
 
       - name: Upload PHP PIE package artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: php-pie-${{ matrix.settings.label }}
           path: dist/php/kreuzberg-*.tar.gz*
@@ -1694,7 +1704,7 @@ jobs:
         uses: ./.github/actions/install-task
 
       - name: Download native assets
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: csharp-native-assets-*
           path: packages/csharp/Kreuzberg/runtimes
@@ -1723,7 +1733,7 @@ jobs:
         run: scripts/publish/csharp/verify-nuget-native-assets.sh
 
       - name: Upload NuGet artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: csharp-nuget
           path: artifacts/csharp/*.nupkg
@@ -1829,7 +1839,7 @@ jobs:
         run: scripts/publish/csharp/verify-native-assets-dir.sh
 
       - name: Upload native assets artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: csharp-native-assets-${{ matrix.rid }}
           path: runtimes/
@@ -1860,7 +1870,7 @@ jobs:
         run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
 
       - name: Download CLI artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: cli-*
           path: dist/cli
@@ -1895,7 +1905,7 @@ jobs:
         run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
 
       - name: Download C# artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           name: csharp-nuget
           path: dist/csharp
@@ -1930,7 +1940,7 @@ jobs:
         run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
 
       - name: Download Go FFI artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: go-ffi-*
           path: dist/go
@@ -2042,6 +2052,9 @@ jobs:
 
       - name: Build documentation
         working-directory: packages/elixir
+        env:
+          RUSTLER_PRECOMPILATION_EXAMPLE_BUILD: "true"
+          RUSTLER_PRECOMPILED_FORCE_BUILD_ALL: "true"
         run: mix docs
 
       - name: Publish to Hex.pm
@@ -2073,14 +2086,14 @@ jobs:
       id-token: write
     steps:
       - name: Download wheel artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: python-wheels-*
           path: dist
           merge-multiple: true
 
       - name: Download sdist artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           name: python-sdist
           path: dist
@@ -2122,7 +2135,7 @@ jobs:
           submodules: recursive
 
       - name: Download Ruby gem artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: rubygems-*
           path: dist
@@ -2217,14 +2230,14 @@ jobs:
           package_json_file: package.json
 
       - name: Download Node artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: node-bindings-*
           path: node-artifacts
           merge-multiple: true
 
       - name: Download TypeScript definitions
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           name: node-typescript-defs
           path: typescript-defs
@@ -2478,7 +2491,7 @@ jobs:
 
       - name: Download Java native artifacts
         if: ${{ needs.prepare.outputs.dry_run != 'true' && steps.maven_check.outputs.exists != 'true' }}
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: java-natives-*
           path: artifacts/java-natives
@@ -2537,7 +2550,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download NuGet artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           name: csharp-nuget
           path: dist
@@ -2582,7 +2595,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download PHP PIE package artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: php-pie-*
           path: dist/php
@@ -2663,7 +2676,7 @@ jobs:
         run: scripts/publish/homebrew/extract-release-info.sh
 
       - name: Download bottle artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           pattern: homebrew-bottle-*
           path: dist/homebrew

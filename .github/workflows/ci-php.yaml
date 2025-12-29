@@ -61,64 +61,29 @@ env:
   BUILD_PROFILE: "ci"
 
 jobs:
-  changes:
-    name: Detect changes
-    runs-on: ubuntu-latest
-    outputs:
-      php_matrix: ${{ steps.matrix.outputs.php_matrix }}
-      php_matrix_has_entries: ${{ steps.matrix.outputs.php_matrix_has_entries }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            php_unix:
-              - '.github/actions/**'
-              - 'crates/kreuzberg/**'
-              - 'crates/kreuzberg-php/**'
-              - 'crates/kreuzberg-ffi/**'
-              - 'crates/kreuzberg-tesseract/**'
-              - 'packages/php/**'
-              - 'e2e/php/**'
-              - 'test_documents/**'
-              - 'fixtures/**'
-              - 'tools/e2e-generator/**'
-              - 'Cargo.toml'
-              - 'Cargo.lock'
-              - 'scripts/ci/php/**'
-              - 'scripts/ci/cache/**'
-              - '.github/workflows/ci-php.yaml'
-              - '.cargo/config.toml'
-      - name: Build matrix
-        id: matrix
-        shell: bash
-        env:
-          PHP_UNIX: ${{ steps.filter.outputs.php_unix }}
-        run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          import os
-          include = []
-          if os.environ.get("PHP_UNIX") == "true":
-              include.extend([
-                  {"os": "ubuntu-latest", "php-version": "8.2", "platform": "linux-x64"},
-                  {"os": "ubuntu-latest", "php-version": "8.3", "platform": "linux-x64"},
-                  {"os": "macos-latest", "php-version": "8.2", "platform": "macos-arm64"},
-                  {"os": "macos-latest", "php-version": "8.3", "platform": "macos-arm64"},
-              ])
-          print(f"php_matrix={json.dumps({'include': include})}")
-          print(f"php_matrix_has_entries={'true' if include else 'false'}")
-          PY
-
   build-php-extension:
     name: PHP Build (${{ matrix.os }}, PHP ${{ matrix.php-version }})
-    if: ${{ github.actor != 'dependabot[bot]' && needs.changes.outputs.php_matrix_has_entries == 'true' }}
-    needs: changes
+    if: ${{ github.actor != 'dependabot[bot]' }}
     timeout-minutes: 180
     strategy:
       fail-fast: true
-      matrix: ${{ fromJSON(needs.changes.outputs.php_matrix) }}
+      matrix:
+        include:
+          - os: ubuntu-latest
+            php-version: "8.2"
+            platform: linux-x64
+          - os: ubuntu-latest
+            php-version: "8.3"
+            platform: linux-x64
+          - os: ubuntu-latest
+            php-version: "8.4"
+            platform: linux-x64
+          - os: macos-latest
+            php-version: "8.4"
+            platform: macos-arm64
+          - os: windows-latest
+            php-version: "8.4"
+            platform: windows-x64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -226,12 +191,28 @@ jobs:
 
   test-php:
     name: PHP Tests (${{ matrix.os }}, PHP ${{ matrix.php-version }})
-    if: ${{ github.actor != 'dependabot[bot]' && needs.changes.outputs.php_matrix_has_entries == 'true' }}
-    needs: [changes, build-php-extension]
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    needs: build-php-extension
     timeout-minutes: 180
     strategy:
       fail-fast: true
-      matrix: ${{ fromJSON(needs.changes.outputs.php_matrix) }}
+      matrix:
+        include:
+          - os: ubuntu-latest
+            php-version: "8.2"
+            platform: linux-x64
+          - os: ubuntu-latest
+            php-version: "8.3"
+            platform: linux-x64
+          - os: ubuntu-latest
+            php-version: "8.4"
+            platform: linux-x64
+          - os: macos-latest
+            php-version: "8.4"
+            platform: macos-arm64
+          - os: windows-latest
+            php-version: "8.4"
+            platform: windows-x64
     runs-on: ${{ matrix.os }}
     env:
       RUSTC_WRAPPER: ""
