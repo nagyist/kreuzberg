@@ -29,7 +29,7 @@ echo ""
 log_info "Test 3: Text extraction works"
 if [ -f "$(dirname "$0")/../fixtures/sample.txt" ]; then
 	result=$(docker exec -w /fixtures kreuzberg-core-test kreuzberg extract sample.txt 2>&1 || true)
-	if [ ! -z "$result" ]; then
+	if [ -n "$result" ]; then
 		log_success "Text extraction produces output"
 	else
 		log_warn "Text extraction returned empty result"

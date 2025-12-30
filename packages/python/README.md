@@ -95,7 +95,7 @@ pip install -e .
 - **Python 3.10+** (3.11+ recommended for best performance)
 - **Rust toolchain** (for building from source): [Install Rust](https://rustup.rs/)
 - Optional: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for native OCR support
-- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime) version 1.21 or lower for vector embeddings
+- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime) version 1.22.x for vector embeddings
 - Optional: [FFmpeg](https://ffmpeg.org/download.html) for audio/video extraction
 
 ### Dependency Installation by Platform

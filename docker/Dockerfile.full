@@ -21,10 +21,12 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set pdfium version (can be overridden via build-arg)
+# Set pdfium and onnxruntime versions (can be overridden via build-arg)
 ARG PDFIUM_VERSION=7529
+ARG ONNXRUNTIME_VERSION=1.22.2
 ARG TARGETARCH
 ENV PDFIUM_VERSION=${PDFIUM_VERSION}
+ENV ONNXRUNTIME_VERSION=${ONNXRUNTIME_VERSION}
 
 # Download and extract pdfium to a location that can be reused
 # TARGETARCH is automatically set by Docker: amd64, arm64, etc.
@@ -40,6 +42,18 @@ RUN mkdir -p /build/pdfium && \
         -o /build/pdfium.tgz) && \
     tar -xzf /build/pdfium.tgz -C /build/pdfium && \
     rm /build/pdfium.tgz
+
+# Download and extract ONNX Runtime
+RUN mkdir -p /build/onnxruntime && \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        ORT_ARCH="aarch64"; \
+    else \
+        ORT_ARCH="x64"; \
+    fi && \
+    curl -fL "https://github.com/microsoft/onnxruntime/releases/download/v${ONNXRUNTIME_VERSION}/onnxruntime-linux-${ORT_ARCH}-${ONNXRUNTIME_VERSION}.tgz" \
+        -o /build/onnxruntime.tgz && \
+    tar -xzf /build/onnxruntime.tgz -C /build/onnxruntime --strip-components=1 && \
+    rm /build/onnxruntime.tgz
 
 # Set environment variable to use prebuilt pdfium
 ENV KREUZBERG_PDFIUM_PREBUILT=/build/pdfium
@@ -91,8 +105,6 @@ RUN apt-get update && \
         tesseract-ocr-ara \
         tesseract-ocr-rus \
         tesseract-ocr-hin \
-        libonnxruntime1.21 \
-        libonnxruntime-dev \
         fontconfig \
         libxinerama1 \
         libgl1 \
@@ -117,8 +129,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Copy pdfium library from builder
+# Copy pdfium and ONNX Runtime libraries from builder
 COPY --from=builder /build/pdfium/lib/libpdfium.so /usr/local/lib/
+COPY --from=builder /build/onnxruntime/lib/libonnxruntime.so* /usr/local/lib/
 RUN ldconfig
 
 # Copy binary from builder

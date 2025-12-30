@@ -30,7 +30,7 @@ fi
 echo ""
 log_info "Test 3: Core MCP help works"
 output=$(docker exec kreuzberg-core-test kreuzberg mcp --help 2>&1 || true)
-if [ ! -z "$output" ]; then
+if [ -n "$output" ]; then
 	log_success "Core MCP help is available"
 else
 	log_fail "Core MCP help is empty"
@@ -39,7 +39,7 @@ fi
 echo ""
 log_info "Test 4: Full MCP help works"
 output=$(docker exec kreuzberg-full-test kreuzberg mcp --help 2>&1 || true)
-if [ ! -z "$output" ]; then
+if [ -n "$output" ]; then
 	log_success "Full MCP help is available"
 else
 	log_fail "Full MCP help is empty"

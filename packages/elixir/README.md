@@ -98,7 +98,7 @@ The package will automatically compile the Rust NIF using Rustler precompiled bi
 
 - **Elixir 1.14+** and **Erlang/OTP 24+**
 - C compiler (gcc, clang, or MSVC)
-- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime/releases) version 1.21 or lower for embeddings support
+- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime/releases) version 1.22.x for embeddings support
 - Optional: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for OCR functionality
 
 ### Native Build

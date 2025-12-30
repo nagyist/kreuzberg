@@ -302,6 +302,9 @@ jobs:
           time scripts/ci/node/unpack-bindings.sh
           set +x
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build TypeScript wrapper
         shell: bash
         env:
@@ -337,9 +340,6 @@ jobs:
           key: typescript
           coverage-file: e2e/typescript/coverage/lcov.info
           dsn: ${{ secrets.DEEPSOURCE_DSN }}
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Run E2E tests
         shell: bash

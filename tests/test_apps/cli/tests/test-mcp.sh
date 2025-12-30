@@ -16,7 +16,7 @@ fi
 PASSED=0
 FAILED=0
 
-# shellcheck disable=SC2329  # Function is invoked indirectly via trap
+# shellcheck disable=SC2329,SC2317  # Function is invoked indirectly via trap
 cleanup() {
 	if [ -n "${SERVER_PID:-}" ]; then
 		echo "Stopping MCP server (PID: $SERVER_PID)..."

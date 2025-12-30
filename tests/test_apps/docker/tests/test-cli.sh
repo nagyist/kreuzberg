@@ -82,7 +82,7 @@ fi
 echo ""
 log_info "Test 9: Core list formats or similar"
 output=$(docker exec kreuzberg-core-test kreuzberg --help 2>&1 || true)
-if [ ! -z "$output" ]; then
+if [ -n "$output" ]; then
 	log_success "Core CLI is responsive"
 else
 	log_fail "Core CLI output empty"
@@ -91,7 +91,7 @@ fi
 echo ""
 log_info "Test 10: Full list formats or similar"
 output=$(docker exec kreuzberg-full-test kreuzberg --help 2>&1 || true)
-if [ ! -z "$output" ]; then
+if [ -n "$output" ]; then
 	log_success "Full CLI is responsive"
 else
 	log_fail "Full CLI output empty"

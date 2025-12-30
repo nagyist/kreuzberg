@@ -159,7 +159,7 @@ public final class EmbeddingConfig {
 		 * <li>'all-mpnet-base-v2': High quality (dimension: 768)</li>
 		 * <li>'paraphrase-MiniLM-L6-v2': Good for semantic similarity (dimension:
 		 * 384)</li>
-		 * <li>'multi-qa-MiniLM-L6-cos-v1': Optimized for Q&A (dimension: 384)</li>
+		 * <li>'multi-qa-MiniLM-L6-cos-v1': Optimized for Q&amp;A (dimension: 384)</li>
 		 * </ul>
 		 *
 		 * @param model
