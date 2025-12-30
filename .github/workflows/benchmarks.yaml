@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -118,7 +118,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -178,7 +178,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -250,7 +250,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -322,7 +322,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -394,7 +394,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -469,7 +469,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -544,7 +544,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -608,7 +608,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -672,7 +672,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -762,7 +762,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -852,7 +852,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -943,7 +943,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1034,7 +1034,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1121,7 +1121,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1206,7 +1206,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1278,7 +1278,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1350,7 +1350,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1436,7 +1436,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1522,7 +1522,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1591,7 +1591,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1660,7 +1660,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1729,7 +1729,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1798,7 +1798,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1865,7 +1865,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -1932,7 +1932,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -2001,7 +2001,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -2070,7 +2070,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -2139,7 +2139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
@@ -2208,7 +2208,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Free disk space
         run: scripts/ci/benchmarks/free-disk-space.sh
