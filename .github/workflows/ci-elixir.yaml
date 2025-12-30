@@ -19,27 +19,27 @@ name: CI Elixir
       - 'scripts/ci/elixir/**'
       - '.github/workflows/ci-elixir.yaml'
       - '.cargo/config.toml'
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/actions/**'
-      - 'crates/kreuzberg/**'
-      - 'crates/kreuzberg-elixir/**'
-      - 'packages/elixir/**'
-      - 'e2e/elixir/**'
-      - 'test_documents/**'
-      - 'fixtures/**'
-      - 'tools/e2e-generator/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - 'packages/elixir/mix.exs'
-      - 'packages/elixir/mix.lock'
-      - 'scripts/ci/elixir/**'
-      - '.github/workflows/ci-elixir.yaml'
-      - '.cargo/config.toml'
-
+#   pull_request:
+#     branches: [main]
+#     paths:
+#       - '.github/actions/**'
+#       - 'crates/kreuzberg/**'
+#       - 'crates/kreuzberg-elixir/**'
+#       - 'packages/elixir/**'
+#       - 'e2e/elixir/**'
+#       - 'test_documents/**'
+#       - 'fixtures/**'
+#       - 'tools/e2e-generator/**'
+#       - 'Cargo.toml'
+#       - 'Cargo.lock'
+#       - 'packages/elixir/mix.exs'
+#       - 'packages/elixir/mix.lock'
+#       - 'scripts/ci/elixir/**'
+#       - '.github/workflows/ci-elixir.yaml'
+#       - '.cargo/config.toml'
+#
 concurrency:
-  group: ci-elixir-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+#   group: ci-elixir-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:

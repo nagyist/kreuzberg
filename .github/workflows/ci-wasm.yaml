@@ -21,27 +21,27 @@ on:
       - 'scripts/ci/wasm/**'
       - 'scripts/ci/cache/**'
       - '.github/workflows/ci-wasm.yaml'
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/actions/**'
-      - 'crates/kreuzberg/**'
-      - 'crates/kreuzberg-wasm/**'
-      - 'packages/typescript/core/**'
-      - 'packages/wasm/**'
-      - 'e2e/wasm/**'
-      - 'e2e/wasm-deno/**'
-      - 'e2e/wasm-workers/**'
-      - 'fixtures/**'
-      - 'tools/e2e-generator/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - 'pnpm-lock.yaml'
-      - 'package.json'
-      - 'scripts/ci/wasm/**'
-      - 'scripts/ci/cache/**'
-      - '.github/workflows/ci-wasm.yaml'
-  workflow_dispatch:
+#   pull_request:
+#     branches: [main]
+#     paths:
+#       - '.github/actions/**'
+#       - 'crates/kreuzberg/**'
+#       - 'crates/kreuzberg-wasm/**'
+#       - 'packages/typescript/core/**'
+#       - 'packages/wasm/**'
+#       - 'e2e/wasm/**'
+#       - 'e2e/wasm-deno/**'
+#       - 'e2e/wasm-workers/**'
+#       - 'fixtures/**'
+#       - 'tools/e2e-generator/**'
+#       - 'Cargo.toml'
+#       - 'Cargo.lock'
+#       - 'pnpm-lock.yaml'
+#       - 'package.json'
+#       - 'scripts/ci/wasm/**'
+#       - 'scripts/ci/cache/**'
+#       - '.github/workflows/ci-wasm.yaml'
+#   workflow_dispatch:
 
 concurrency:
   group: ci-wasm-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
