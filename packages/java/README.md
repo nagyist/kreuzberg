@@ -97,7 +97,7 @@ For platform-specific native libraries, Maven handles automatic classifier selec
 
 - **Java 21+** required (Java 25 recommended for best FFM API performance)
 - **FFM API** enabled by default (no additional flags needed in Java 21+)
-- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime/releases) version 1.21 or lower for embeddings support
+- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime/releases) version 1.22.x for embeddings support
 - Optional: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for OCR functionality
 
 ### FFM API (Foreign Function & Memory API)

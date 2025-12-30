@@ -85,7 +85,7 @@ yarn add @kreuzberg/node
 ### System Requirements
 
 - **Node.js 16+** or **Bun 1.0+** required
-- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime/releases) version 1.21 or lower for embeddings support
+- Optional: [ONNX Runtime](https://github.com/microsoft/onnxruntime/releases) version 1.22.x for embeddings support
 - Optional: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for OCR functionality
 
 ## Quick Start

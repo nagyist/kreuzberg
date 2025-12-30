@@ -428,7 +428,7 @@ impl TextEmbeddingManager {
 //! **CRITICAL**: This module requires ONNX Runtime to be installed.
 //!
 //! Installation:
-//! - macOS: `brew install onnxruntime@1.21`
+//! - macOS: `brew install onnxruntime`
 //! - Linux: `apt install libonnxruntime libonnxruntime-dev`
 //! - Windows: Download from Microsoft ONNX Runtime releases
 //!
