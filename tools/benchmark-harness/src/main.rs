@@ -241,7 +241,7 @@ async fn main() -> Result<()> {
 
             config.validate()?;
 
-            let extraction_config = if ocr {
+            let mut extraction_config = if ocr {
                 ExtractionConfig {
                     ocr: Some(OcrConfig {
                         backend: "tesseract".to_string(),
@@ -253,6 +253,7 @@ async fn main() -> Result<()> {
             } else {
                 ExtractionConfig::default()
             };
+            extraction_config.max_concurrent_extractions = Some(config.max_concurrent);
 
             let mut registry = AdapterRegistry::new();
 
