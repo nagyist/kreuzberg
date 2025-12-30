@@ -897,6 +897,9 @@ jobs:
         with:
           ort-version: ${{ env.ORT_VERSION }}
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build FFI library
         id: ffi
         shell: bash
@@ -914,9 +917,6 @@ jobs:
       - name: Prime Go modules
         working-directory: packages/go/v4
         run: go mod download
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Build Go bindings
         run: task go:build:bindings
@@ -988,6 +988,9 @@ jobs:
         with:
           ort-version: ${{ env.ORT_VERSION }}
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build FFI library
         id: ffi
         shell: bash
@@ -1005,9 +1008,6 @@ jobs:
       - name: Prime Go modules
         working-directory: packages/go/v4
         run: go mod download
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Build Go bindings
         run: task go:build:bindings
