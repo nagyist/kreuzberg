@@ -8,10 +8,11 @@ pub mod python;
 pub mod ruby;
 pub mod subprocess;
 
-pub use external::{
-    create_docling_adapter, create_docling_batch_adapter, create_markitdown_adapter, create_pandoc_adapter,
-    create_tika_batch_adapter, create_tika_sync_adapter, create_unstructured_adapter,
-};
+// TEMPORARILY DISABLED: Third-party framework benchmarks
+// pub use external::{
+//     create_docling_adapter, create_docling_batch_adapter, create_markitdown_adapter, create_pandoc_adapter,
+//     create_tika_batch_adapter, create_tika_sync_adapter, create_unstructured_adapter,
+// };
 pub use kreuzberg::{
     create_csharp_sync_adapter, create_elixir_batch_adapter, create_elixir_sync_adapter, create_go_batch_adapter,
     create_go_sync_adapter, create_java_sync_adapter, create_node_async_adapter, create_node_batch_adapter,
