@@ -1080,6 +1080,9 @@ jobs:
         with:
           ort-version: ${{ env.ORT_VERSION }}
 
+      - name: Install Task
+        uses: ./.github/actions/install-task
+
       - name: Build FFI library
         id: ffi
         shell: bash
@@ -1093,9 +1096,6 @@ jobs:
         run: |
           echo "PKG_CONFIG_PATH=${{ github.workspace }}/crates/kreuzberg-ffi:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=${{ github.workspace }}/target/release:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
-
-      - name: Install Task
-        uses: ./.github/actions/install-task
 
       - name: Build Java bindings
         run: task java:build:bindings
@@ -1255,6 +1255,8 @@ jobs:
         uses: ./.github/actions/install-task
 
       - name: Build Elixir bindings
+        env:
+          KREUZBERG_BUILD: "1"
         run: task elixir:build:bindings
 
       - name: Run benchmark
@@ -1327,6 +1329,8 @@ jobs:
         uses: ./.github/actions/install-task
 
       - name: Build Elixir bindings
+        env:
+          KREUZBERG_BUILD: "1"
         run: task elixir:build:bindings
 
       - name: Run benchmark
@@ -1413,7 +1417,7 @@ jobs:
           echo "LD_LIBRARY_PATH=${{ github.workspace }}/target/release:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
       - name: Build PHP bindings
-        run: task php:build:bindings
+        run: task php:build:ci
 
       - name: Run benchmark
         env:
@@ -1499,7 +1503,7 @@ jobs:
           echo "LD_LIBRARY_PATH=${{ github.workspace }}/target/release:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
       - name: Build PHP bindings
-        run: task php:build:bindings
+        run: task php:build:ci
 
       - name: Run benchmark
         env:
