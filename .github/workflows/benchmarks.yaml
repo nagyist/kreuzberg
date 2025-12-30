@@ -70,6 +70,7 @@ jobs:
         uses: ./.github/actions/setup-rust
         with:
           cache-key-prefix: benchmarks-setup
+          use-sccache: true
 
       - name: Cache PDFium
         uses: ./.github/actions/cache-pdfium
@@ -87,8 +88,16 @@ jobs:
       - name: Install Task
         uses: ./.github/actions/install-task
 
-      - name: Build workspace (native libs + harness)
-        run: task rust:build:release
+      - name: Cache benchmark harness
+        uses: ./.github/actions/cache-benchmark-harness
+        with:
+          build-profile: release
+
+      - name: Build FFI library
+        uses: ./.github/actions/build-rust-ffi
+        with:
+          crate-name: kreuzberg-ffi
+          build-profile: release
 
       - name: Log disk space before artifact upload
         run: scripts/ci/validate/show-disk-space.sh "Disk space before artifact upload"
