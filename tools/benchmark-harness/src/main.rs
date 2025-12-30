@@ -321,15 +321,18 @@ async fn main() -> Result<()> {
                 kreuzberg_count, total_requested
             );
 
-            use benchmark_harness::adapters::external::{
-                create_docling_adapter, create_docling_batch_adapter, create_markitdown_adapter, create_mineru_adapter,
-                create_mineru_batch_adapter, create_pandoc_adapter, create_pdfplumber_adapter,
-                create_pdfplumber_batch_adapter, create_pymupdf4llm_adapter, create_tika_batch_adapter,
-                create_tika_sync_adapter, create_unstructured_adapter,
-            };
+            // TEMPORARILY DISABLED: Third-party framework benchmarks
+            // TODO: Re-enable once all frameworks are properly configured
+            // use benchmark_harness::adapters::external::{
+            //     create_docling_adapter, create_docling_batch_adapter, create_markitdown_adapter, create_mineru_adapter,
+            //     create_mineru_batch_adapter, create_pandoc_adapter, create_pdfplumber_adapter,
+            //     create_pdfplumber_batch_adapter, create_pymupdf4llm_adapter, create_tika_batch_adapter,
+            //     create_tika_sync_adapter, create_unstructured_adapter,
+            // };
 
-            let mut external_count = 0;
+            let external_count = 0;
 
+            /*
             if let Ok(adapter) = create_docling_adapter() {
                 if let Ok(()) = registry.register(Arc::new(adapter)) {
                     eprintln!("[adapter] ✓ docling (registered)");
@@ -461,9 +464,10 @@ async fn main() -> Result<()> {
             } else {
                 eprintln!("[adapter] ✗ mineru-batch (initialization failed)");
             }
+            */
 
             eprintln!(
-                "[adapter] Open source extraction frameworks: {}/12 available",
+                "[adapter] Open source extraction frameworks: {}/12 available (TEMPORARILY DISABLED)",
                 external_count
             );
             eprintln!(
