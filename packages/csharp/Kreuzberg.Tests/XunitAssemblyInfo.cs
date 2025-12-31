@@ -27,6 +27,7 @@ internal static class PdfiumModuleInitializer
 internal static class PdfiumInitializer
 {
     private static volatile bool s_initialized = false;
+    private static volatile bool s_cleanupStarted = false;
     private static readonly object s_lock = new();
 
     public static void Initialize()
@@ -48,9 +49,16 @@ internal static class PdfiumInitializer
                 // Pdfium will be initialized on first PDF extraction call from Rust
                 NativeTestHelper.EnsureNativeLibraryLoaded();
 
-                // Register cleanup handler to run when AppDomain unloads
-                AppDomain.CurrentDomain.ProcessExit += (sender, e) => CleanupAllRegistrations();
-                AppDomain.CurrentDomain.DomainUnload += (sender, e) => CleanupAllRegistrations();
+                // NOTE: We intentionally do NOT register ProcessExit/DomainUnload handlers
+                // that call into the native library. On Windows, calling FFI functions during
+                // process shutdown can cause crashes because:
+                // 1. The native DLL may already be partially unloaded
+                // 2. The Rust runtime may be in an inconsistent state
+                // 3. Thread-local storage may have been destroyed
+                //
+                // Instead, we rely on the Rust library to clean up its own resources when
+                // the DLL is unloaded. The managed resources (GCHandlePool, InteropUtilities)
+                // have their own ProcessExit handlers that clean up managed memory safely.
 
                 System.Console.WriteLine("[Test Init] Native library loaded. Pdfium will initialize lazily on first use.");
                 s_initialized = true;
@@ -63,19 +71,17 @@ internal static class PdfiumInitializer
         }
     }
 
-    private static void CleanupAllRegistrations()
+    /// <summary>
+    /// Marks that cleanup has started to prevent further FFI calls.
+    /// This is called by test cleanup to signal that the process is shutting down.
+    /// </summary>
+    internal static void MarkCleanupStarted()
     {
-        try
-        {
-            System.Console.WriteLine("[Test Cleanup] Cleaning up registered callbacks...");
-            KreuzbergClient.ClearPostProcessors();
-            KreuzbergClient.ClearValidators();
-            KreuzbergClient.ClearOcrBackends();
-            System.Console.WriteLine("[Test Cleanup] Cleanup complete.");
-        }
-        catch (Exception ex)
-        {
-            System.Console.WriteLine($"[Test Cleanup] Warning during cleanup: {ex.Message}");
-        }
+        s_cleanupStarted = true;
     }
+
+    /// <summary>
+    /// Returns true if cleanup has been started and FFI calls should be avoided.
+    /// </summary>
+    internal static bool IsCleanupStarted => s_cleanupStarted;
 }
