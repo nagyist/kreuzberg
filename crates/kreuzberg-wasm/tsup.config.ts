@@ -24,7 +24,10 @@ export default defineConfig({
 	external: [
 		"@kreuzberg/core",
 		"tesseract-wasm",
+		// Node.js built-in modules - needed because platform: "neutral"
 		"fs",
+		"fs/promises",
+		"node:fs",
 		"node:fs/promises",
 		"path",
 		"node:path",

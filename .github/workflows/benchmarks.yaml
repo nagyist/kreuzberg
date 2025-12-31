@@ -918,6 +918,10 @@ jobs:
         working-directory: packages/go/v4
         run: go mod download
 
+      - name: Prime benchmark Go modules
+        working-directory: tools/benchmark-harness/scripts
+        run: go mod download
+
       - name: Build Go bindings
         run: task go:build:bindings
 
@@ -1007,6 +1011,10 @@ jobs:
 
       - name: Prime Go modules
         working-directory: packages/go/v4
+        run: go mod download
+
+      - name: Prime benchmark Go modules
+        working-directory: tools/benchmark-harness/scripts
         run: go mod download
 
       - name: Build Go bindings
