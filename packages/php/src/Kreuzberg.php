@@ -191,6 +191,158 @@ final readonly class Kreuzberg
     }
 
     /**
+     * Detect MIME type from file bytes.
+     *
+     * @param string $data File content as bytes
+     * @return string Detected MIME type (e.g., "application/pdf", "image/png")
+     * @throws KreuzbergException If MIME type detection fails
+     */
+    public static function detectMimeType(string $data): string
+    {
+        return \Kreuzberg\detect_mime_type($data);
+    }
+
+    /**
+     * Detect MIME type from file path.
+     *
+     * @param string $path Path to the file
+     * @return string Detected MIME type (e.g., "application/pdf", "text/plain")
+     * @throws KreuzbergException If MIME type detection fails
+     */
+    public static function detectMimeTypeFromPath(string $path): string
+    {
+        return \Kreuzberg\detect_mime_type_from_path($path);
+    }
+
+    /**
+     * Get file extensions for a MIME type.
+     *
+     * @param string $mimeType MIME type (e.g., "application/pdf")
+     * @return array<string> List of file extensions (e.g., ["pdf"])
+     * @throws KreuzbergException If extensions lookup fails
+     */
+    public static function getExtensionsForMime(string $mimeType): array
+    {
+        /** @var array<string> $result */
+        $result = \kreuzberg_get_extensions_for_mime($mimeType);
+        return $result;
+    }
+
+    /**
+     * Clear all registered document extractors.
+     *
+     * @throws KreuzbergException If clear operation fails
+     */
+    public static function clearDocumentExtractors(): void
+    {
+        \kreuzberg_clear_document_extractors();
+    }
+
+    /**
+     * List all registered document extractors.
+     *
+     * @return array<string> List of extractor names
+     * @throws KreuzbergException If list operation fails
+     */
+    public static function listDocumentExtractors(): array
+    {
+        /** @var array<string> $result */
+        $result = \kreuzberg_list_document_extractors();
+        return $result;
+    }
+
+    /**
+     * Unregister a document extractor by name.
+     *
+     * @param string $name Name of the extractor to unregister
+     * @throws KreuzbergException If unregister operation fails
+     */
+    public static function unregisterDocumentExtractor(string $name): void
+    {
+        \kreuzberg_unregister_document_extractor($name);
+    }
+
+    /**
+     * Clear all registered OCR backends.
+     *
+     * @throws KreuzbergException If clear operation fails
+     */
+    public static function clearOcrBackends(): void
+    {
+        \kreuzberg_clear_ocr_backends();
+    }
+
+    /**
+     * List all registered OCR backends.
+     *
+     * @return array<string> List of backend names
+     * @throws KreuzbergException If list operation fails
+     */
+    public static function listOcrBackends(): array
+    {
+        /** @var array<string> $result */
+        $result = \kreuzberg_list_ocr_backends();
+        return $result;
+    }
+
+    /**
+     * Unregister an OCR backend by name.
+     *
+     * @param string $name Name of the backend to unregister
+     * @throws KreuzbergException If unregister operation fails
+     */
+    public static function unregisterOcrBackend(string $name): void
+    {
+        \kreuzberg_unregister_ocr_backend($name);
+    }
+
+    /**
+     * Clear all registered post-processors.
+     *
+     * @throws KreuzbergException If clear operation fails
+     */
+    public static function clearPostProcessors(): void
+    {
+        \kreuzberg_clear_post_processors();
+    }
+
+    /**
+     * List all registered post-processors.
+     *
+     * @return array<string> List of post-processor names
+     * @throws KreuzbergException If list operation fails
+     */
+    public static function listPostProcessors(): array
+    {
+        /** @var array<string> $result */
+        $result = \kreuzberg_list_post_processors();
+        return $result;
+    }
+
+    /**
+     * Clear all registered validators.
+     *
+     * @throws KreuzbergException If clear operation fails
+     */
+    public static function clearValidators(): void
+    {
+        \kreuzberg_clear_validators();
+    }
+
+    /**
+     * List all registered validators.
+     *
+     * @return array<string> List of validator names
+     * @throws KreuzbergException If list operation fails
+     */
+    public static function listValidators(): array
+    {
+        /** @var array<string> $result */
+        $result = \kreuzberg_list_validators();
+        return $result;
+    }
+
+    /**
      * Get the library version.
      */
     public static function version(): string

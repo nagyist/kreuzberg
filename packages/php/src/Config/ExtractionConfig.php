@@ -295,6 +295,69 @@ readonly class ExtractionConfig
     }
 
     /**
+     * Simple TOML parser for kreuzberg configuration format.
+     *
+     * @param string $toml TOML content
+     * @return array<string, mixed> Parsed configuration
+     */
+    private static function parseTOML(string $toml): array
+    {
+        $result = [];
+        $lines = explode("\n", $toml);
+        $currentSection = null;
+
+        foreach ($lines as $line) {
+            // Remove comments and trim
+            if (($commentPos = strpos($line, '#')) !== false) {
+                $line = substr($line, 0, $commentPos);
+            }
+            $line = trim($line);
+
+            if (empty($line)) {
+                continue;
+            }
+
+            // Parse section header [section_name]
+            if (preg_match('/^\[([^\]]+)\]$/', $line, $matches)) {
+                $currentSection = $matches[1];
+                if (!isset($result[$currentSection])) {
+                    $result[$currentSection] = [];
+                }
+                continue;
+            }
+
+            // Parse key = value
+            if (preg_match('/^([^=]+)=(.+)$/', $line, $matches)) {
+                $key = trim($matches[1]);
+                $value = trim($matches[2]);
+
+                // Convert value type
+                if (strtolower($value) === 'true') {
+                    $value = true;
+                } elseif (strtolower($value) === 'false') {
+                    $value = false;
+                } elseif (is_numeric($value)) {
+                    $value = strpos($value, '.') !== false ? (float) $value : (int) $value;
+                } else {
+                    // Remove quotes if present
+                    $value = preg_replace('/^["\']|["\']$/', '', $value);
+                }
+
+                if ($currentSection !== null) {
+                    /** @var array<string, mixed> $sectionArray */
+                    $sectionArray = $result[$currentSection];
+                    $sectionArray[$key] = $value;
+                    $result[$currentSection] = $sectionArray;
+                } else {
+                    $result[$key] = $value;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Create configuration from JSON file.
      */
     public static function fromFile(string $path): self
@@ -306,7 +369,58 @@ readonly class ExtractionConfig
         if ($contents === false) {
             throw new \InvalidArgumentException("Unable to read file: {$path}");
         }
-        return self::fromJson($contents);
+
+        // Detect format from file extension
+        if (str_ends_with($path, '.toml')) {
+            $data = self::parseTOML($contents);
+        } else {
+            // Default to JSON
+            $data = json_decode($contents, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \InvalidArgumentException('Invalid JSON: ' . json_last_error_msg());
+            }
+            if (!is_array($data)) {
+                throw new \InvalidArgumentException('JSON must decode to an object/array');
+            }
+        }
+
+        /** @var array<string, mixed> $data */
+        return self::fromArray($data);
+    }
+
+    /**
+     * Discover and load configuration from current or parent directories.
+     *
+     * Searches for kreuzberg.toml configuration file in the current working
+     * directory and parent directories up the filesystem tree. Returns null
+     * if no configuration file is found.
+     *
+     * @return self|null Loaded configuration, or null if not found
+     * @throws \InvalidArgumentException If configuration file is invalid
+     */
+    public static function discover(): ?self
+    {
+        $cwd = getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        $current = $cwd;
+        while (true) {
+            $configPath = $current . '/kreuzberg.toml';
+            if (file_exists($configPath)) {
+                return self::fromFile($configPath);
+            }
+
+            $parent = dirname($current);
+            if ($parent === $current) {
+                // Reached filesystem root
+                break;
+            }
+            $current = $parent;
+        }
+
+        return null;
     }
 
     /**

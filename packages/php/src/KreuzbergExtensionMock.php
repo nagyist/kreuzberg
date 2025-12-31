@@ -684,3 +684,84 @@ if (!function_exists('kreuzberg_get_embedding_preset')) {
         return $presets[$name] ?? null;
     }
 }
+
+if (!function_exists('kreuzberg_get_extensions_for_mime')) {
+    /**
+     * @return array<string>
+     */
+    function kreuzberg_get_extensions_for_mime(string $mimeType): array
+    {
+        $extensionMap = [
+            'application/pdf' => ['pdf'],
+            'text/plain' => ['txt', 'text'],
+            'text/html' => ['html', 'htm'],
+            'application/xml' => ['xml'],
+            'text/xml' => ['xml'],
+            'application/json' => ['json'],
+            'image/png' => ['png'],
+            'image/jpeg' => ['jpg', 'jpeg'],
+            'image/gif' => ['gif'],
+            'image/bmp' => ['bmp'],
+            'image/tiff' => ['tiff', 'tif'],
+            'application/zip' => ['zip'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
+            'application/msword' => ['doc'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx'],
+            'application/vnd.ms-excel' => ['xls'],
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => ['pptx'],
+            'application/vnd.ms-powerpoint' => ['ppt'],
+            'application/x-yaml' => ['yaml', 'yml'],
+            'application/toml' => ['toml'],
+        ];
+
+        return $extensionMap[$mimeType] ?? [];
+    }
+}
+
+if (!function_exists('kreuzberg_clear_document_extractors')) {
+    function kreuzberg_clear_document_extractors(): void
+    {
+        // Mock implementation
+    }
+}
+
+if (!function_exists('kreuzberg_list_document_extractors')) {
+    /**
+     * @return array<string>
+     */
+    function kreuzberg_list_document_extractors(): array
+    {
+        return [];
+    }
+}
+
+if (!function_exists('kreuzberg_unregister_document_extractor')) {
+    function kreuzberg_unregister_document_extractor(string $name): void
+    {
+        // Mock implementation
+    }
+}
+
+if (!function_exists('kreuzberg_clear_ocr_backends')) {
+    function kreuzberg_clear_ocr_backends(): void
+    {
+        // Mock implementation
+    }
+}
+
+if (!function_exists('kreuzberg_list_ocr_backends')) {
+    /**
+     * @return array<string>
+     */
+    function kreuzberg_list_ocr_backends(): array
+    {
+        return [];
+    }
+}
+
+if (!function_exists('kreuzberg_unregister_ocr_backend')) {
+    function kreuzberg_unregister_ocr_backend(string $name): void
+    {
+        // Mock implementation
+    }
+}

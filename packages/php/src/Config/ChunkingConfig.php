@@ -11,11 +11,10 @@ readonly class ChunkingConfig
 {
     public function __construct(
         /**
-         * Maximum size of text chunks in tokens or characters.
+         * Maximum number of characters per text chunk.
          *
-         * Defines the maximum number of tokens (for token-based chunking) or characters
-         * (for character-based chunking) per chunk. Larger chunks retain more context
-         * but may be too long for some downstream processing.
+         * Defines the maximum number of characters per chunk. Larger chunks retain
+         * more context but may be too long for some downstream processing.
          *
          * Valid range: 1-unlimited (practical range: 128-4096)
          * Recommended values:
@@ -26,25 +25,25 @@ readonly class ChunkingConfig
          * @var int
          * @default 512
          */
-        public int $maxChunkSize = 512,
+        public int $maxChars = 512,
 
         /**
-         * Number of tokens/characters to overlap between consecutive chunks.
+         * Number of characters to overlap between consecutive chunks.
          *
          * Overlap ensures context continuity between chunks by repeating some text
          * at the boundaries. This helps maintain semantic coherence when chunks
          * are processed independently.
          *
-         * Valid range: 0-$maxChunkSize
+         * Valid range: 0-$maxChars
          * Recommended values:
          * - 0-10%: For minimal overlap
-         * - 10-25%: For standard overlap (typically 50 tokens for 512-token chunks)
+         * - 10-25%: For standard overlap (typically 50 chars for 512-char chunks)
          * - 25-50%: For high overlap when context preservation is critical
          *
          * @var int
          * @default 50
          */
-        public int $chunkOverlap = 50,
+        public int $maxOverlap = 50,
 
         /**
          * Respect sentence boundaries when creating chunks.
@@ -80,18 +79,18 @@ readonly class ChunkingConfig
      */
     public static function fromArray(array $data): self
     {
-        /** @var int $maxChunkSize */
-        $maxChunkSize = $data['max_chunk_size'] ?? 512;
-        if (!is_int($maxChunkSize)) {
-            /** @var int $maxChunkSize */
-            $maxChunkSize = (int) $maxChunkSize;
+        /** @var int $maxChars */
+        $maxChars = $data['max_chars'] ?? 512;
+        if (!is_int($maxChars)) {
+            /** @var int $maxChars */
+            $maxChars = (int) $maxChars;
         }
 
-        /** @var int $chunkOverlap */
-        $chunkOverlap = $data['chunk_overlap'] ?? 50;
-        if (!is_int($chunkOverlap)) {
-            /** @var int $chunkOverlap */
-            $chunkOverlap = (int) $chunkOverlap;
+        /** @var int $maxOverlap */
+        $maxOverlap = $data['max_overlap'] ?? 50;
+        if (!is_int($maxOverlap)) {
+            /** @var int $maxOverlap */
+            $maxOverlap = (int) $maxOverlap;
         }
 
         /** @var bool $respectSentences */
@@ -109,8 +108,8 @@ readonly class ChunkingConfig
         }
 
         return new self(
-            maxChunkSize: $maxChunkSize,
-            chunkOverlap: $chunkOverlap,
+            maxChars: $maxChars,
+            maxOverlap: $maxOverlap,
             respectSentences: $respectSentences,
             respectParagraphs: $respectParagraphs,
         );
@@ -153,8 +152,8 @@ readonly class ChunkingConfig
     public function toArray(): array
     {
         return [
-            'max_chunk_size' => $this->maxChunkSize,
-            'chunk_overlap' => $this->chunkOverlap,
+            'max_chars' => $this->maxChars,
+            'max_overlap' => $this->maxOverlap,
             'respect_sentences' => $this->respectSentences,
             'respect_paragraphs' => $this->respectParagraphs,
         ];
