@@ -38,10 +38,7 @@ function extract_file(
     ?string $mimeType = null,
     ?ExtractionConfig $config = null,
 ): ExtractionResult {
-    /** @var array<string, mixed> $result */
-    $result = \kreuzberg_extract_file($filePath, $mimeType, $config !== null ? $config->toArray() : null);
-
-    return ExtractionResult::fromArray($result);
+    return \kreuzberg_extract_file($filePath, $mimeType, $config);
 }
 
 /**
@@ -67,10 +64,7 @@ function extract_bytes(
     string $mimeType,
     ?ExtractionConfig $config = null,
 ): ExtractionResult {
-    /** @var array<string, mixed> $result */
-    $result = \kreuzberg_extract_bytes($data, $mimeType, $config !== null ? $config->toArray() : null);
-
-    return ExtractionResult::fromArray($result);
+    return \kreuzberg_extract_bytes($data, $mimeType, $config);
 }
 
 /**
@@ -97,14 +91,7 @@ function batch_extract_files(
     array $paths,
     ?ExtractionConfig $config = null,
 ): array {
-    /** @var array<array<string, mixed>> $results */
-    $results = \kreuzberg_batch_extract_files($paths, $config !== null ? $config->toArray() : null);
-
-    return array_map(
-        /** @param array<string, mixed> $result */
-        static fn (array $result): ExtractionResult => ExtractionResult::fromArray($result),
-        $results,
-    );
+    return \kreuzberg_batch_extract_files($paths, $config);
 }
 
 /**
@@ -134,14 +121,7 @@ function batch_extract_bytes(
     array $mimeTypes,
     ?ExtractionConfig $config = null,
 ): array {
-    /** @var array<array<string, mixed>> $results */
-    $results = \kreuzberg_batch_extract_bytes($dataList, $mimeTypes, $config !== null ? $config->toArray() : null);
-
-    return array_map(
-        /** @param array<string, mixed> $result */
-        static fn (array $result): ExtractionResult => ExtractionResult::fromArray($result),
-        $results,
-    );
+    return \kreuzberg_batch_extract_bytes($dataList, $mimeTypes, $config);
 }
 
 /**
