@@ -1201,8 +1201,8 @@ jobs:
           path: benchmark-results/
           retention-days: 30
 
-  bench-elixir-async:
-    name: kreuzberg-elixir-async (${{ matrix.mode }})
+  bench-elixir-sync:
+    name: kreuzberg-elixir-sync (${{ matrix.mode }})
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 180
@@ -1238,7 +1238,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: ./.github/actions/setup-rust
         with:
-          cache-key-prefix: benchmarks-elixir-async
+          cache-key-prefix: benchmarks-elixir-sync
 
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
@@ -1261,7 +1261,7 @@ jobs:
 
       - name: Run benchmark
         env:
-          FRAMEWORK: kreuzberg-elixir-async
+          FRAMEWORK: kreuzberg-elixir-sync
           MODE: ${{ matrix.mode }}
           ITERATIONS: ${{ env.ITERATIONS }}
           TIMEOUT: ${{ github.event.inputs.timeout }}
@@ -1271,7 +1271,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: benchmarks-kreuzberg-elixir-async-${{ matrix.mode }}-${{ github.run_id }}
+          name: benchmarks-kreuzberg-elixir-sync-${{ matrix.mode }}-${{ github.run_id }}
           path: benchmark-results/
           retention-days: 30
 
@@ -2290,7 +2290,7 @@ jobs:
 
   aggregate-results:
     name: Aggregate Results & Generate Visualizations
-    needs: [setup, bench-native, bench-python-sync, bench-python-async, bench-python-batch, bench-node-async, bench-node-batch, bench-wasm-async, bench-wasm-batch, bench-ruby-sync, bench-ruby-batch, bench-go-sync, bench-go-batch, bench-java-sync, bench-csharp-sync, bench-elixir-async, bench-elixir-batch, bench-php-sync, bench-php-batch]
+    needs: [setup, bench-native, bench-python-sync, bench-python-async, bench-python-batch, bench-node-async, bench-node-batch, bench-wasm-async, bench-wasm-batch, bench-ruby-sync, bench-ruby-batch, bench-go-sync, bench-go-batch, bench-java-sync, bench-csharp-sync, bench-elixir-sync, bench-elixir-batch, bench-php-sync, bench-php-batch]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
