@@ -37,6 +37,7 @@ internal static class InteropUtilities
     /// <summary>
     /// Static constructor to pre-cache common MIME types on assembly load.
     /// This amortizes the cost across process lifetime.
+    /// Also registers cleanup handler for process exit to prevent Windows crashes.
     /// </summary>
     static InteropUtilities()
     {
@@ -44,6 +45,28 @@ internal static class InteropUtilities
         {
             _ = AllocUtf8Cached(mimeType, useCache: true);
         }
+
+        // Register cleanup handler to free cached native memory on process exit.
+        // This prevents crashes on Windows during process teardown when native
+        // memory is still allocated.
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearCache();
+    }
+
+    /// <summary>
+    /// Clears all cached UTF-8 strings and frees their native memory.
+    /// This should only be called during cleanup or shutdown.
+    /// </summary>
+    internal static unsafe void ClearCache()
+    {
+        foreach (var kvp in CachedUtf8Pointers)
+        {
+            if (kvp.Key != IntPtr.Zero)
+            {
+                NativeMemory.Free((void*)kvp.Key);
+            }
+        }
+        CachedUtf8Pointers.Clear();
+        Utf8StringCache.Clear();
     }
 
     /// <summary>

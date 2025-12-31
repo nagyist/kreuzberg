@@ -44,6 +44,15 @@ public sealed class GCHandlePool
     private static int PooledCount;
 
     /// <summary>
+    /// Static constructor to register cleanup on process exit.
+    /// This ensures all pooled GCHandles are freed before process termination.
+    /// </summary>
+    static GCHandlePool()
+    {
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => Clear();
+    }
+
+    /// <summary>
     /// Rents a GCHandle from the pool or allocates a new one if pool is empty.
     /// The target object is pinned for interop marshalling.
     /// </summary>

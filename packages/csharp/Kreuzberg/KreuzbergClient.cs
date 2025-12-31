@@ -34,6 +34,27 @@ public static class KreuzbergClient
     private static readonly object s_configCacheLock = new object();
 
     /// <summary>
+    /// Static constructor to register cleanup handler on process exit.
+    /// This ensures all GCHandles for registered callbacks are freed before process termination,
+    /// preventing Windows crashes during test host shutdown.
+    /// </summary>
+    static KreuzbergClient()
+    {
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupAllHandles();
+    }
+
+    /// <summary>
+    /// Cleans up all registered GCHandles without calling into native code.
+    /// This is safe to call during process shutdown because it only frees managed handles.
+    /// </summary>
+    private static void CleanupAllHandles()
+    {
+        FreeHandles(RegisteredPostProcessors);
+        FreeHandles(RegisteredValidators);
+        FreeHandles(RegisteredOcrBackends);
+    }
+
+    /// <summary>
     /// Detects the MIME type of raw document bytes by examining file signatures.
     /// </summary>
     /// <param name="data">Document bytes to analyze. Must not be empty.</param>
