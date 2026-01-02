@@ -1740,6 +1740,9 @@ jobs:
       - name: Build C# bindings
         run: task csharp:build:release
 
+      - name: Create artifacts directory
+        run: mkdir -p artifacts/csharp
+
       - name: Pack NuGet package
         run: task csharp:package -- -p:PackageVersion=${{ needs.prepare.outputs.version }} -o artifacts/csharp
 
