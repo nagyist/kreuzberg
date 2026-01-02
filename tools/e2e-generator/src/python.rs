@@ -539,10 +539,11 @@ fn generate_plugin_api_tests(fixtures: &[&Fixture], output_dir: &Utf8Path) -> Re
     content.push_str("To regenerate: cargo run -p kreuzberg-e2e-generator -- generate --lang python\n");
     content.push_str("\"\"\"\n\n");
     content.push_str("from __future__ import annotations\n\n");
-    content.push_str("import os\n");
-    content.push_str("from pathlib import Path\n\n");
+    content.push_str("from typing import TYPE_CHECKING\n\n");
     content.push_str("import kreuzberg\n");
     content.push_str("from kreuzberg import ExtractionConfig\n\n");
+    content.push_str("if TYPE_CHECKING:\n");
+    content.push_str("    from pathlib import Path\n\n");
 
     let grouped = group_by_category(fixtures)?;
 

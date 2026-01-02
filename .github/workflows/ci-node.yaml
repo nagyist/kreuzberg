@@ -182,7 +182,7 @@ jobs:
         shell: bash
         run: |
           cd crates/kreuzberg-node
-          npm pack
+          npm pack --ignore-scripts
 
       - name: Verify TypeScript build artifacts
         shell: bash
