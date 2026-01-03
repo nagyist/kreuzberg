@@ -14,4 +14,4 @@ require (
 )
 
 // For testing: use local module instead of GitHub release
-replace github.com/kreuzberg-dev/kreuzberg/packages/go/v4 => /Users/naamanhirschfeld/workspace/kreuzberg-dev/kreuzberg/packages/go/v4
+replace github.com/kreuzberg-dev/kreuzberg/packages/go/v4 => ../../../packages/go/v4
