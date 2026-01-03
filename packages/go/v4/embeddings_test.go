@@ -2,11 +2,20 @@ package kreuzberg
 
 import (
 	"math"
+	"os"
 	"testing"
 )
 
+// skipIfONNXNotAvailable skips the test if ONNX Runtime is not available (typically in CI without prebuilt binaries)
+func skipIfONNXNotAvailable(t *testing.T) {
+	if os.Getenv("IS_CI") == "true" {
+		t.Skip("Skipping in CI due to missing ONNX Runtime - requires prebuilt binaries")
+	}
+}
+
 // TestListEmbeddingPresets tests listing available embedding presets.
 func TestListEmbeddingPresets(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	presets, err := ListEmbeddingPresets()
 	if err != nil {
 		t.Fatalf("list embedding presets: %v", err)
@@ -18,6 +27,7 @@ func TestListEmbeddingPresets(t *testing.T) {
 
 // TestGetEmbeddingPreset tests retrieving specific embedding preset metadata.
 func TestGetEmbeddingPreset(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	preset, err := GetEmbeddingPreset("balanced")
 	if err != nil {
 		t.Fatalf("get embedding preset: %v", err)
@@ -37,6 +47,7 @@ func TestGetEmbeddingPreset(t *testing.T) {
 // TestVectorGenerationCorrectness tests that embeddings are correctly generated from text.
 // Verifies embeddings are non-null, have proper dimensions, and contain numeric values.
 func TestVectorGenerationCorrectness(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	config := NewExtractionConfig(
 		WithChunking(
 			WithChunkingEnabled(true),
@@ -101,6 +112,7 @@ func TestVectorGenerationCorrectness(t *testing.T) {
 // TestEmbeddingDimensionVerification verifies embeddings have consistent dimensions.
 // Tests that all embeddings from same model have identical dimensionality.
 func TestEmbeddingDimensionVerification(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	config := NewExtractionConfig(
 		WithChunking(
 			WithChunkingEnabled(true),
@@ -165,6 +177,7 @@ func TestEmbeddingDimensionVerification(t *testing.T) {
 // TestBatchOperationPerformance tests embeddings with batch processing.
 // Verifies that batch_size parameter correctly groups chunks for embedding generation.
 func TestBatchOperationPerformance(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	// Create config with batch size of 4
 	config := NewExtractionConfig(
 		WithChunking(
@@ -216,6 +229,7 @@ func TestBatchOperationPerformance(t *testing.T) {
 // TestFormatSpecificEmbeddingHandling tests embeddings with different text formats.
 // Verifies that embeddings work correctly across different content types.
 func TestFormatSpecificEmbeddingHandling(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	testCases := []struct {
 		name     string
 		content  string
@@ -281,6 +295,7 @@ func TestFormatSpecificEmbeddingHandling(t *testing.T) {
 // TestSimilarityScoreValidation validates that embedding values form valid similarity metrics.
 // Tests that embeddings can be used for cosine similarity calculations.
 func TestSimilarityScoreValidation(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	config := NewExtractionConfig(
 		WithChunking(
 			WithChunkingEnabled(true),
@@ -364,6 +379,7 @@ func TestSimilarityScoreValidation(t *testing.T) {
 // TestNormalizationCorrectness tests embedding normalization functionality.
 // Verifies that normalized embeddings have unit norm.
 func TestNormalizationCorrectness(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	config := NewExtractionConfig(
 		WithChunking(
 			WithChunkingEnabled(true),
@@ -511,6 +527,7 @@ func cosineSimilarity(a, b []float32) float64 {
 // TestMathematicalPropertiesValidation tests mathematical correctness of embeddings.
 // Verifies that embedding operations follow proper mathematical semantics.
 func TestMathematicalPropertiesValidation(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	config := NewExtractionConfig(
 		WithChunking(
 			WithChunkingEnabled(true),
@@ -580,6 +597,7 @@ func TestMathematicalPropertiesValidation(t *testing.T) {
 
 // TestEmbeddingErrorHandling tests error cases in embedding generation.
 func TestEmbeddingErrorHandling(t *testing.T) {
+	skipIfONNXNotAvailable(t)
 	// Test 1: Empty text with embeddings
 	config := NewExtractionConfig(
 		WithChunking(
