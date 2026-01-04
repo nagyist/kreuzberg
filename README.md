@@ -1,4 +1,4 @@
-# Kreuzberg.dev
+# Kreuzberg
 
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0;">
   <!-- Language Bindings -->
@@ -43,7 +43,8 @@
   </a>
 </div>
 
-<img width="3384" height="573" alt="Linkedin- Banner" src="https://github.com/user-attachments/assets/272fd0a4-cfce-41bd-b25c-7d5934d90717" />
+<img width="3384" height="573" alt="Linkedin- Banner" src="https://github.com/user-attachments/assets/1b6c6ad7-3b6d-4171-b1c9-f2026cc9deb8" />
+
 
 
 <div align="center" style="margin-top: 20px;">
