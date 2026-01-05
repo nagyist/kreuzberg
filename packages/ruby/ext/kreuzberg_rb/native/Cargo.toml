@@ -1,5 +1,8 @@
 [workspace]
 
+[workspace.lints.clippy]
+collapsible_if = "allow"
+
 [package]
 name = "kreuzberg-rb"
 version = "4.0.0-rc.27"
@@ -14,6 +17,9 @@ readme = "README.md"
 description = "Ruby bindings (Magnus) for Kreuzberg - high-performance document intelligence framework"
 keywords = ["ruby", "magnus", "document", "extraction", "bindings"]
 categories = ["api-bindings", "text-processing"]
+
+[lints]
+workspace = true
 
 [lib]
 name = "kreuzberg_rb"

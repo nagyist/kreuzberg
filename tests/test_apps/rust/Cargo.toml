@@ -9,6 +9,9 @@ description = "Comprehensive API coverage test for Kreuzberg 4.0.0-rc.17 Rust li
 readme = "README.md"
 publish = false
 
+[lints.clippy]
+collapsible_if = "allow"
+
 [dependencies]
 kreuzberg = { version = "4.0.0-rc.27", features = ["static-pdfium", "excel", "office", "html"] }
 tokio = { version = "1", features = ["full"] }

@@ -423,6 +423,13 @@ async fn main() -> Result<()> {
             std::fs::write(&aggregated_file, json).map_err(benchmark_harness::Error::Io)?;
             println!("Aggregated metrics written to: {}", aggregated_file.display());
 
+            // Generate HTML visualization
+            let html_output = output.join("index.html");
+            benchmark_harness::visualization::generate_html_report(&aggregated, &html_output).map_err(|e| {
+                benchmark_harness::Error::Benchmark(format!("Failed to generate HTML visualization: {}", e))
+            })?;
+            println!("HTML visualization generated: {}", html_output.display());
+
             Ok(())
         }
     }
