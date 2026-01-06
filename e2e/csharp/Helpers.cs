@@ -111,6 +111,21 @@ public static class TestHelpers
         }
     }
 
+    public static void SkipIfOfficeTestsOnWindows(string relativePath)
+    {
+        // Office tests timeout on Windows due to LibreOffice conversion delays
+        if (OperatingSystem.IsWindows())
+        {
+            var ext = Path.GetExtension(relativePath).ToLowerInvariant();
+            var isOfficeFormat = ext is ".docx" or ".pptx" or ".xlsx" or ".doc" or ".ppt" or ".xls";
+            if (isOfficeFormat)
+            {
+                // Throw SkipTestException to properly skip the test in xUnit
+                throw new SkipTestException("Office tests are skipped on Windows due to LibreOffice conversion delays causing timeouts");
+            }
+        }
+    }
+
     public static ExtractionConfig? BuildConfig(string? configJson)
     {
         if (string.IsNullOrWhiteSpace(configJson))

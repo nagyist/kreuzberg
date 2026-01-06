@@ -52,7 +52,7 @@ final class OcrConfigTest extends TestCase
     public function it_creates_with_custom_values(): void
     {
         $tesseractConfig = new TesseractConfig(psm: 6, oem: 1);
-        $imagePreprocessing = new ImagePreprocessingConfig(autoRotate: true);
+        $imagePreprocessing = new ImagePreprocessingConfig(denoise: true);
 
         $config = new OcrConfig(
             backend: 'easyocr',
@@ -116,7 +116,7 @@ final class OcrConfigTest extends TestCase
             'backend' => 'paddleocr',
             'language' => 'spa',
             'tesseract_config' => ['psm' => 6],
-            'image_preprocessing' => ['auto_rotate' => true, 'denoise' => true],
+            'image_preprocessing' => ['target_dpi' => 300, 'denoise' => true],
         ];
         $config = OcrConfig::fromArray($data);
 

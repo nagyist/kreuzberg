@@ -205,12 +205,11 @@ jobs:
       - name: Install Task
         uses: ./.github/actions/install-task
 
-      - name: Configure aws-lc-sys build for Windows
+      - name: Configure aws-lc-sys for Windows
         if: runner.os == 'Windows'
         shell: bash
         run: |
           {
-            echo "AWS_LC_SYS_CMAKE_BUILDER=1"
             echo "CMAKE_BUILD_PARALLEL_LEVEL=1"
           } >> "$GITHUB_ENV"
 
