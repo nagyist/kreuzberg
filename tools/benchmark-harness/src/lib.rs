@@ -19,7 +19,6 @@ pub mod profiling;
 pub mod registry;
 pub mod runner;
 pub mod types;
-pub mod visualization;
 
 pub use adapter::FrameworkAdapter;
 pub use adapters::{NativeAdapter, NodeAdapter, PythonAdapter, RubyAdapter};
@@ -42,7 +41,3 @@ pub use profile_report::{Hotspot, MemorySnapshot, ProfileReport};
 pub use registry::AdapterRegistry;
 pub use runner::BenchmarkRunner;
 pub use types::{BenchmarkResult, DiskSizeInfo, FrameworkCapabilities, PdfMetadata};
-pub use visualization::{
-    ColdStartMetrics, ColdStartRow, DiskSizeRow, ErrorInfo, FileTypeComparison, FrameworkMetrics, MetricValues,
-    PercentileValues, VisualizationData, VisualizationMetadata, prepare_visualization_data,
-};
