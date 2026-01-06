@@ -2,84 +2,22 @@
 //!
 //! Provides PHP-friendly wrappers around the Rust configuration structs.
 
+use ext_php_rs::convert::IntoZval;
 use ext_php_rs::prelude::*;
+use ext_php_rs::types::{ZendHashTable, Zval};
 use kreuzberg::core::config::HierarchyConfig as RustHierarchyConfig;
 use std::collections::HashMap;
-use ext_php_rs::types::{ZendHashTable, Zval};
 
 /// Convert PHP HashTable to HashMap for easier manipulation
-/// Returns a mapping of string keys to references to Zval values
-fn php_array_to_hashmap(arr: &ZendHashTable) -> HashMap<String, &Zval> {
+fn php_array_to_hashmap(arr: &ZendHashTable) -> HashMap<String, Zval> {
     let mut map = HashMap::new();
     for (key, value) in arr.iter() {
-        let key_str = key.to_string();
-        map.insert(key_str, value);
+        if let Some(key_str) = key.string() {
+            map.insert(key_str.to_string(), value.clone());
+        }
     }
     map
 }
-
-/// Convert camelCase to snake_case
-fn to_snake_case(s: &str) -> String {
-    let mut result = String::new();
-    for (i, ch) in s.chars().enumerate() {
-        if ch.is_uppercase() {
-            if i > 0 {
-                result.push('_');
-            }
-            result.push(ch.to_lowercase().next().unwrap());
-        } else {
-            result.push(ch);
-        }
-    }
-    result
-}
-
-/// Extract string value from HashMap with default
-fn get_string_or_default(data: &HashMap<String, Zval>, key: &str, default: String) -> String {
-    data.get(key)
-        .and_then(|v| v.string())
-        .map(|s| s.to_string())
-        .unwrap_or(default)
-}
-
-/// Extract i32 value from HashMap with default
-fn get_i32_or_default(data: &HashMap<String, Zval>, key: &str, default: i32) -> i32 {
-    data.get(key)
-        .and_then(|v| v.long())
-        .map(|l| l as i32)
-        .unwrap_or(default)
-}
-
-/// Extract boolean value from HashMap with default
-fn get_bool_or_default(data: &HashMap<String, Zval>, key: &str, default: bool) -> bool {
-    data.get(key)
-        .and_then(|v| v.bool())
-        .unwrap_or(default)
-}
-
-/// Extract usize value from HashMap with default
-fn get_usize_or_default(data: &HashMap<String, Zval>, key: &str, default: usize) -> usize {
-    data.get(key)
-        .and_then(|v| v.long())
-        .map(|l| l as usize)
-        .unwrap_or(default)
-}
-
-/// Extract f32 value from HashMap with default
-fn get_f32_or_default(data: &HashMap<String, Zval>, key: &str, default: f32) -> f32 {
-    data.get(key)
-        .and_then(|v| v.double())
-        .map(|d| d as f32)
-        .unwrap_or(default)
-}
-
-/// Extract f64 value from HashMap with default
-fn get_f64_or_default(data: &HashMap<String, Zval>, key: &str, default: f64) -> f64 {
-    data.get(key)
-        .and_then(|v| v.double())
-        .unwrap_or(default)
-}
-
 
 /// Main extraction configuration.
 ///

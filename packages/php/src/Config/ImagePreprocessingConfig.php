@@ -6,6 +6,10 @@ namespace Kreuzberg\Config;
 
 /**
  * Image preprocessing configuration for OCR.
+ *
+ * Configuration class for controlling how images are preprocessed before
+ * OCR processing. Provides settings for resolution scaling, quality, color
+ * mode, and various image enhancement techniques.
  */
 readonly class ImagePreprocessingConfig
 {
@@ -15,30 +19,61 @@ readonly class ImagePreprocessingConfig
          *
          * Adjusts image resolution to the specified dots-per-inch.
          * Higher DPI improves OCR accuracy but increases processing time.
-         * Typically 150-300 DPI is optimal for OCR.
+         * Standard DPI for OCR is 300.
          *
-         * Valid range: 1-600 DPI (practical range: 50-600)
+         * Valid range: 50-600 DPI
          * Recommended values:
-         * - 100-150: For good OCR, lower processing overhead
-         * - 200-300: Standard for high-quality OCR
-         * - 400+: Maximum quality OCR, requires more computation
+         * - 150: Fast processing, lower quality
+         * - 300: Standard, good balance (DEFAULT)
+         * - 400: Better for small text
+         * - 600: Maximum quality, slower
          *
-         * @var int|null
-         * @default null (no DPI adjustment)
+         * @var int
+         * @default 300
          */
-        public ?int $targetDpi = null,
+        public int $targetDpi = 300,
 
         /**
-         * Automatically detect and correct image rotation.
+         * JPEG compression quality for processed images.
          *
-         * When enabled, attempts to detect if the image is rotated and
-         * automatically corrects the orientation. Improves OCR accuracy
-         * for images captured at different angles.
+         * Controls the compression level when saving processed images.
+         * Higher values preserve more detail but result in larger files.
+         * Lower values reduce file size but may lose image quality.
+         *
+         * Valid range: 1-100
+         * Recommended values:
+         * - 70-80: Good balance
+         * - 90: High quality (DEFAULT)
+         * - 95+: Maximum quality, larger files
+         *
+         * @var int
+         * @default 90
+         */
+        public int $quality = 90,
+
+        /**
+         * Convert images to grayscale before processing.
+         *
+         * When enabled, converts color images to grayscale (single channel).
+         * Reduces file size and can improve OCR performance for text-heavy
+         * documents. May reduce quality for documents requiring color information.
          *
          * @var bool
          * @default false
          */
-        public bool $autoRotate = false,
+        public bool $grayscale = false,
+
+        /**
+         * Apply noise reduction/denoising to images.
+         *
+         * When enabled, reduces visual noise in images which can improve
+         * OCR accuracy for low-quality scans, faxes, or damaged documents.
+         * May slightly blur sharp edges.
+         *
+         * @var bool
+         * @default false
+         */
+        public bool $denoise = false,
 
         /**
          * Correct image skew (perspective distortion).
@@ -53,80 +88,16 @@ readonly class ImagePreprocessingConfig
         public bool $deskew = false,
 
         /**
-         * Binarization method for converting images to black and white.
+         * Remove background from images.
          *
-         * Converts grayscale/color images to binary (black and white) for
-         * improved OCR accuracy. Different methods work better for different
-         * document types and lighting conditions.
-         *
-         * Common methods:
-         * - 'otsu': Otsu's method (global threshold, good for balanced documents)
-         * - 'sauvola': Local adaptive method (good for varying lighting)
-         * - 'niblack': Niblack's method (sensitive local thresholding)
-         * - 'bernsen': Bernsen's method (contrast-based local thresholding)
-         * - null: Skip binarization, use grayscale
-         *
-         * @var string|null
-         * @default null (no binarization)
-         */
-        public ?string $binarizationMethod = null,
-
-        /**
-         * Apply noise reduction/denoising to images.
-         *
-         * When enabled, reduces visual noise in images which can improve
-         * OCR accuracy for low-quality scans. May slightly blur sharp edges.
+         * When enabled, attempts to detect and remove backgrounds from images,
+         * keeping only the foreground content (text/objects). Useful for
+         * documents with complex or colored backgrounds.
          *
          * @var bool
          * @default false
          */
-        public bool $denoise = false,
-
-        /**
-         * Apply sharpening filter to images.
-         *
-         * When enabled, enhances edges and details in the image to improve
-         * text clarity for OCR. Useful for slightly blurry documents.
-         * May amplify noise in low-quality scans.
-         *
-         * @var bool
-         * @default false
-         */
-        public bool $sharpen = false,
-
-        /**
-         * Contrast adjustment multiplier.
-         *
-         * Multiplier for image contrast. Values > 1.0 increase contrast,
-         * < 1.0 decrease contrast. Helps with low-contrast documents.
-         *
-         * Valid range: 0.1-5.0
-         * Recommended values:
-         * - 1.0: No change
-         * - 1.2-1.5: Moderate contrast increase
-         * - 1.5-2.0: Significant contrast increase for faded documents
-         *
-         * @var float|null
-         * @default null (no adjustment)
-         */
-        public ?float $contrastAdjustment = null,
-
-        /**
-         * Brightness adjustment.
-         *
-         * Adds or subtracts brightness from the image. Positive values brighten,
-         * negative values darken. Helps with images that are too dark or too light.
-         *
-         * Valid range: -100 to 100 (implementation dependent)
-         * Recommended values:
-         * - -10 to 10: Small adjustments
-         * - -20 to 20: Moderate adjustments
-         * - -50 to 50: Strong adjustments for very dark/light images
-         *
-         * @var float|null
-         * @default null (no adjustment)
-         */
-        public ?float $brightnessAdjustment = null,
+        public bool $removeBackground = false,
     ) {
     }
 
@@ -137,32 +108,25 @@ readonly class ImagePreprocessingConfig
      */
     public static function fromArray(array $data): self
     {
-        /** @var int|null $targetDpi */
-        $targetDpi = $data['target_dpi'] ?? null;
-        if ($targetDpi !== null && !is_int($targetDpi)) {
+        /** @var int $targetDpi */
+        $targetDpi = $data['target_dpi'] ?? 300;
+        if (!is_int($targetDpi)) {
             /** @var int $targetDpi */
             $targetDpi = (int) $targetDpi;
         }
 
-        /** @var bool $autoRotate */
-        $autoRotate = $data['auto_rotate'] ?? false;
-        if (!is_bool($autoRotate)) {
-            /** @var bool $autoRotate */
-            $autoRotate = (bool) $autoRotate;
+        /** @var int $quality */
+        $quality = $data['quality'] ?? 90;
+        if (!is_int($quality)) {
+            /** @var int $quality */
+            $quality = (int) $quality;
         }
 
-        /** @var bool $deskew */
-        $deskew = $data['deskew'] ?? false;
-        if (!is_bool($deskew)) {
-            /** @var bool $deskew */
-            $deskew = (bool) $deskew;
-        }
-
-        /** @var string|null $binarizationMethod */
-        $binarizationMethod = $data['binarization_method'] ?? null;
-        if ($binarizationMethod !== null && !is_string($binarizationMethod)) {
-            /** @var string $binarizationMethod */
-            $binarizationMethod = (string) $binarizationMethod;
+        /** @var bool $grayscale */
+        $grayscale = $data['grayscale'] ?? false;
+        if (!is_bool($grayscale)) {
+            /** @var bool $grayscale */
+            $grayscale = (bool) $grayscale;
         }
 
         /** @var bool $denoise */
@@ -172,36 +136,27 @@ readonly class ImagePreprocessingConfig
             $denoise = (bool) $denoise;
         }
 
-        /** @var bool $sharpen */
-        $sharpen = $data['sharpen'] ?? false;
-        if (!is_bool($sharpen)) {
-            /** @var bool $sharpen */
-            $sharpen = (bool) $sharpen;
+        /** @var bool $deskew */
+        $deskew = $data['deskew'] ?? false;
+        if (!is_bool($deskew)) {
+            /** @var bool $deskew */
+            $deskew = (bool) $deskew;
         }
 
-        /** @var float|null $contrastAdjustment */
-        $contrastAdjustment = $data['contrast_adjustment'] ?? null;
-        if ($contrastAdjustment !== null && !is_float($contrastAdjustment)) {
-            /** @var float $contrastAdjustment */
-            $contrastAdjustment = (float) $contrastAdjustment;
-        }
-
-        /** @var float|null $brightnessAdjustment */
-        $brightnessAdjustment = $data['brightness_adjustment'] ?? null;
-        if ($brightnessAdjustment !== null && !is_float($brightnessAdjustment)) {
-            /** @var float $brightnessAdjustment */
-            $brightnessAdjustment = (float) $brightnessAdjustment;
+        /** @var bool $removeBackground */
+        $removeBackground = $data['remove_background'] ?? false;
+        if (!is_bool($removeBackground)) {
+            /** @var bool $removeBackground */
+            $removeBackground = (bool) $removeBackground;
         }
 
         return new self(
             targetDpi: $targetDpi,
-            autoRotate: $autoRotate,
-            deskew: $deskew,
-            binarizationMethod: $binarizationMethod,
+            quality: $quality,
+            grayscale: $grayscale,
             denoise: $denoise,
-            sharpen: $sharpen,
-            contrastAdjustment: $contrastAdjustment,
-            brightnessAdjustment: $brightnessAdjustment,
+            deskew: $deskew,
+            removeBackground: $removeBackground,
         );
     }
 
@@ -241,16 +196,14 @@ readonly class ImagePreprocessingConfig
      */
     public function toArray(): array
     {
-        return array_filter([
+        return [
             'target_dpi' => $this->targetDpi,
-            'auto_rotate' => $this->autoRotate,
-            'deskew' => $this->deskew,
-            'binarization_method' => $this->binarizationMethod,
+            'quality' => $this->quality,
+            'grayscale' => $this->grayscale,
             'denoise' => $this->denoise,
-            'sharpen' => $this->sharpen,
-            'contrast_adjustment' => $this->contrastAdjustment,
-            'brightness_adjustment' => $this->brightnessAdjustment,
-        ], static fn ($value): bool => $value !== null);
+            'deskew' => $this->deskew,
+            'remove_background' => $this->removeBackground,
+        ];
     }
 
     /**

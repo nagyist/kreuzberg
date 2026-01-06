@@ -1,4 +1,4 @@
-package kreuzberg
+package kreuzberg_test
 
 import (
 	"os"
