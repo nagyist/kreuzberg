@@ -5,7 +5,6 @@ export default defineWorkersConfig({
 		globals: true,
 		poolOptions: {
 			workers: {
-				main: "./tests/index.ts",
 				wrangler: {
 					configPath: "./wrangler.toml",
 				},
