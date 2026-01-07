@@ -106,7 +106,7 @@ public static class TestHelpers
         var ext = Path.GetExtension(relativePath).ToLowerInvariant();
         if (ext == ".ppt" || ext == ".doc" || ext == ".xls")
         {
-            throw new SkipException();
+            throw new Xunit.SkipException();
         }
     }
 
@@ -119,7 +119,7 @@ public static class TestHelpers
             var isOfficeFormat = ext is ".docx" or ".pptx" or ".xlsx" or ".doc" or ".ppt" or ".xls";
             if (isOfficeFormat)
             {
-                throw new SkipException();
+                throw new Xunit.SkipException();
             }
         }
     }
