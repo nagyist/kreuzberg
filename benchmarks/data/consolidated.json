@@ -1,0 +1,4010 @@
+{
+	"by_framework": {
+		"kreuzberg-go-batch": {
+			"framework": "kreuzberg-go-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 17,
+					"file_count": 1,
+					"mean_duration_ms": 139.168436,
+					"mean_throughput_bps": 169408.6195588848,
+					"mean_peak_memory": 15785984,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 39,
+					"file_count": 31,
+					"mean_duration_ms": 203.82068903225803,
+					"mean_throughput_bps": 4538982.93635563,
+					"mean_peak_memory": 12058491,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 171.494562516129,
+			"duration_variance_ms2": 1044.978455536779,
+			"duration_std_dev_ms": 32.32612651612901,
+			"mean_throughput_bps": 2354195.7779572573,
+			"throughput_variance_bps2": 4773294927502.436,
+			"throughput_std_dev_bps": 2184787.1583983726,
+			"mean_peak_memory": 13922237,
+			"peak_memory_variance": 3473551016262.25,
+			"peak_memory_std_dev": 1863746.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 51.869344,
+					"p95_duration_ms": 51.869344,
+					"mean_throughput_bps": 1421212.6063150645,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 59.218075666666664,
+					"p95_duration_ms": 71.361885,
+					"mean_throughput_bps": 22113507.404575463,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 53.3924605,
+					"p95_duration_ms": 55.107254000000005,
+					"mean_throughput_bps": 319491.0049483736,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 392.2781325,
+					"p95_duration_ms": 3123.6891189999997,
+					"mean_throughput_bps": 4201398.80827122,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 52.600176499999996,
+					"p95_duration_ms": 53.184352,
+					"mean_throughput_bps": 371743.49318203056,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 52.37841039999999,
+					"p95_duration_ms": 53.53008,
+					"mean_throughput_bps": 1877126.9052474156,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 53.018857,
+					"p95_duration_ms": 53.70237,
+					"mean_throughput_bps": 1149182.4871646687,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 51.629236500000005,
+					"p95_duration_ms": 52.10237,
+					"mean_throughput_bps": 40455.263376490744,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-node-async": {
+			"framework": "kreuzberg-node-async",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 6,
+					"file_count": 31,
+					"mean_duration_ms": 693.4137799677419,
+					"mean_throughput_bps": 810334.0764624592,
+					"mean_peak_memory": 11933233,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 45,
+					"file_count": 31,
+					"mean_duration_ms": 708.5849730967741,
+					"mean_throughput_bps": 785003.4472090208,
+					"mean_peak_memory": 11910243,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 700.999376532258,
+			"duration_variance_ms2": 57.541275239598384,
+			"duration_std_dev_ms": 7.585596564516095,
+			"mean_throughput_bps": 797668.76183574,
+			"throughput_variance_bps2": 160410194.59378636,
+			"throughput_std_dev_bps": 12665.314626719162,
+			"mean_peak_memory": 11921738,
+			"peak_memory_variance": 132135025.0,
+			"peak_memory_std_dev": 11495.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 562.2758261666667,
+					"p95_duration_ms": 590.847608,
+					"mean_throughput_bps": 2726135.844327513,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 554.3440175000001,
+					"p95_duration_ms": 561.675674,
+					"mean_throughput_bps": 3771.487133774394,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 902.6387272692307,
+					"p95_duration_ms": 3534.092603,
+					"mean_throughput_bps": 1158626.9513199513,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 559.1347714999999,
+					"p95_duration_ms": 561.642082,
+					"mean_throughput_bps": 131872.15802990063,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 550.9649147499999,
+					"p95_duration_ms": 558.418347,
+					"mean_throughput_bps": 35275.44160594583,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 556.1760553333332,
+					"p95_duration_ms": 576.4850339999999,
+					"mean_throughput_bps": 110462.40726133338,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 553.20791075,
+					"p95_duration_ms": 562.926516,
+					"mean_throughput_bps": 31627.460491446676,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 553.0306231999999,
+					"p95_duration_ms": 563.057016,
+					"mean_throughput_bps": 176513.1116979603,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-php-sync": {
+			"framework": "kreuzberg-php-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 14,
+					"file_count": 31,
+					"mean_duration_ms": 69.4011419677419,
+					"mean_throughput_bps": 11383927.555950787,
+					"mean_peak_memory": 11795555,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 29,
+					"file_count": 31,
+					"mean_duration_ms": 68.12186119354838,
+					"mean_throughput_bps": 11498760.812704053,
+					"mean_peak_memory": 11811278,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 68.76150158064515,
+			"duration_variance_ms2": 0.4091398248052952,
+			"duration_std_dev_ms": 0.6396403870967617,
+			"mean_throughput_bps": 11441344.18432742,
+			"throughput_variance_bps2": 3296669214.14037,
+			"throughput_std_dev_bps": 57416.62837663293,
+			"mean_peak_memory": 11803416,
+			"peak_memory_variance": 61803182.25,
+			"peak_memory_std_dev": 7861.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 68.61974149999999,
+					"p95_duration_ms": 69.547764,
+					"mean_throughput_bps": 283490.83088183665,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 68.37777483333333,
+					"p95_duration_ms": 69.905083,
+					"mean_throughput_bps": 891119.8983995939,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 68.69904625000001,
+					"p95_duration_ms": 70.150555,
+					"mean_throughput_bps": 253022.2084728357,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 68.59004350000001,
+					"p95_duration_ms": 68.92741,
+					"mean_throughput_bps": 30498.073373968626,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 68.82966215384616,
+					"p95_duration_ms": 70.36227000000001,
+					"mean_throughput_bps": 21115456.99688857,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 69.34836083333333,
+					"p95_duration_ms": 72.213071,
+					"mean_throughput_bps": 22722803.05288673,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 68.7008208,
+					"p95_duration_ms": 70.949681,
+					"mean_throughput_bps": 1425185.2791106913,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 68.3207675,
+					"p95_duration_ms": 68.616099,
+					"mean_throughput_bps": 1079011.2797288988,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-php-batch": {
+			"framework": "kreuzberg-php-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 28,
+					"file_count": 31,
+					"mean_duration_ms": 68.27547441935485,
+					"mean_throughput_bps": 11816159.995821962,
+					"mean_peak_memory": 11861487,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 34,
+					"file_count": 1,
+					"mean_duration_ms": 2.451482,
+					"mean_throughput_bps": 9616173.016515784,
+					"mean_peak_memory": 11444224,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 35.363478209677425,
+			"duration_variance_ms2": 1083.1994945058213,
+			"duration_std_dev_ms": 32.911996209677426,
+			"mean_throughput_bps": 10716166.506168872,
+			"throughput_variance_bps2": 1209985677279.1807,
+			"throughput_std_dev_bps": 1099993.489653089,
+			"mean_peak_memory": 11652855,
+			"peak_memory_variance": 43527102792.25,
+			"peak_memory_std_dev": 208631.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 68.08160466666668,
+					"p95_duration_ms": 70.23890200000001,
+					"mean_throughput_bps": 869451.6048476667,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 69.72877166666666,
+					"p95_duration_ms": 71.449101,
+					"mean_throughput_bps": 23545860.128596533,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 69.3547315,
+					"p95_duration_ms": 71.67437,
+					"mean_throughput_bps": 29942.993352599307,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 68.09091599999999,
+					"p95_duration_ms": 68.66493899999999,
+					"mean_throughput_bps": 286791.5650571738,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 66.826626,
+					"p95_duration_ms": 66.826626,
+					"mean_throughput_bps": 1103229.1036253192,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 68.09020360000001,
+					"p95_duration_ms": 69.233293,
+					"mean_throughput_bps": 1441082.4727525613,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 63.263820428571435,
+					"p95_duration_ms": 71.06007,
+					"mean_throughput_bps": 20943653.100298785,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 68.8488175,
+					"p95_duration_ms": 70.00350499999999,
+					"mean_throughput_bps": 258971.84913669762,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"pandoc": {
+			"framework": "pandoc",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 9,
+					"file_count": 31,
+					"mean_duration_ms": 9724.587718774195,
+					"mean_throughput_bps": 35000572.568208724,
+					"mean_peak_memory": 11994145,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 40,
+					"file_count": 31,
+					"mean_duration_ms": 9721.960379580642,
+					"mean_throughput_bps": 36150476.55595588,
+					"mean_peak_memory": 12179918,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 9723.274049177418,
+			"duration_variance_ms2": 1.725727809495957,
+			"duration_std_dev_ms": 1.31366959677689,
+			"mean_throughput_bps": 35575524.562082306,
+			"throughput_variance_bps2": 330569795259.2024,
+			"throughput_std_dev_bps": 574951.9938735776,
+			"mean_peak_memory": 12087031,
+			"peak_memory_variance": 8627901882.25,
+			"peak_memory_std_dev": 92886.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 60015.225923499995,
+					"p95_duration_ms": 60015.838975,
+					"mean_throughput_bps": 1228.3049659518,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 113.67240974999999,
+					"p95_duration_ms": 201.25383399999998,
+					"mean_throughput_bps": 105532.5732591046,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 30282.45212575,
+					"p95_duration_ms": 60014.741942,
+					"mean_throughput_bps": 9710.654919580395,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 21.101908166666664,
+					"p95_duration_ms": 21.963773999999997,
+					"mean_throughput_bps": 72885021.05681705,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 35.809925199999995,
+					"p95_duration_ms": 70.53004,
+					"mean_throughput_bps": 4131315.48960404,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 60015.063128500005,
+					"p95_duration_ms": 60016.003667,
+					"mean_throughput_bps": 1012.986674756,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 21.895349250000002,
+					"p95_duration_ms": 22.176701,
+					"mean_throughput_bps": 95603.21124145668,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 21.745007346153844,
+					"p95_duration_ms": 23.283207,
+					"mean_throughput_bps": 66392589.281711526,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"markitdown": {
+			"framework": "markitdown",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 22,
+					"file_count": 31,
+					"mean_duration_ms": 30686.911814548388,
+					"mean_throughput_bps": 289153.729698606,
+					"mean_peak_memory": 13954807,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 58,
+					"file_count": 31,
+					"mean_duration_ms": 30723.99877432258,
+					"mean_throughput_bps": 280512.8661486899,
+					"mean_peak_memory": 14028932,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 30705.455294435484,
+			"duration_variance_ms2": 343.86064632311906,
+			"duration_std_dev_ms": 18.5434798870956,
+			"mean_throughput_bps": 284833.2979236479,
+			"throughput_variance_bps2": 18666130.722067304,
+			"throughput_std_dev_bps": 4320.431774958066,
+			"mean_peak_memory": 13991869,
+			"peak_memory_variance": 1373628906.25,
+			"peak_memory_std_dev": 37062.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 836.7617965000001,
+					"p95_duration_ms": 882.588122,
+					"mean_throughput_bps": 2476.6119065774383,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 1077.3146596666668,
+					"p95_duration_ms": 1582.148263,
+					"mean_throughput_bps": 1029859.1643904364,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 808.29533425,
+					"p95_duration_ms": 847.4456329999999,
+					"mean_throughput_bps": 23865.553252453905,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 825.7173769999999,
+					"p95_duration_ms": 853.7682599999999,
+					"mean_throughput_bps": 89380.78534463281,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 803.901343,
+					"p95_duration_ms": 809.276675,
+					"mean_throughput_bps": 21737.53882158093,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 814.7909603,
+					"p95_duration_ms": 840.681664,
+					"mean_throughput_bps": 119962.65751229222,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 854.7441493333334,
+					"p95_duration_ms": 925.284993,
+					"mean_throughput_bps": 67151.21862449586,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 72021.18065957693,
+					"p95_duration_ms": 900028.150319,
+					"mean_throughput_bps": 365649.81582469004,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-java-sync": {
+			"framework": "kreuzberg-java-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 35,
+					"file_count": 31,
+					"mean_duration_ms": 73.19349606451614,
+					"mean_throughput_bps": 10899510.981571903,
+					"mean_peak_memory": 11996391,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 51,
+					"file_count": 31,
+					"mean_duration_ms": 71.86464777419356,
+					"mean_throughput_bps": 10954885.400332965,
+					"mean_peak_memory": 11898483,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 72.52907191935485,
+			"duration_variance_ms2": 0.4414594446733127,
+			"duration_std_dev_ms": 0.6644241451612913,
+			"mean_throughput_bps": 10927198.190952435,
+			"throughput_variance_bps2": 766581563.2813501,
+			"throughput_std_dev_bps": 27687.209380530752,
+			"mean_peak_memory": 11947437,
+			"peak_memory_variance": 2396494116.0,
+			"peak_memory_std_dev": 48954.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 72.4669570769231,
+					"p95_duration_ms": 75.665858,
+					"mean_throughput_bps": 20280564.05028153,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 72.72635316666668,
+					"p95_duration_ms": 75.07721000000001,
+					"mean_throughput_bps": 21294400.0384895,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 74.2324523,
+					"p95_duration_ms": 87.943483,
+					"mean_throughput_bps": 1306307.6613004915,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 71.86074825,
+					"p95_duration_ms": 73.650778,
+					"mean_throughput_bps": 270134.8482049272,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 71.85349825,
+					"p95_duration_ms": 73.641602,
+					"mean_throughput_bps": 244896.32792186493,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 70.07106850000001,
+					"p95_duration_ms": 72.412636,
+					"mean_throughput_bps": 29914.81607886809,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 72.03425283333333,
+					"p95_duration_ms": 74.07857399999999,
+					"mean_throughput_bps": 861665.9631027322,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 73.316078,
+					"p95_duration_ms": 73.606452,
+					"mean_throughput_bps": 1006182.9701751899,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-elixir-batch": {
+			"framework": "kreuzberg-elixir-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 10,
+					"file_count": 1,
+					"mean_duration_ms": 164.536522,
+					"mean_throughput_bps": 143267.23683385146,
+					"mean_peak_memory": 15638528,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 56,
+					"file_count": 31,
+					"mean_duration_ms": 702.4206329677419,
+					"mean_throughput_bps": 797352.1405365107,
+					"mean_peak_memory": 12086503,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 433.47857748387094,
+			"duration_variance_ms2": 72329.82920788952,
+			"duration_std_dev_ms": 268.94205548387094,
+			"mean_throughput_bps": 470309.6886851811,
+			"throughput_variance_bps2": 106956765312.92928,
+			"throughput_std_dev_bps": 327042.45185132965,
+			"mean_peak_memory": 13862515,
+			"peak_memory_variance": 3154220400156.25,
+			"peak_memory_std_dev": 1776012.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 552.1487595,
+					"p95_duration_ms": 558.698975,
+					"mean_throughput_bps": 35423.55257446371,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 552.013506,
+					"p95_duration_ms": 556.662302,
+					"mean_throughput_bps": 175315.6431317789,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 556.264081,
+					"p95_duration_ms": 569.499859,
+					"mean_throughput_bps": 2754643.030803377,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 561.293418,
+					"p95_duration_ms": 561.293418,
+					"mean_throughput_bps": 131358.4020298717,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 554.2123905,
+					"p95_duration_ms": 557.351527,
+					"mean_throughput_bps": 31503.49369484691,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 555.155419,
+					"p95_duration_ms": 559.282854,
+					"mean_throughput_bps": 108793.43019988171,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 548.773297,
+					"p95_duration_ms": 552.044569,
+					"mean_throughput_bps": 3808.4736404297,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 855.2634144285714,
+					"p95_duration_ms": 3599.151572,
+					"mean_throughput_bps": 1080104.753781976,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-wasm-async": {
+			"framework": "kreuzberg-wasm-async",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 5,
+					"file_count": 31,
+					"mean_duration_ms": 637.8533737419356,
+					"mean_throughput_bps": 1224152.1277377547,
+					"mean_peak_memory": 11519009,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 49,
+					"file_count": 31,
+					"mean_duration_ms": 663.332025,
+					"mean_throughput_bps": 1191025.9870861573,
+					"mean_peak_memory": 11762654,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 650.5926993709678,
+			"duration_variance_ms2": 162.2904174825176,
+			"duration_std_dev_ms": 12.739325629032237,
+			"mean_throughput_bps": 1207589.0574119561,
+			"throughput_variance_bps2": 274335298.61735356,
+			"throughput_std_dev_bps": 16563.070325798704,
+			"mean_peak_memory": 11640831,
+			"peak_memory_variance": 14840721506.25,
+			"peak_memory_std_dev": 121822.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 648.546994,
+					"p95_duration_ms": 683.202991,
+					"mean_throughput_bps": 151458.49976663213,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 639.17433625,
+					"p95_duration_ms": 659.606279,
+					"mean_throughput_bps": 3285.4262570987685,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 654.8000291666666,
+					"p95_duration_ms": 685.951957,
+					"mean_throughput_bps": 93127.89863565816,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 655.5310351666666,
+					"p95_duration_ms": 680.707026,
+					"mean_throughput_bps": 2377362.787068527,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 646.222886,
+					"p95_duration_ms": 662.361901,
+					"mean_throughput_bps": 114200.59276433855,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 652.0004583076923,
+					"p95_duration_ms": 681.6846720000001,
+					"mean_throughput_bps": 2233238.717435836,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 644.0384772499999,
+					"p95_duration_ms": 659.212474,
+					"mean_throughput_bps": 30148.172880594317,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 652.9955232499999,
+					"p95_duration_ms": 664.5810220000001,
+					"mean_throughput_bps": 26662.553059666392,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-elixir-sync": {
+			"framework": "kreuzberg-elixir-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 25,
+					"file_count": 31,
+					"mean_duration_ms": 661.2736860645161,
+					"mean_throughput_bps": 849339.7379794628,
+					"mean_peak_memory": 12126802,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 33,
+					"file_count": 31,
+					"mean_duration_ms": 693.5061010967742,
+					"mean_throughput_bps": 807687.0678845223,
+					"mean_peak_memory": 12230391,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 677.3898935806451,
+			"duration_variance_ms2": 259.73214470293317,
+			"duration_std_dev_ms": 16.11620751612901,
+			"mean_throughput_bps": 828513.4029319925,
+			"throughput_variance_bps2": 433736231.5094893,
+			"throughput_std_dev_bps": 20826.33504747029,
+			"mean_peak_memory": 12178596,
+			"peak_memory_variance": 2682670230.25,
+			"peak_memory_std_dev": 51794.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 528.8178485000001,
+					"p95_duration_ms": 545.390472,
+					"mean_throughput_bps": 184235.26146477368,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 530.5015912499999,
+					"p95_duration_ms": 549.3358109999999,
+					"mean_throughput_bps": 32857.516516835094,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 526.3571975,
+					"p95_duration_ms": 545.377636,
+					"mean_throughput_bps": 114848.7066437453,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 525.607465,
+					"p95_duration_ms": 545.089248,
+					"mean_throughput_bps": 140449.3909623213,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 882.2950931538461,
+					"p95_duration_ms": 3552.997169,
+					"mean_throughput_bps": 1192270.433220314,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 533.268558,
+					"p95_duration_ms": 552.12988,
+					"mean_throughput_bps": 3920.7639656138986,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 527.0042517500001,
+					"p95_duration_ms": 539.961087,
+					"mean_throughput_bps": 36916.12381903409,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 532.977796,
+					"p95_duration_ms": 558.50609,
+					"mean_throughput_bps": 2876946.410735764,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"pdfplumber": {
+			"framework": "pdfplumber",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 12,
+					"file_count": 31,
+					"mean_duration_ms": 5723.529049741936,
+					"mean_throughput_bps": 843146.6545189996,
+					"mean_peak_memory": 12441533,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 32,
+					"file_count": 31,
+					"mean_duration_ms": 5636.227951290324,
+					"mean_throughput_bps": 859316.7820838538,
+					"mean_peak_memory": 12351818,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 5679.87850051613,
+			"duration_variance_ms2": 1905.370447714523,
+			"duration_std_dev_ms": 43.65054922580612,
+			"mean_throughput_bps": 851231.7183014267,
+			"throughput_variance_bps2": 65368256.365914576,
+			"throughput_std_dev_bps": 8085.063782427111,
+			"mean_peak_memory": 12396675,
+			"peak_memory_variance": 2012195306.25,
+			"peak_memory_std_dev": 44857.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 169.547379,
+					"p95_duration_ms": 176.445778,
+					"mean_throughput_bps": 114220.91671370945,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 13294.541645884618,
+					"p95_duration_ms": 121294.53653900001,
+					"mean_throughput_bps": 603842.0756267034,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 170.17141550000002,
+					"p95_duration_ms": 171.825568,
+					"mean_throughput_bps": 433277.13268061716,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 168.46877375,
+					"p95_duration_ms": 172.61862,
+					"mean_throughput_bps": 103749.90868963668,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 172.8702859,
+					"p95_duration_ms": 188.492775,
+					"mean_throughput_bps": 532249.5875795875,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 168.7469935,
+					"p95_duration_ms": 173.05861,
+					"mean_throughput_bps": 12430.883821449053,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 228.11122616666668,
+					"p95_duration_ms": 346.56124900000003,
+					"mean_throughput_bps": 4648039.92051318,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 171.60310116666668,
+					"p95_duration_ms": 176.957101,
+					"mean_throughput_bps": 346262.677876466,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"mineru-batch": {
+			"framework": "mineru-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 4,
+					"file_count": 31,
+					"mean_duration_ms": 1975.8978659677425,
+					"mean_throughput_bps": 394737.5560754592,
+					"mean_peak_memory": 11848538,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 31,
+					"file_count": 1,
+					"mean_duration_ms": 1874.83963,
+					"mean_throughput_bps": 12572.82097167452,
+					"mean_peak_memory": 12603392,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 1925.3687479838713,
+			"duration_variance_ms2": 2553.191764227985,
+			"duration_std_dev_ms": 50.52911798387129,
+			"mean_throughput_bps": 203655.18852356685,
+			"throughput_variance_bps2": 36512471189.23647,
+			"throughput_std_dev_bps": 191082.36755189233,
+			"mean_peak_memory": 12225965,
+			"peak_memory_variance": 142451140329.0,
+			"peak_memory_std_dev": 377427.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 1978.4335408,
+					"p95_duration_ms": 2025.3775520000002,
+					"mean_throughput_bps": 49466.3258057967,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 1959.505152,
+					"p95_duration_ms": 1959.505152,
+					"mean_throughput_bps": 37620.531001334166,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 1958.143682,
+					"p95_duration_ms": 1964.506952,
+					"mean_throughput_bps": 1070.1503014148007,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 1969.629085,
+					"p95_duration_ms": 1976.126829,
+					"mean_throughput_bps": 8883.37827608308,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 1988.932656,
+					"p95_duration_ms": 2017.556872,
+					"mean_throughput_bps": 9716.89617661305,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 1982.902306,
+					"p95_duration_ms": 1990.937253,
+					"mean_throughput_bps": 30753.20339783296,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 1967.754184666667,
+					"p95_duration_ms": 1980.9486860000002,
+					"mean_throughput_bps": 791520.9531578603,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 1970.7585929285713,
+					"p95_duration_ms": 2024.9243350000002,
+					"mean_throughput_bps": 675594.3985789493,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-python-sync": {
+			"framework": "kreuzberg-python-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 53,
+					"file_count": 31,
+					"mean_duration_ms": 290.7011429677419,
+					"mean_throughput_bps": 2285017.348781946,
+					"mean_peak_memory": 12037351,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 54,
+					"file_count": 31,
+					"mean_duration_ms": 291.2338442258064,
+					"mean_throughput_bps": 2286856.123585901,
+					"mean_peak_memory": 11824887,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 290.96749359677415,
+			"duration_variance_ms2": 0.07094265758588823,
+			"duration_std_dev_ms": 0.26635062903227436,
+			"mean_throughput_bps": 2285936.7361839237,
+			"throughput_variance_bps2": 845273.1949150364,
+			"throughput_std_dev_bps": 919.387401977554,
+			"mean_peak_memory": 11931119,
+			"peak_memory_variance": 11285237824.0,
+			"peak_memory_std_dev": 106232.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 494.4078417307694,
+					"p95_duration_ms": 3171.599922,
+					"mean_throughput_bps": 2752374.7115576267,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 142.0930545,
+					"p95_duration_ms": 142.74975,
+					"mean_throughput_bps": 518818.0720090326,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 143.228412,
+					"p95_duration_ms": 145.940407,
+					"mean_throughput_bps": 14580.535800217993,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 143.20601449999998,
+					"p95_duration_ms": 143.62513900000002,
+					"mean_throughput_bps": 135946.1981580312,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 143.32525575,
+					"p95_duration_ms": 145.68518699999998,
+					"mean_throughput_bps": 121096.5317951218,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 143.33623566666668,
+					"p95_duration_ms": 148.74197999999998,
+					"mean_throughput_bps": 415870.57738307695,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 149.6488135,
+					"p95_duration_ms": 161.21892400000002,
+					"mean_throughput_bps": 9780199.318260564,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 142.42455850000002,
+					"p95_duration_ms": 144.10134,
+					"mean_throughput_bps": 686578.6562011618,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"tika-batch": {
+			"framework": "tika-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 43,
+					"file_count": 31,
+					"mean_duration_ms": 2155.577618322581,
+					"mean_throughput_bps": 242073.0213857465,
+					"mean_peak_memory": 12428585,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 57,
+					"file_count": 1,
+					"mean_duration_ms": 322.15185,
+					"mean_throughput_bps": 73185.81690516182,
+					"mean_peak_memory": 16273408,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 1238.8647341612907,
+			"duration_variance_ms2": 840362.5119873118,
+			"duration_std_dev_ms": 916.7128841612906,
+			"mean_throughput_bps": 157629.41914545416,
+			"throughput_variance_bps2": 7130721959.316708,
+			"throughput_std_dev_bps": 84443.60224029236,
+			"mean_peak_memory": 14350996,
+			"peak_memory_variance": 3695665975332.25,
+			"peak_memory_std_dev": 1922411.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 2722.1448440000004,
+					"p95_duration_ms": 3866.336331,
+					"mean_throughput_bps": 411849.59921866487,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 1696.4504435000001,
+					"p95_duration_ms": 1713.6069630000002,
+					"mean_throughput_bps": 11522.863252388363,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 2196.6045475714286,
+					"p95_duration_ms": 4816.281445,
+					"mean_throughput_bps": 424052.8061489467,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 1767.962235,
+					"p95_duration_ms": 1783.050297,
+					"mean_throughput_bps": 1187.2356138412865,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 1974.452963,
+					"p95_duration_ms": 2093.642807,
+					"mean_throughput_bps": 29228.14859898601,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 1675.610571,
+					"p95_duration_ms": 1675.610571,
+					"mean_throughput_bps": 44005.14308181145,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 1722.9714365,
+					"p95_duration_ms": 1747.49809,
+					"mean_throughput_bps": 10055.772304230219,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 2050.484426,
+					"p95_duration_ms": 2154.597365,
+					"mean_throughput_bps": 45588.01298047337,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"unstructured": {
+			"framework": "unstructured",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 0,
+					"file_count": 31,
+					"mean_duration_ms": 1132.1780418387095,
+					"mean_throughput_bps": 1269025.8319297212,
+					"mean_peak_memory": 11787759,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 1,
+					"file_count": 31,
+					"mean_duration_ms": 1348.3052856129027,
+					"mean_throughput_bps": 866679.149089679,
+					"mean_peak_memory": 11537639,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 1240.2416637258061,
+			"duration_variance_ms2": 11677.746375357381,
+			"duration_std_dev_ms": 108.06362188709659,
+			"mean_throughput_bps": 1067852.4905097,
+			"throughput_variance_bps2": 40470713298.096375,
+			"throughput_std_dev_bps": 201173.34142002108,
+			"mean_peak_memory": 11662699,
+			"peak_memory_variance": 15640003600.0,
+			"peak_memory_std_dev": 125060.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 640.69814275,
+					"p95_duration_ms": 764.489573,
+					"mean_throughput_bps": 28263.23926839802,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 2354.467431,
+					"p95_duration_ms": 2440.098054,
+					"mean_throughput_bps": 889.2611442264977,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 624.1586955,
+					"p95_duration_ms": 754.115605,
+					"mean_throughput_bps": 123467.743996597,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 635.83656,
+					"p95_duration_ms": 761.728289,
+					"mean_throughput_bps": 31989.44436625332,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 2557.1676215,
+					"p95_duration_ms": 3116.3870340000003,
+					"mean_throughput_bps": 520023.32645635883,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 636.7293471538462,
+					"p95_duration_ms": 766.2015260000001,
+					"mean_throughput_bps": 2378318.3131523873,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 2248.8272222,
+					"p95_duration_ms": 2366.99182,
+					"mean_throughput_bps": 42970.89912463346,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 1122.7360413333333,
+					"p95_duration_ms": 1237.639488,
+					"mean_throughput_bps": 54871.00875768816,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"docling-batch": {
+			"framework": "docling-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 8,
+					"file_count": 31,
+					"mean_duration_ms": 5837.148058548387,
+					"mean_throughput_bps": 129309.13285430257,
+					"mean_peak_memory": 11953713,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 27,
+					"file_count": 1,
+					"mean_duration_ms": 185.593613,
+					"mean_throughput_bps": 127010.31247235042,
+					"mean_peak_memory": 11984896,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 3011.3708357741934,
+			"duration_variance_ms2": 7985016.912749434,
+			"duration_std_dev_ms": 2825.7772227741934,
+			"mean_throughput_bps": 128159.7226633265,
+			"throughput_variance_bps2": 1321143.787119667,
+			"throughput_std_dev_bps": 1149.4101909760793,
+			"mean_peak_memory": 11969304,
+			"peak_memory_variance": 243094872.25,
+			"peak_memory_std_dev": 15591.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 5445.795328,
+					"p95_duration_ms": 5598.711920999999,
+					"mean_throughput_bps": 18021.992076383456,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 6145.056715,
+					"p95_duration_ms": 6145.056715,
+					"mean_throughput_bps": 11996.819897149027,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 5668.5914695,
+					"p95_duration_ms": 5793.817712,
+					"mean_throughput_bps": 367.2047245874862,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 5932.952842,
+					"p95_duration_ms": 6056.134233,
+					"mean_throughput_bps": 3247.986388404516,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 5620.164398642858,
+					"p95_duration_ms": 6185.700087,
+					"mean_throughput_bps": 231871.91214782794,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 5740.285710333333,
+					"p95_duration_ms": 6355.38748,
+					"mean_throughput_bps": 247465.42121801505,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 6088.7181359999995,
+					"p95_duration_ms": 6828.468246,
+					"mean_throughput_bps": 2594.7288008730916,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 5493.155488666666,
+					"p95_duration_ms": 5633.292077,
+					"mean_throughput_bps": 10821.259041766054,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"mineru": {
+			"framework": "mineru",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 18,
+					"file_count": 31,
+					"mean_duration_ms": 2077.0052465161293,
+					"mean_throughput_bps": 382555.36555464944,
+					"mean_peak_memory": 11957809,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 48,
+					"file_count": 31,
+					"mean_duration_ms": 1980.766725129032,
+					"mean_throughput_bps": 398424.663324496,
+					"mean_peak_memory": 11650477,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 2028.8859858225806,
+			"duration_variance_ms2": 2315.4632496936965,
+			"duration_std_dev_ms": 48.119260693548654,
+			"mean_throughput_bps": 390490.0144395727,
+			"throughput_variance_bps2": 62958652.92701432,
+			"throughput_std_dev_bps": 7934.648884923285,
+			"mean_peak_memory": 11804143,
+			"peak_memory_variance": 23613239556.0,
+			"peak_memory_std_dev": 153666.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 2069.237239,
+					"p95_duration_ms": 2172.055864,
+					"mean_throughput_bps": 35725.92315027869,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 2032.0466306666667,
+					"p95_duration_ms": 2099.031161,
+					"mean_throughput_bps": 767363.0316834268,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 2030.84231125,
+					"p95_duration_ms": 2089.764206,
+					"mean_throughput_bps": 1031.9609738875665,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 2038.58671325,
+					"p95_duration_ms": 2156.679713,
+					"mean_throughput_bps": 9614.3924646226,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 2036.0602087999996,
+					"p95_duration_ms": 2131.497809,
+					"mean_throughput_bps": 47595.26002088627,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 2016.6109042499997,
+					"p95_duration_ms": 2063.238107,
+					"mean_throughput_bps": 8727.054725229562,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 2023.7844826666662,
+					"p95_duration_ms": 2088.565,
+					"mean_throughput_bps": 30269.18894206618,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 2023.5656984615384,
+					"p95_duration_ms": 2092.983886,
+					"mean_throughput_bps": 723064.9804744681,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-node-batch": {
+			"framework": "kreuzberg-node-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 11,
+					"file_count": 31,
+					"mean_duration_ms": 552.7958985161288,
+					"mean_throughput_bps": 1428150.7852876463,
+					"mean_peak_memory": 11679810,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 26,
+					"file_count": 1,
+					"mean_duration_ms": 17.134999,
+					"mean_throughput_bps": 1375791.0429951777,
+					"mean_peak_memory": 11743232,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 284.9654487580644,
+			"duration_variance_ms2": 71733.14981760706,
+			"duration_std_dev_ms": 267.8304497580644,
+			"mean_throughput_bps": 1401970.914141412,
+			"throughput_variance_bps2": 685385653.233433,
+			"throughput_std_dev_bps": 26179.871146234334,
+			"mean_peak_memory": 11711521,
+			"peak_memory_variance": 1005587521.0,
+			"peak_memory_std_dev": 31711.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 552.914402,
+					"p95_duration_ms": 559.441422,
+					"mean_throughput_bps": 2803173.088418942,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 554.98211,
+					"p95_duration_ms": 556.731611,
+					"mean_throughput_bps": 34992.51968275629,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 550.126051,
+					"p95_duration_ms": 551.990913,
+					"mean_throughput_bps": 176623.22369584395,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 513.2331556428571,
+					"p95_duration_ms": 560.334028,
+					"mean_throughput_bps": 2554217.285521608,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 551.7612495,
+					"p95_duration_ms": 556.0616699999999,
+					"mean_throughput_bps": 32042.07637712634,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 558.8608946666667,
+					"p95_duration_ms": 565.111086,
+					"mean_throughput_bps": 107705.27189529857,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 558.422007,
+					"p95_duration_ms": 558.422007,
+					"mean_throughput_bps": 132051.9854887858,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 555.3394015,
+					"p95_duration_ms": 557.995509,
+					"mean_throughput_bps": 3775.5062896036743,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-ruby-batch": {
+			"framework": "kreuzberg-ruby-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 30,
+					"file_count": 31,
+					"mean_duration_ms": 103.32986061290322,
+					"mean_throughput_bps": 7631324.3351345565,
+					"mean_peak_memory": 11800311,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 38,
+					"file_count": 1,
+					"mean_duration_ms": 3.4995149999999997,
+					"mean_throughput_bps": 6767882.765137416,
+					"mean_peak_memory": 11517952,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 53.41468780645161,
+			"duration_variance_ms2": 2491.524476297926,
+			"duration_std_dev_ms": 49.91517280645161,
+			"mean_throughput_bps": 7199603.550135987,
+			"throughput_variance_bps2": 186382836199.7816,
+			"throughput_std_dev_bps": 431720.7849985701,
+			"mean_peak_memory": 11659131,
+			"peak_memory_variance": 19931651220.25,
+			"peak_memory_std_dev": 141179.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 102.8493665,
+					"p95_duration_ms": 103.668885,
+					"mean_throughput_bps": 188409.15263528933,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 103.05460199999999,
+					"p95_duration_ms": 103.05460199999999,
+					"mean_throughput_bps": 715330.6791739482,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 103.07685719999999,
+					"p95_duration_ms": 104.02759999999999,
+					"mean_throughput_bps": 950000.1531537126,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 96.75145842857141,
+					"p95_duration_ms": 109.992359,
+					"mean_throughput_bps": 13563997.902662704,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 102.77279066666667,
+					"p95_duration_ms": 103.525008,
+					"mean_throughput_bps": 15145266.72725833,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 103.16389533333334,
+					"p95_duration_ms": 104.664677,
+					"mean_throughput_bps": 594286.5627402092,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 102.16248949999999,
+					"p95_duration_ms": 102.858847,
+					"mean_throughput_bps": 170707.96991667757,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 102.966059,
+					"p95_duration_ms": 103.621869,
+					"mean_throughput_bps": 20370.478494370313,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-python-async": {
+			"framework": "kreuzberg-python-async",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 19,
+					"file_count": 31,
+					"mean_duration_ms": 273.08634709677415,
+					"mean_throughput_bps": 2526218.3727066694,
+					"mean_peak_memory": 12117289,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 21,
+					"file_count": 31,
+					"mean_duration_ms": 290.7388889032258,
+					"mean_throughput_bps": 2262104.790024933,
+					"mean_peak_memory": 12033783,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 281.91261799999995,
+			"duration_variance_ms2": 77.90305805713095,
+			"duration_std_dev_ms": 8.826270903225833,
+			"mean_throughput_bps": 2394161.5813658014,
+			"throughput_variance_bps2": 17438996139.24561,
+			"throughput_std_dev_bps": 132056.79134086822,
+			"mean_peak_memory": 12075536,
+			"peak_memory_variance": 1743313009.0,
+			"peak_memory_std_dev": 41753.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 135.83123316666664,
+					"p95_duration_ms": 143.505999,
+					"mean_throughput_bps": 444697.8423764498,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 138.42846149999997,
+					"p95_duration_ms": 145.072159,
+					"mean_throughput_bps": 140969.21835986496,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 136.3447285,
+					"p95_duration_ms": 145.019756,
+					"mean_throughput_bps": 719744.5806554274,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 136.97500000000002,
+					"p95_duration_ms": 144.369527,
+					"mean_throughput_bps": 539771.5342060038,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 142.76751649999997,
+					"p95_duration_ms": 163.446508,
+					"mean_throughput_bps": 10208622.502373163,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 136.2971925,
+					"p95_duration_ms": 144.718106,
+					"mean_throughput_bps": 15386.891500529799,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 136.77120924999997,
+					"p95_duration_ms": 146.42402099999998,
+					"mean_throughput_bps": 126936.04998530736,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 481.6771184615385,
+					"p95_duration_ms": 3106.656094,
+					"mean_throughput_bps": 2888766.8639166495,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-native": {
+			"framework": "kreuzberg-native",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 7,
+					"file_count": 1,
+					"mean_duration_ms": 130.633141,
+					"mean_throughput_bps": 180455.02105903128,
+					"mean_peak_memory": 199249920,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 15,
+					"file_count": 31,
+					"mean_duration_ms": 139.1425769677419,
+					"mean_throughput_bps": 68649616.32811277,
+					"mean_peak_memory": 67835705,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 134.88785898387096,
+			"duration_variance_ms2": 18.102625122274855,
+			"duration_std_dev_ms": 4.254717983870947,
+			"mean_throughput_bps": 34415035.6745859,
+			"throughput_variance_bps2": 1172006512522836.2,
+			"throughput_std_dev_bps": 34234580.65352687,
+			"mean_peak_memory": 133542812,
+			"peak_memory_variance": 4317423976016556.0,
+			"peak_memory_std_dev": 65707107.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 5.023695,
+					"p95_duration_ms": 13.118229,
+					"mean_throughput_bps": 148642642.31986097,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 315.59583621428567,
+					"p95_duration_ms": 2978.3202389999997,
+					"mean_throughput_bps": 16134505.275747174,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 0.32960900000000004,
+					"p95_duration_ms": 0.408308,
+					"mean_throughput_bps": 6467202.036059411,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 1.142392,
+					"p95_duration_ms": 2.138417,
+					"mean_throughput_bps": 12170789.334292676,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 0.4920348,
+					"p95_duration_ms": 0.6406769999999999,
+					"mean_throughput_bps": 216236905.77411038,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 0.515221,
+					"p95_duration_ms": 0.778184,
+					"mean_throughput_bps": 84349766.62416054,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 1.0627765,
+					"p95_duration_ms": 1.126865,
+					"mean_throughput_bps": 18886936.35457029,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 1.564843,
+					"p95_duration_ms": 1.564843,
+					"mean_throughput_bps": 47223876.17963406,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-wasm-batch": {
+			"framework": "kreuzberg-wasm-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 41,
+					"file_count": 1,
+					"mean_duration_ms": 20.117863,
+					"mean_throughput_bps": 1172100.6337896492,
+					"mean_peak_memory": 11853824,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 52,
+					"file_count": 31,
+					"mean_duration_ms": 644.6537953870967,
+					"mean_throughput_bps": 1219487.7793282692,
+					"mean_peak_memory": 11551116,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 332.3858291935484,
+			"duration_variance_ms2": 97511.28271065505,
+			"duration_std_dev_ms": 312.2679661935484,
+			"mean_throughput_bps": 1195794.206558959,
+			"throughput_variance_bps2": 561385390.5745872,
+			"throughput_std_dev_bps": 23693.572769309976,
+			"mean_peak_memory": 11702470,
+			"peak_memory_variance": 22908033316.0,
+			"peak_memory_std_dev": 151354.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 652.959922,
+					"p95_duration_ms": 667.663099,
+					"mean_throughput_bps": 26328.834705881574,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 640.8278836666667,
+					"p95_duration_ms": 643.261094,
+					"mean_throughput_bps": 2446188.262955905,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 642.9792914,
+					"p95_duration_ms": 647.20079,
+					"mean_throughput_bps": 150958.67221754132,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 643.197721,
+					"p95_duration_ms": 644.766253,
+					"mean_throughput_bps": 30205.477649932887,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 601.8248838571428,
+					"p95_duration_ms": 657.691049,
+					"mean_throughput_bps": 2168897.973012203,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 647.799636,
+					"p95_duration_ms": 647.799636,
+					"mean_throughput_bps": 113798.0645260732,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 635.57302,
+					"p95_duration_ms": 639.290423,
+					"mean_throughput_bps": 3288.691790783969,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 643.3986920000001,
+					"p95_duration_ms": 651.139298,
+					"mean_throughput_bps": 94949.3160068151,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-ruby-sync": {
+			"framework": "kreuzberg-ruby-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 3,
+					"file_count": 31,
+					"mean_duration_ms": 102.096356,
+					"mean_throughput_bps": 7644320.831122751,
+					"mean_peak_memory": 11820527,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 47,
+					"file_count": 31,
+					"mean_duration_ms": 100.6308110967742,
+					"mean_throughput_bps": 7847817.38793618,
+					"mean_peak_memory": 11592737,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 101.3635835483871,
+			"duration_variance_ms2": 0.5369554658427834,
+			"duration_std_dev_ms": 0.7327724516129024,
+			"mean_throughput_bps": 7746069.109529465,
+			"throughput_variance_bps2": 10352712158.730295,
+			"throughput_std_dev_bps": 101748.27840671455,
+			"mean_peak_memory": 11706632,
+			"peak_memory_variance": 12972071025.0,
+			"peak_memory_std_dev": 113895.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 101.26796033333333,
+					"p95_duration_ms": 104.868341,
+					"mean_throughput_bps": 15184635.027681775,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 100.8550079,
+					"p95_duration_ms": 102.858023,
+					"mean_throughput_bps": 961288.0123367056,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 101.43690226923074,
+					"p95_duration_ms": 104.655174,
+					"mean_throughput_bps": 14344217.671610918,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 102.92264850000001,
+					"p95_duration_ms": 104.502649,
+					"mean_throughput_bps": 170516.98424876388,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 101.37627925,
+					"p95_duration_ms": 104.041038,
+					"mean_throughput_bps": 20627.33080327364,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 100.89546566666667,
+					"p95_duration_ms": 102.858469,
+					"mean_throughput_bps": 600277.4564362849,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 101.42248625,
+					"p95_duration_ms": 103.29798199999999,
+					"mean_throughput_bps": 191338.54481953554,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 101.383215,
+					"p95_duration_ms": 101.75438100000001,
+					"mean_throughput_bps": 727169.4306906615,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-python-batch": {
+			"framework": "kreuzberg-python-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 2,
+					"file_count": 31,
+					"mean_duration_ms": 287.97075164516133,
+					"mean_throughput_bps": 2312350.2034931094,
+					"mean_peak_memory": 12170801,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 59,
+					"file_count": 1,
+					"mean_duration_ms": 142.178247,
+					"mean_throughput_bps": 165803.0960533751,
+					"mean_peak_memory": 15769600,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 215.07449932258066,
+			"duration_variance_ms2": 5313.8636026773465,
+			"duration_std_dev_ms": 72.89625232258066,
+			"mean_throughput_bps": 1239076.6497732422,
+			"throughput_variance_bps2": 1151916121114.4727,
+			"throughput_std_dev_bps": 1073273.5537198673,
+			"mean_peak_memory": 13970200,
+			"peak_memory_variance": 3237838560600.25,
+			"peak_memory_std_dev": 1799399.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 141.395671,
+					"p95_duration_ms": 142.364778,
+					"mean_throughput_bps": 123336.8365015648,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 465.5811981428571,
+					"p95_duration_ms": 3141.028011,
+					"mean_throughput_bps": 2582999.2543526157,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 140.3595,
+					"p95_duration_ms": 140.87913899999998,
+					"mean_throughput_bps": 14900.736155433817,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 140.65607540000002,
+					"p95_duration_ms": 141.836771,
+					"mean_throughput_bps": 694267.6661470763,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 139.86560366666666,
+					"p95_duration_ms": 141.316563,
+					"mean_throughput_bps": 430692.61255847587,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 140.86275700000002,
+					"p95_duration_ms": 140.86275700000002,
+					"mean_throughput_bps": 523344.1373532952,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 142.06453399999998,
+					"p95_duration_ms": 143.183331,
+					"mean_throughput_bps": 137408.8808400029,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 146.58513966666666,
+					"p95_duration_ms": 157.925112,
+					"mean_throughput_bps": 9949538.876881683,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"tika-sync": {
+			"framework": "tika-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 20,
+					"file_count": 31,
+					"mean_duration_ms": 2438.782571935484,
+					"mean_throughput_bps": 217110.41245627127,
+					"mean_peak_memory": 12456332,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 36,
+					"file_count": 31,
+					"mean_duration_ms": 2198.4850143548388,
+					"mean_throughput_bps": 239440.26199888892,
+					"mean_peak_memory": 12662850,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 2318.6337931451617,
+			"duration_variance_ms2": 14435.729044805896,
+			"duration_std_dev_ms": 120.1487787903227,
+			"mean_throughput_bps": 228275.33722758008,
+			"throughput_variance_bps2": 124655545.14898545,
+			"throughput_std_dev_bps": 11164.924771308826,
+			"mean_peak_memory": 12559591,
+			"peak_memory_variance": 10662421081.0,
+			"peak_memory_std_dev": 103259.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 1857.5329680000002,
+					"p95_duration_ms": 2057.443991,
+					"mean_throughput_bps": 10448.80521789508,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 2506.9371211153843,
+					"p95_duration_ms": 4855.836397,
+					"mean_throughput_bps": 426386.54495169234,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 2124.720519666667,
+					"p95_duration_ms": 2298.7017229999997,
+					"mean_throughput_bps": 27755.616689140184,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 1880.4765105000001,
+					"p95_duration_ms": 2025.573855,
+					"mean_throughput_bps": 39437.35942151108,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 2218.7113913,
+					"p95_duration_ms": 2418.299795,
+					"mean_throughput_bps": 42723.03993389239,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 1841.93962575,
+					"p95_duration_ms": 1995.544196,
+					"mean_throughput_bps": 9383.394515294749,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 1900.65324275,
+					"p95_duration_ms": 2083.029753,
+					"mean_throughput_bps": 1112.6187744535748,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 2913.006104666667,
+					"p95_duration_ms": 4294.05245,
+					"mean_throughput_bps": 385100.44116976723,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-csharp-sync": {
+			"framework": "kreuzberg-csharp-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 24,
+					"file_count": 31,
+					"mean_duration_ms": 2723.073940193548,
+					"mean_throughput_bps": 214676.25403696724,
+					"mean_peak_memory": 11884345,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 37,
+					"file_count": 31,
+					"mean_duration_ms": 2699.6480638709677,
+					"mean_throughput_bps": 217611.56396922367,
+					"mean_peak_memory": 12138165,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 2711.3610020322576,
+			"duration_variance_ms2": 137.19292037020682,
+			"duration_std_dev_ms": 11.71293816129014,
+			"mean_throughput_bps": 216143.90900309547,
+			"throughput_variance_bps2": 2154011.099600823,
+			"throughput_std_dev_bps": 1467.6549661282188,
+			"mean_peak_memory": 12011255,
+			"peak_memory_variance": 16106148100.0,
+			"peak_memory_std_dev": 126910.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 1840.0325768000002,
+					"p95_duration_ms": 1866.014461,
+					"mean_throughput_bps": 53055.81647792189,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 1869.3658775,
+					"p95_duration_ms": 1873.762229,
+					"mean_throughput_bps": 39435.76820296751,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 1885.5141451666666,
+					"p95_duration_ms": 1973.029524,
+					"mean_throughput_bps": 803957.410839757,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 1862.11872975,
+					"p95_duration_ms": 1868.03539,
+					"mean_throughput_bps": 1124.56558865846,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 1859.57075175,
+					"p95_duration_ms": 1877.48529,
+					"mean_throughput_bps": 10470.517726101742,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 3890.578730846153,
+					"p95_duration_ms": 19907.192762000002,
+					"mean_throughput_bps": 295668.18908898666,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 1867.3820671666665,
+					"p95_duration_ms": 1886.654748,
+					"mean_throughput_bps": 32680.2621437276,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 1851.5356002499998,
+					"p95_duration_ms": 1876.159387,
+					"mean_throughput_bps": 9478.342383290108,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"pymupdf4llm": {
+			"framework": "pymupdf4llm",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 13,
+					"file_count": 31,
+					"mean_duration_ms": 10485.354933999997,
+					"mean_throughput_bps": 578147.9331811077,
+					"mean_peak_memory": 13011010,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 42,
+					"file_count": 31,
+					"mean_duration_ms": 10434.859220774193,
+					"mean_throughput_bps": 587046.7007428532,
+					"mean_peak_memory": 12829861,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 10460.107077387096,
+			"duration_variance_ms2": 637.4542635456628,
+			"duration_std_dev_ms": 25.24785661290207,
+			"mean_throughput_bps": 582597.3169619804,
+			"throughput_variance_bps2": 19797016.029493403,
+			"throughput_std_dev_bps": 4449.38378087274,
+			"mean_peak_memory": 12920435,
+			"peak_memory_variance": 8203740050.25,
+			"peak_memory_std_dev": 90574.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 24663.812532000004,
+					"p95_duration_ms": 238219.082636,
+					"mean_throughput_bps": 326179.0269530666,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 153.203517,
+					"p95_duration_ms": 155.309997,
+					"mean_throughput_bps": 481276.1728835779,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 307.02222966666665,
+					"p95_duration_ms": 557.33042,
+					"mean_throughput_bps": 2945763.390071744,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 165.985097,
+					"p95_duration_ms": 177.244012,
+					"mean_throughput_bps": 348171.05964372697,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 176.10702425,
+					"p95_duration_ms": 177.158322,
+					"mean_throughput_bps": 99812.30624315946,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 221.55345775,
+					"p95_duration_ms": 243.548517,
+					"mean_throughput_bps": 9280.340030611118,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 163.53175125,
+					"p95_duration_ms": 166.788913,
+					"mean_throughput_bps": 119581.51730081554,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 187.82930389999999,
+					"p95_duration_ms": 257.286337,
+					"mean_throughput_bps": 599952.3252504737,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"kreuzberg-go-sync": {
+			"framework": "kreuzberg-go-sync",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 23,
+					"file_count": 31,
+					"mean_duration_ms": 199.24139367741932,
+					"mean_throughput_bps": 4702471.646471884,
+					"mean_peak_memory": 12268973,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 50,
+					"file_count": 31,
+					"mean_duration_ms": 200.90945703225805,
+					"mean_throughput_bps": 4632712.544922556,
+					"mean_peak_memory": 12222067,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 200.07542535483867,
+			"duration_variance_ms2": 0.695608838938953,
+			"duration_std_dev_ms": 0.8340316774193609,
+			"mean_throughput_bps": 4667592.09569722,
+			"throughput_variance_bps2": 1216583062.2423747,
+			"throughput_std_dev_bps": 34879.55077466415,
+			"mean_peak_memory": 12245520,
+			"peak_memory_variance": 550043209.0,
+			"peak_memory_std_dev": 23453.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 50.43893425,
+					"p95_duration_ms": 51.250964,
+					"mean_throughput_bps": 386833.23403028754,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 50.70194,
+					"p95_duration_ms": 51.543771,
+					"mean_throughput_bps": 1454373.911168701,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 50.6194345,
+					"p95_duration_ms": 52.614757,
+					"mean_throughput_bps": 1920313.944742509,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 405.53972546153847,
+					"p95_duration_ms": 3093.154853,
+					"mean_throughput_bps": 4679000.339751252,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 50.42821483333333,
+					"p95_duration_ms": 51.379439,
+					"mean_throughput_bps": 1192429.8184163382,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 49.0102695,
+					"p95_duration_ms": 49.969673,
+					"mean_throughput_bps": 42715.13398029413,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 51.4227225,
+					"p95_duration_ms": 54.363532,
+					"mean_throughput_bps": 332728.8935714406,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 57.83138183333333,
+					"p95_duration_ms": 70.292929,
+					"mean_throughput_bps": 22570187.64551775,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"docling": {
+			"framework": "docling",
+			"total_files": 62,
+			"runs": [
+				{
+					"run_index": 44,
+					"file_count": 31,
+					"mean_duration_ms": 5929.330002903226,
+					"mean_throughput_bps": 127176.44857159784,
+					"mean_peak_memory": 11980007,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 55,
+					"file_count": 31,
+					"mean_duration_ms": 6127.728360935484,
+					"mean_throughput_bps": 125343.11375724172,
+					"mean_peak_memory": 11916585,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 6028.529181919355,
+			"duration_variance_ms2": 9840.47711747395,
+			"duration_std_dev_ms": 99.19917901612871,
+			"mean_throughput_bps": 126259.78116441978,
+			"throughput_variance_bps2": 840279.1353825437,
+			"throughput_std_dev_bps": 916.667407178058,
+			"mean_peak_memory": 11948296,
+			"peak_memory_variance": 1005587521.0,
+			"peak_memory_std_dev": 31711.0,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 2,
+					"mean_duration_ms": 6248.656982500001,
+					"p95_duration_ms": 6329.313246,
+					"mean_throughput_bps": 11803.823621008534,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 4,
+					"mean_duration_ms": 5798.92352475,
+					"p95_duration_ms": 6000.49396,
+					"mean_throughput_bps": 359.57800350223795,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 6,
+					"mean_duration_ms": 5809.836017666667,
+					"p95_duration_ms": 5994.119108,
+					"mean_throughput_bps": 10287.987497807995,
+					"success_rate": 1.0
+				},
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 6,
+					"mean_duration_ms": 6140.515403666667,
+					"p95_duration_ms": 6846.146794,
+					"mean_throughput_bps": 231397.54856213412,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 4,
+					"mean_duration_ms": 6363.45866425,
+					"p95_duration_ms": 6978.525052,
+					"mean_throughput_bps": 2546.2312623350967,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 26,
+					"mean_duration_ms": 6108.917485500001,
+					"p95_duration_ms": 6364.298578999999,
+					"mean_throughput_bps": 237047.9716240997,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 4,
+					"mean_duration_ms": 6155.3464525,
+					"p95_duration_ms": 6402.730824,
+					"mean_throughput_bps": 3168.236891853963,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 10,
+					"mean_duration_ms": 5746.6617597,
+					"p95_duration_ms": 6025.846885,
+					"mean_throughput_bps": 16684.21217349996,
+					"success_rate": 1.0
+				}
+			}
+		},
+		"pdfplumber-batch": {
+			"framework": "pdfplumber-batch",
+			"total_files": 32,
+			"runs": [
+				{
+					"run_index": 16,
+					"file_count": 1,
+					"mean_duration_ms": 5545.914454,
+					"mean_throughput_bps": 4250.346075937951,
+					"mean_peak_memory": 18202624,
+					"success_rate": 1.0
+				},
+				{
+					"run_index": 46,
+					"file_count": 31,
+					"mean_duration_ms": 5650.893922064516,
+					"mean_throughput_bps": 901709.2321870241,
+					"mean_peak_memory": 12627043,
+					"success_rate": 1.0
+				}
+			],
+			"mean_duration_ms": 5598.404188032258,
+			"duration_variance_ms2": 2755.172178777203,
+			"duration_std_dev_ms": 52.489734032258184,
+			"mean_throughput_bps": 452979.789131481,
+			"throughput_variance_bps2": 201358113064.93787,
+			"throughput_std_dev_bps": 448729.44305554306,
+			"mean_peak_memory": 15414833,
+			"peak_memory_variance": 7771775871890.25,
+			"peak_memory_std_dev": 2787790.5,
+			"success_rate": 1.0,
+			"avg_quality": null,
+			"by_extension": {
+				"pptx": {
+					"extension": "pptx",
+					"file_count": 3,
+					"mean_duration_ms": 207.36376166666665,
+					"p95_duration_ms": 322.234065,
+					"mean_throughput_bps": 4973712.440298875,
+					"success_rate": 1.0
+				},
+				"docx": {
+					"extension": "docx",
+					"file_count": 5,
+					"mean_duration_ms": 151.9099486,
+					"p95_duration_ms": 163.901996,
+					"mean_throughput_bps": 602074.7328590503,
+					"success_rate": 1.0
+				},
+				"png": {
+					"extension": "png",
+					"file_count": 2,
+					"mean_duration_ms": 149.15468149999998,
+					"p95_duration_ms": 149.542709,
+					"mean_throughput_bps": 130562.58314885967,
+					"success_rate": 1.0
+				},
+				"xlsx": {
+					"extension": "xlsx",
+					"file_count": 3,
+					"mean_duration_ms": 152.814745,
+					"p95_duration_ms": 159.588547,
+					"mean_throughput_bps": 382779.4874137782,
+					"success_rate": 1.0
+				},
+				"md": {
+					"extension": "md",
+					"file_count": 2,
+					"mean_duration_ms": 149.550891,
+					"p95_duration_ms": 152.051412,
+					"mean_throughput_bps": 115584.84258334115,
+					"success_rate": 1.0
+				},
+				"pdf": {
+					"extension": "pdf",
+					"file_count": 14,
+					"mean_duration_ms": 12702.317447357142,
+					"p95_duration_ms": 121997.974231,
+					"mean_throughput_bps": 562052.9060830168,
+					"success_rate": 1.0
+				},
+				"jpg": {
+					"extension": "jpg",
+					"file_count": 1,
+					"mean_duration_ms": 150.84652,
+					"p95_duration_ms": 150.84652,
+					"mean_throughput_bps": 488754.82653864095,
+					"success_rate": 1.0
+				},
+				"html": {
+					"extension": "html",
+					"file_count": 2,
+					"mean_duration_ms": 151.4194235,
+					"p95_duration_ms": 152.652182,
+					"mean_throughput_bps": 13798.366637594763,
+					"success_rate": 1.0
+				}
+			}
+		}
+	},
+	"comparison": {
+		"performance_ranking": [
+			{
+				"framework": "kreuzberg-php-batch",
+				"rank": 1,
+				"value": 66.21847465625001,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-php-sync",
+				"rank": 2,
+				"value": 68.76150158064513,
+				"relative_performance": 1.0384035865760477
+			},
+			{
+				"framework": "kreuzberg-java-sync",
+				"rank": 3,
+				"value": 72.52907191935485,
+				"relative_performance": 1.0952996470526404
+			},
+			{
+				"framework": "kreuzberg-ruby-batch",
+				"rank": 4,
+				"value": 100.21016231249999,
+				"relative_performance": 1.5133263463513151
+			},
+			{
+				"framework": "kreuzberg-ruby-sync",
+				"rank": 5,
+				"value": 101.3635835483871,
+				"relative_performance": 1.5307447668430993
+			},
+			{
+				"framework": "kreuzberg-native",
+				"rank": 6,
+				"value": 138.87665709374997,
+				"relative_performance": 2.097249412866718
+			},
+			{
+				"framework": "kreuzberg-go-sync",
+				"rank": 7,
+				"value": 200.07542535483867,
+				"relative_performance": 3.0214441874938993
+			},
+			{
+				"framework": "kreuzberg-go-batch",
+				"rank": 8,
+				"value": 201.80030612499996,
+				"relative_performance": 3.0474925188563384
+			},
+			{
+				"framework": "kreuzberg-python-async",
+				"rank": 9,
+				"value": 281.91261799999995,
+				"relative_performance": 4.25731065935074
+			},
+			{
+				"framework": "kreuzberg-python-batch",
+				"rank": 10,
+				"value": 283.414735875,
+				"relative_performance": 4.279994931116252
+			},
+			{
+				"framework": "kreuzberg-python-sync",
+				"rank": 11,
+				"value": 290.96749359677415,
+				"relative_performance": 4.394053096318359
+			},
+			{
+				"framework": "kreuzberg-node-batch",
+				"rank": 12,
+				"value": 536.0564954062498,
+				"relative_performance": 8.095270967641572
+			},
+			{
+				"framework": "kreuzberg-wasm-batch",
+				"rank": 13,
+				"value": 625.1370474999999,
+				"relative_performance": 9.440523218711691
+			},
+			{
+				"framework": "kreuzberg-wasm-async",
+				"rank": 14,
+				"value": 650.5926993709679,
+				"relative_performance": 9.82494240086761
+			},
+			{
+				"framework": "kreuzberg-elixir-sync",
+				"rank": 15,
+				"value": 677.389893580645,
+				"relative_performance": 10.229620919193277
+			},
+			{
+				"framework": "kreuzberg-elixir-batch",
+				"rank": 16,
+				"value": 685.6117545,
+				"relative_performance": 10.353783563561574
+			},
+			{
+				"framework": "kreuzberg-node-async",
+				"rank": 17,
+				"value": 700.9993765322581,
+				"relative_performance": 10.586160133878808
+			},
+			{
+				"framework": "unstructured",
+				"rank": 18,
+				"value": 1240.2416637258066,
+				"relative_performance": 18.72954141822333
+			},
+			{
+				"framework": "mineru-batch",
+				"rank": 19,
+				"value": 1972.7397960937506,
+				"relative_performance": 29.79138082437775
+			},
+			{
+				"framework": "mineru",
+				"rank": 20,
+				"value": 2028.8859858225808,
+				"relative_performance": 30.639273954207354
+			},
+			{
+				"framework": "tika-batch",
+				"rank": 21,
+				"value": 2098.2830630625003,
+				"relative_performance": 31.6872757029666
+			},
+			{
+				"framework": "tika-sync",
+				"rank": 22,
+				"value": 2318.6337931451612,
+				"relative_performance": 35.01490792685177
+			},
+			{
+				"framework": "kreuzberg-csharp-sync",
+				"rank": 23,
+				"value": 2711.3610020322576,
+				"relative_performance": 40.94568798371357
+			},
+			{
+				"framework": "pdfplumber-batch",
+				"rank": 24,
+				"value": 5647.6133136875,
+				"relative_performance": 85.28757787015034
+			},
+			{
+				"framework": "docling-batch",
+				"rank": 25,
+				"value": 5660.536982125,
+				"relative_performance": 85.482744981815
+			},
+			{
+				"framework": "pdfplumber",
+				"rank": 26,
+				"value": 5679.87850051613,
+				"relative_performance": 85.7748314197998
+			},
+			{
+				"framework": "docling",
+				"rank": 27,
+				"value": 6028.529181919356,
+				"relative_performance": 91.03998866199126
+			},
+			{
+				"framework": "pandoc",
+				"rank": 28,
+				"value": 9723.27404917742,
+				"relative_performance": 146.8362734063626
+			},
+			{
+				"framework": "pymupdf4llm",
+				"rank": 29,
+				"value": 10460.107077387094,
+				"relative_performance": 157.96357635368486
+			},
+			{
+				"framework": "markitdown",
+				"rank": 30,
+				"value": 30705.455294435487,
+				"relative_performance": 463.6992237261896
+			}
+		],
+		"throughput_ranking": [
+			{
+				"framework": "kreuzberg-native",
+				"rank": 1,
+				"value": 66509955.03726734,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "pandoc",
+				"rank": 2,
+				"value": 35575524.5620823,
+				"relative_performance": 0.5348902212029517
+			},
+			{
+				"framework": "kreuzberg-php-batch",
+				"rank": 3,
+				"value": 11747410.402718645,
+				"relative_performance": 0.17662634708046712
+			},
+			{
+				"framework": "kreuzberg-php-sync",
+				"rank": 4,
+				"value": 11441344.18432742,
+				"relative_performance": 0.17202453644595794
+			},
+			{
+				"framework": "kreuzberg-java-sync",
+				"rank": 5,
+				"value": 10927198.190952431,
+				"relative_performance": 0.16429417498222068
+			},
+			{
+				"framework": "kreuzberg-ruby-sync",
+				"rank": 6,
+				"value": 7746069.109529468,
+				"relative_performance": 0.11646480748918164
+			},
+			{
+				"framework": "kreuzberg-ruby-batch",
+				"rank": 7,
+				"value": 7604341.786072145,
+				"relative_performance": 0.11433388854061358
+			},
+			{
+				"framework": "kreuzberg-go-sync",
+				"rank": 8,
+				"value": 4667592.09569722,
+				"relative_performance": 0.07017884906224701
+			},
+			{
+				"framework": "kreuzberg-go-batch",
+				"rank": 9,
+				"value": 4402433.7389557315,
+				"relative_performance": 0.06619210216709555
+			},
+			{
+				"framework": "kreuzberg-python-async",
+				"rank": 10,
+				"value": 2394161.581365801,
+				"relative_performance": 0.03599704104482234
+			},
+			{
+				"framework": "kreuzberg-python-sync",
+				"rank": 11,
+				"value": 2285936.736183923,
+				"relative_performance": 0.034369843355074446
+			},
+			{
+				"framework": "kreuzberg-python-batch",
+				"rank": 12,
+				"value": 2245270.606385618,
+				"relative_performance": 0.03375841413706462
+			},
+			{
+				"framework": "kreuzberg-node-batch",
+				"rank": 13,
+				"value": 1426514.5433410066,
+				"relative_performance": 0.02144813573459329
+			},
+			{
+				"framework": "kreuzberg-wasm-batch",
+				"rank": 14,
+				"value": 1218006.931030187,
+				"relative_performance": 0.01831315222432047
+			},
+			{
+				"framework": "kreuzberg-wasm-async",
+				"rank": 15,
+				"value": 1207589.0574119561,
+				"relative_performance": 0.018156515919087766
+			},
+			{
+				"framework": "unstructured",
+				"rank": 16,
+				"value": 1067852.4905097003,
+				"relative_performance": 0.016055528678546743
+			},
+			{
+				"framework": "pdfplumber-batch",
+				"rank": 17,
+				"value": 873663.6419960526,
+				"relative_performance": 0.013135832696120679
+			},
+			{
+				"framework": "pdfplumber",
+				"rank": 18,
+				"value": 851231.7183014264,
+				"relative_performance": 0.012798561024803852
+			},
+			{
+				"framework": "kreuzberg-elixir-sync",
+				"rank": 19,
+				"value": 828513.4029319927,
+				"relative_performance": 0.01245698335636754
+			},
+			{
+				"framework": "kreuzberg-node-async",
+				"rank": 20,
+				"value": 797668.7618357402,
+				"relative_performance": 0.011993223591698184
+			},
+			{
+				"framework": "kreuzberg-elixir-batch",
+				"rank": 21,
+				"value": 776911.9872958027,
+				"relative_performance": 0.011681138362828207
+			},
+			{
+				"framework": "pymupdf4llm",
+				"rank": 22,
+				"value": 582597.3169619803,
+				"relative_performance": 0.008759550606154149
+			},
+			{
+				"framework": "mineru",
+				"rank": 23,
+				"value": 390490.0144395727,
+				"relative_performance": 0.005871151382086644
+			},
+			{
+				"framework": "mineru-batch",
+				"rank": 24,
+				"value": 382794.9081034659,
+				"relative_performance": 0.005755452817386142
+			},
+			{
+				"framework": "markitdown",
+				"rank": 25,
+				"value": 284833.297923648,
+				"relative_performance": 0.004282566388205316
+			},
+			{
+				"framework": "tika-batch",
+				"rank": 26,
+				"value": 236795.29624572824,
+				"relative_performance": 0.003560298546481431
+			},
+			{
+				"framework": "tika-sync",
+				"rank": 27,
+				"value": 228275.33722758008,
+				"relative_performance": 0.0034321980386194995
+			},
+			{
+				"framework": "kreuzberg-csharp-sync",
+				"rank": 28,
+				"value": 216143.90900309544,
+				"relative_performance": 0.00324979785179503
+			},
+			{
+				"framework": "docling-batch",
+				"rank": 29,
+				"value": 129237.29471736657,
+				"relative_performance": 0.0019431270799228687
+			},
+			{
+				"framework": "docling",
+				"rank": 30,
+				"value": 126259.7811644198,
+				"relative_performance": 0.0018983591417807003
+			}
+		],
+		"memory_ranking": [
+			{
+				"framework": "kreuzberg-wasm-batch",
+				"rank": 1,
+				"value": 11560576.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-wasm-async",
+				"rank": 2,
+				"value": 11640832.0,
+				"relative_performance": 1.0069422146439762
+			},
+			{
+				"framework": "unstructured",
+				"rank": 3,
+				"value": 11662699.0,
+				"relative_performance": 1.0088337293920302
+			},
+			{
+				"framework": "kreuzberg-node-batch",
+				"rank": 4,
+				"value": 11681792.0,
+				"relative_performance": 1.0104852906983182
+			},
+			{
+				"framework": "kreuzberg-ruby-sync",
+				"rank": 5,
+				"value": 11706632.0,
+				"relative_performance": 1.012633972563305
+			},
+			{
+				"framework": "kreuzberg-ruby-batch",
+				"rank": 6,
+				"value": 11791488.0,
+				"relative_performance": 1.0199740912563526
+			},
+			{
+				"framework": "kreuzberg-php-sync",
+				"rank": 7,
+				"value": 11803416.0,
+				"relative_performance": 1.0210058737557712
+			},
+			{
+				"framework": "mineru",
+				"rank": 8,
+				"value": 11804143.0,
+				"relative_performance": 1.0210687598957007
+			},
+			{
+				"framework": "kreuzberg-php-batch",
+				"rank": 9,
+				"value": 11848448.0,
+				"relative_performance": 1.0249011813944218
+			},
+			{
+				"framework": "mineru-batch",
+				"rank": 10,
+				"value": 11872128.0,
+				"relative_performance": 1.0269495222383382
+			},
+			{
+				"framework": "kreuzberg-node-async",
+				"rank": 11,
+				"value": 11921738.0,
+				"relative_performance": 1.0312408309066954
+			},
+			{
+				"framework": "kreuzberg-python-sync",
+				"rank": 12,
+				"value": 11931119.0,
+				"relative_performance": 1.0320522956641607
+			},
+			{
+				"framework": "kreuzberg-java-sync",
+				"rank": 13,
+				"value": 11947437.0,
+				"relative_performance": 1.033463817027802
+			},
+			{
+				"framework": "docling",
+				"rank": 14,
+				"value": 11948296.0,
+				"relative_performance": 1.033538121283922
+			},
+			{
+				"framework": "docling-batch",
+				"rank": 15,
+				"value": 11954688.0,
+				"relative_performance": 1.0340910349103714
+			},
+			{
+				"framework": "kreuzberg-csharp-sync",
+				"rank": 16,
+				"value": 12011255.0,
+				"relative_performance": 1.038984130202509
+			},
+			{
+				"framework": "kreuzberg-python-async",
+				"rank": 17,
+				"value": 12075536.0,
+				"relative_performance": 1.0445444932847636
+			},
+			{
+				"framework": "pandoc",
+				"rank": 18,
+				"value": 12087031.0,
+				"relative_performance": 1.0455388209030414
+			},
+			{
+				"framework": "kreuzberg-go-batch",
+				"rank": 19,
+				"value": 12174976.0,
+				"relative_performance": 1.053146140815129
+			},
+			{
+				"framework": "kreuzberg-elixir-sync",
+				"rank": 20,
+				"value": 12178597.0,
+				"relative_performance": 1.0534593605024525
+			},
+			{
+				"framework": "kreuzberg-elixir-batch",
+				"rank": 21,
+				"value": 12197504.0,
+				"relative_performance": 1.055094832645017
+			},
+			{
+				"framework": "kreuzberg-go-sync",
+				"rank": 22,
+				"value": 12245520.0,
+				"relative_performance": 1.0592482589102827
+			},
+			{
+				"framework": "kreuzberg-python-batch",
+				"rank": 23,
+				"value": 12283264.0,
+				"relative_performance": 1.0625131481337955
+			},
+			{
+				"framework": "pdfplumber",
+				"rank": 24,
+				"value": 12396676.0,
+				"relative_performance": 1.0723233859627757
+			},
+			{
+				"framework": "tika-batch",
+				"rank": 25,
+				"value": 12548736.0,
+				"relative_performance": 1.085476709810999
+			},
+			{
+				"framework": "tika-sync",
+				"rank": 26,
+				"value": 12559591.0,
+				"relative_performance": 1.0864156768659279
+			},
+			{
+				"framework": "pdfplumber-batch",
+				"rank": 27,
+				"value": 12801280.0,
+				"relative_performance": 1.107321988108551
+			},
+			{
+				"framework": "pymupdf4llm",
+				"rank": 28,
+				"value": 12920435.0,
+				"relative_performance": 1.117629000492709
+			},
+			{
+				"framework": "markitdown",
+				"rank": 29,
+				"value": 13991869.0,
+				"relative_performance": 1.2103089846042274
+			},
+			{
+				"framework": "kreuzberg-native",
+				"rank": 30,
+				"value": 71942400.0,
+				"relative_performance": 6.223080926071503
+			}
+		],
+		"reliability_ranking": [
+			{
+				"framework": "kreuzberg-wasm-batch",
+				"rank": 1,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "pdfplumber",
+				"rank": 2,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "tika-batch",
+				"rank": 3,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-java-sync",
+				"rank": 4,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "markitdown",
+				"rank": 5,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "docling",
+				"rank": 6,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-go-sync",
+				"rank": 7,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "pdfplumber-batch",
+				"rank": 8,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-native",
+				"rank": 9,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "pandoc",
+				"rank": 10,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "docling-batch",
+				"rank": 11,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-wasm-async",
+				"rank": 12,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "mineru",
+				"rank": 13,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-elixir-sync",
+				"rank": 14,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-node-batch",
+				"rank": 15,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-php-batch",
+				"rank": 16,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-python-batch",
+				"rank": 17,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-node-async",
+				"rank": 18,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-python-async",
+				"rank": 19,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "pymupdf4llm",
+				"rank": 20,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-php-sync",
+				"rank": 21,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-python-sync",
+				"rank": 22,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-go-batch",
+				"rank": 23,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "mineru-batch",
+				"rank": 24,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "unstructured",
+				"rank": 25,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-csharp-sync",
+				"rank": 26,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-ruby-sync",
+				"rank": 27,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-ruby-batch",
+				"rank": 28,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "tika-sync",
+				"rank": 29,
+				"value": 100.0,
+				"relative_performance": 1.0
+			},
+			{
+				"framework": "kreuzberg-elixir-batch",
+				"rank": 30,
+				"value": 100.0,
+				"relative_performance": 1.0
+			}
+		],
+		"deltas_vs_baseline": {
+			"mineru": {
+				"framework": "mineru",
+				"duration_delta_ms": 1962.6675111663308,
+				"duration_delta_percent": 2963.9273954207356,
+				"throughput_delta_bps": -11356920.388279071,
+				"throughput_delta_percent": -96.67594813620197,
+				"memory_delta_bytes": -44305,
+				"memory_delta_percent": -0.37393083043450076
+			},
+			"markitdown": {
+				"framework": "markitdown",
+				"duration_delta_ms": 30639.23681977924,
+				"duration_delta_percent": 46269.92237261896,
+				"throughput_delta_bps": -11462577.104794996,
+				"throughput_delta_percent": -97.5753524550591,
+				"memory_delta_bytes": 2143421,
+				"memory_delta_percent": 18.090310224596504
+			},
+			"kreuzberg-node-async": {
+				"framework": "kreuzberg-node-async",
+				"duration_delta_ms": 634.7809018760081,
+				"duration_delta_percent": 958.6160133878808,
+				"throughput_delta_bps": -10949741.640882904,
+				"throughput_delta_percent": -93.20983319309981,
+				"memory_delta_bytes": 73290,
+				"memory_delta_percent": 0.6185620260138712
+			},
+			"kreuzberg-python-batch": {
+				"framework": "kreuzberg-python-batch",
+				"duration_delta_ms": 217.19626121875,
+				"duration_delta_percent": 327.99949311162516,
+				"throughput_delta_bps": -9502139.796333026,
+				"throughput_delta_percent": -80.88710167250132,
+				"memory_delta_bytes": 434816,
+				"memory_delta_percent": 3.6698139705723483
+			},
+			"kreuzberg-csharp-sync": {
+				"framework": "kreuzberg-csharp-sync",
+				"duration_delta_ms": 2645.142527376008,
+				"duration_delta_percent": 3994.5687983713574,
+				"throughput_delta_bps": -11531266.493715549,
+				"throughput_delta_percent": -98.16007186611039,
+				"memory_delta_bytes": 162807,
+				"memory_delta_percent": 1.3740786979020374
+			},
+			"kreuzberg-python-async": {
+				"framework": "kreuzberg-python-async",
+				"duration_delta_ms": 215.69414334374994,
+				"duration_delta_percent": 325.7310659350739,
+				"throughput_delta_bps": -9353248.821352843,
+				"throughput_delta_percent": -79.61966510668826,
+				"memory_delta_bytes": 227088,
+				"memory_delta_percent": 1.9166054490849773
+			},
+			"kreuzberg-php-sync": {
+				"framework": "kreuzberg-php-sync",
+				"duration_delta_ms": 2.5430269243951216,
+				"duration_delta_percent": 3.840358657604776,
+				"throughput_delta_bps": -306066.21839122474,
+				"throughput_delta_percent": -2.6053930857850456,
+				"memory_delta_bytes": -45032,
+				"memory_delta_percent": -0.3800666551433572
+			},
+			"pandoc": {
+				"framework": "pandoc",
+				"duration_delta_ms": 9657.05557452117,
+				"duration_delta_percent": 14583.627340636262,
+				"throughput_delta_bps": 23828114.159363654,
+				"throughput_delta_percent": 202.83716446859842,
+				"memory_delta_bytes": 238583,
+				"memory_delta_percent": 2.0136223748460558
+			},
+			"kreuzberg-java-sync": {
+				"framework": "kreuzberg-java-sync",
+				"duration_delta_ms": 6.310597263104839,
+				"duration_delta_percent": 9.529964705264039,
+				"throughput_delta_bps": -820212.2117662132,
+				"throughput_delta_percent": -6.9820682486447865,
+				"memory_delta_bytes": 98989,
+				"memory_delta_percent": 0.8354596315061685
+			},
+			"kreuzberg-python-sync": {
+				"framework": "kreuzberg-python-sync",
+				"duration_delta_ms": 224.74901894052414,
+				"duration_delta_percent": 339.4053096318359,
+				"throughput_delta_bps": -9461473.666534722,
+				"throughput_delta_percent": -80.5409306577482,
+				"memory_delta_bytes": 82671,
+				"memory_delta_percent": 0.6977369525527731
+			},
+			"tika-sync": {
+				"framework": "tika-sync",
+				"duration_delta_ms": 2252.415318488911,
+				"duration_delta_percent": 3401.490792685176,
+				"throughput_delta_bps": -11519135.065491065,
+				"throughput_delta_percent": -98.05680290887982,
+				"memory_delta_bytes": 711143,
+				"memory_delta_percent": 6.0019928348421665
+			},
+			"docling-batch": {
+				"framework": "docling-batch",
+				"duration_delta_ms": 5594.31850746875,
+				"duration_delta_percent": 8448.2744981815,
+				"throughput_delta_bps": -11618173.108001279,
+				"throughput_delta_percent": -98.89986567007605,
+				"memory_delta_bytes": 106240,
+				"memory_delta_percent": 0.8966575200397554
+			},
+			"kreuzberg-wasm-async": {
+				"framework": "kreuzberg-wasm-async",
+				"duration_delta_ms": 584.3742247147179,
+				"duration_delta_percent": 882.4942400867609,
+				"throughput_delta_bps": -10539821.345306689,
+				"throughput_delta_percent": -89.7203807816871,
+				"memory_delta_bytes": -207616,
+				"memory_delta_percent": -1.7522632500054016
+			},
+			"kreuzberg-elixir-batch": {
+				"framework": "kreuzberg-elixir-batch",
+				"duration_delta_ms": 619.39327984375,
+				"duration_delta_percent": 935.3783563561574,
+				"throughput_delta_bps": -10970498.415422842,
+				"throughput_delta_percent": -93.3865255348872,
+				"memory_delta_bytes": 349056,
+				"memory_delta_percent": 2.9460060929498955
+			},
+			"mineru-batch": {
+				"framework": "mineru-batch",
+				"duration_delta_ms": 1906.5213214375005,
+				"duration_delta_percent": 2879.138082437775,
+				"throughput_delta_bps": -11364615.494615179,
+				"throughput_delta_percent": -96.74145283955622,
+				"memory_delta_bytes": 23680,
+				"memory_delta_percent": 0.1998573990450057
+			},
+			"tika-batch": {
+				"framework": "tika-batch",
+				"duration_delta_ms": 2032.0645884062503,
+				"duration_delta_percent": 3068.72757029666,
+				"throughput_delta_bps": -11510615.106472917,
+				"throughput_delta_percent": -97.98427663520695,
+				"memory_delta_bytes": 700288,
+				"memory_delta_percent": 5.910377460406629
+			},
+			"docling": {
+				"framework": "docling",
+				"duration_delta_ms": 5962.310707263106,
+				"duration_delta_percent": 9003.998866199126,
+				"throughput_delta_bps": -11621150.621554226,
+				"throughput_delta_percent": -98.92521179701698,
+				"memory_delta_bytes": 99848,
+				"memory_delta_percent": 0.8427095261759178
+			},
+			"kreuzberg-node-batch": {
+				"framework": "kreuzberg-node-batch",
+				"duration_delta_ms": 469.8380207499998,
+				"duration_delta_percent": 709.527096764157,
+				"throughput_delta_bps": -10320895.859377638,
+				"throughput_delta_percent": -87.85677443421169,
+				"memory_delta_bytes": -166656,
+				"memory_delta_percent": -1.406563965170797
+			},
+			"kreuzberg-ruby-sync": {
+				"framework": "kreuzberg-ruby-sync",
+				"duration_delta_ms": 35.14510889213709,
+				"duration_delta_percent": 53.07447668430992,
+				"throughput_delta_bps": -4001341.2931891764,
+				"throughput_delta_percent": -34.06147530406502,
+				"memory_delta_bytes": -141816,
+				"memory_delta_percent": -1.1969162543482488
+			},
+			"kreuzberg-wasm-batch": {
+				"framework": "kreuzberg-wasm-batch",
+				"duration_delta_ms": 558.9185728437499,
+				"duration_delta_percent": 844.0523218711692,
+				"throughput_delta_bps": -10529403.471688457,
+				"throughput_delta_percent": -89.63169848268593,
+				"memory_delta_bytes": -287872,
+				"memory_delta_percent": -2.4296177862282047
+			},
+			"pymupdf4llm": {
+				"framework": "pymupdf4llm",
+				"duration_delta_ms": 10393.888602730844,
+				"duration_delta_percent": 15696.357635368486,
+				"throughput_delta_bps": -11164813.085756665,
+				"throughput_delta_percent": -95.04063196066468,
+				"memory_delta_bytes": 1071987,
+				"memory_delta_percent": 9.047488751269364
+			},
+			"pdfplumber": {
+				"framework": "pdfplumber",
+				"duration_delta_ms": 5613.66002585988,
+				"duration_delta_percent": 8477.48314197998,
+				"throughput_delta_bps": -10896178.684417218,
+				"throughput_delta_percent": -92.75387775586327,
+				"memory_delta_bytes": 548228,
+				"memory_delta_percent": 4.627002625153944
+			},
+			"unstructured": {
+				"framework": "unstructured",
+				"duration_delta_ms": 1174.0231890695566,
+				"duration_delta_percent": 1772.954141822333,
+				"throughput_delta_bps": -10679557.912208945,
+				"throughput_delta_percent": -90.90989031708152,
+				"memory_delta_bytes": -185749,
+				"memory_delta_percent": -1.5677074330747789
+			},
+			"kreuzberg-native": {
+				"framework": "kreuzberg-native",
+				"duration_delta_ms": 72.65818243749996,
+				"duration_delta_percent": 109.72494128667178,
+				"throughput_delta_bps": 54762544.634548694,
+				"throughput_delta_percent": 466.1669487760066,
+				"memory_delta_bytes": 60093952,
+				"memory_delta_percent": 507.1883845040295
+			},
+			"kreuzberg-ruby-batch": {
+				"framework": "kreuzberg-ruby-batch",
+				"duration_delta_ms": 33.99168765624998,
+				"duration_delta_percent": 51.33263463513153,
+				"throughput_delta_bps": -4143068.6166464994,
+				"throughput_delta_percent": -35.26793118326478,
+				"memory_delta_bytes": -56960,
+				"memory_delta_percent": -0.4807380679731219
+			},
+			"kreuzberg-elixir-sync": {
+				"framework": "kreuzberg-elixir-sync",
+				"duration_delta_ms": 611.171418924395,
+				"duration_delta_percent": 922.9620919193277,
+				"throughput_delta_bps": -10918896.999786653,
+				"throughput_delta_percent": -92.9472677421719,
+				"memory_delta_bytes": 330149,
+				"memory_delta_percent": 2.7864324508998983
+			},
+			"kreuzberg-go-sync": {
+				"framework": "kreuzberg-go-sync",
+				"duration_delta_ms": 133.85695069858866,
+				"duration_delta_percent": 202.14441874938993,
+				"throughput_delta_bps": -7079818.307021424,
+				"throughput_delta_percent": -60.2670551578157,
+				"memory_delta_bytes": 397072,
+				"memory_delta_percent": 3.3512574811485862
+			},
+			"kreuzberg-go-batch": {
+				"framework": "kreuzberg-go-batch",
+				"duration_delta_ms": 135.58183146874995,
+				"duration_delta_percent": 204.74925188563384,
+				"throughput_delta_bps": -7344976.663762913,
+				"throughput_delta_percent": -62.524219482985814,
+				"memory_delta_bytes": 326528,
+				"memory_delta_percent": 2.7558714862908626
+			},
+			"pdfplumber-batch": {
+				"framework": "pdfplumber-batch",
+				"duration_delta_ms": 5581.39483903125,
+				"duration_delta_percent": 8428.757787015034,
+				"throughput_delta_bps": -10873746.760722592,
+				"throughput_delta_percent": -92.56292568280526,
+				"memory_delta_bytes": 952832,
+				"memory_delta_percent": 8.041829613464987
+			}
+		}
+	},
+	"quality": {
+		"by_framework": {},
+		"quality_ranking": [],
+		"reliability": {
+			"consensus_success_rate": 1.0,
+			"perfect_frameworks": [
+				"kreuzberg-native",
+				"kreuzberg-python-sync",
+				"pdfplumber",
+				"kreuzberg-ruby-sync",
+				"kreuzberg-elixir-batch",
+				"docling",
+				"kreuzberg-wasm-batch",
+				"kreuzberg-java-sync",
+				"pdfplumber-batch",
+				"kreuzberg-go-sync",
+				"tika-batch",
+				"kreuzberg-node-batch",
+				"markitdown",
+				"kreuzberg-ruby-batch",
+				"tika-sync",
+				"mineru-batch",
+				"pandoc",
+				"kreuzberg-php-batch",
+				"kreuzberg-csharp-sync",
+				"mineru",
+				"kreuzberg-go-batch",
+				"kreuzberg-python-async",
+				"kreuzberg-node-async",
+				"kreuzberg-python-batch",
+				"unstructured",
+				"kreuzberg-wasm-async",
+				"kreuzberg-php-sync",
+				"kreuzberg-elixir-sync",
+				"docling-batch",
+				"pymupdf4llm"
+			],
+			"quality_degradation_concerns": []
+		}
+	},
+	"run_count": 60,
+	"total_files": 1500,
+	"framework_count": 30
+}
