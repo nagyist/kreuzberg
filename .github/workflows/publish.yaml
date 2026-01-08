@@ -2073,9 +2073,177 @@ jobs:
         if: ${{ needs.prepare.outputs.dry_run == 'true' }}
         run: echo "Dry run requested; cargo publish skipped." >> "$GITHUB_STEP_SUMMARY"
 
+  elixir-natives:
+    name: Build Elixir native libs (${{ matrix.settings.label }})
+    needs: [prepare, check-hex]
+    if: ${{ needs.prepare.outputs.release_elixir == 'true' && (needs.check-hex.outputs.exists != 'true' || needs.prepare.outputs.dry_run == 'true') }}
+    runs-on: ${{ matrix.settings.os }}
+    timeout-minutes: 180
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - os: ubuntu-24.04-arm
+            label: linux-aarch64
+            target: aarch64-unknown-linux-gnu
+          - os: ubuntu-latest
+            label: linux-x86_64
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            label: macos-arm64
+            target: aarch64-apple-darwin
+          - os: windows-latest
+            label: windows-x86_64
+            target: x86_64-pc-windows-gnu
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.checkout_ref }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Ensure target commit
+        if: ${{ needs.prepare.outputs.target_sha != '' }}
+        run: git checkout --progress --force ${{ needs.prepare.outputs.target_sha }}
+
+      - name: Free up disk space (Linux)
+        if: runner.os == 'Linux'
+        run: scripts/publish/ubuntu/free-disk-space.sh
+
+      - name: Install system dependencies
+        uses: ./.github/actions/install-system-deps
+
+      - name: Setup OpenSSL
+        uses: ./.github/actions/setup-openssl
+
+      - name: Setup Tesseract cache
+        id: tesseract-cache
+        uses: ./.github/actions/setup-tesseract-cache
+        with:
+          label: ${{ matrix.settings.label }}
+          enable-cache: "true"
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - name: Restore Cargo cache
+        uses: ./.github/actions/restore-cargo-cache
+        with:
+          shared-key: elixir-${{ matrix.settings.label }}
+          prefix: elixir
+
+      - name: Build Elixir native library
+        working-directory: packages/elixir/native/kreuzberg_rustler
+        env:
+          CARGO_BUILD_TARGET: ${{ matrix.settings.target }}
+        run: cargo build --release --target ${{ matrix.settings.target }}
+
+      - name: Package native libraries (NIF 2.16)
+        shell: bash
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          TARGET="${{ matrix.settings.target }}"
+          NIF_VERSION="2.16"
+
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            EXT="dll"
+            LIB_NAME="kreuzberg_rustler.dll"
+          else
+            EXT="so"
+            LIB_NAME="libkreuzberg_rustler.so"
+          fi
+
+          mkdir -p dist/elixir
+          ARTIFACT_NAME="libkreuzberg_rustler-v${VERSION}-nif-${NIF_VERSION}-${TARGET}.${EXT}"
+          TARBALL="${ARTIFACT_NAME}.tar.gz"
+
+          # Copy the built library
+          cp "packages/elixir/native/kreuzberg_rustler/target/${TARGET}/release/${LIB_NAME}" "${ARTIFACT_NAME}"
+
+          # Create tarball
+          tar -czf "dist/elixir/${TARBALL}" "${ARTIFACT_NAME}"
+          echo "Created: dist/elixir/${TARBALL}"
+
+      - name: Package native libraries (NIF 2.17)
+        shell: bash
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          TARGET="${{ matrix.settings.target }}"
+          NIF_VERSION="2.17"
+
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            EXT="dll"
+            LIB_NAME="kreuzberg_rustler.dll"
+          else
+            EXT="so"
+            LIB_NAME="libkreuzberg_rustler.so"
+          fi
+
+          ARTIFACT_NAME="libkreuzberg_rustler-v${VERSION}-nif-${NIF_VERSION}-${TARGET}.${EXT}"
+          TARBALL="${ARTIFACT_NAME}.tar.gz"
+
+          # Copy the built library (same binary works for both NIF versions)
+          cp "packages/elixir/native/kreuzberg_rustler/target/${TARGET}/release/${LIB_NAME}" "${ARTIFACT_NAME}"
+
+          # Create tarball
+          tar -czf "dist/elixir/${TARBALL}" "${ARTIFACT_NAME}"
+          echo "Created: dist/elixir/${TARBALL}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: elixir-${{ matrix.settings.label }}
+          path: dist/elixir/*.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+
+  upload-elixir-release:
+    name: Upload Elixir binaries to GitHub Release
+    needs: [prepare, validate-versions, check-hex, elixir-natives]
+    if: |
+      always() &&
+      needs.prepare.outputs.dry_run != 'true' &&
+      needs.prepare.outputs.is_tag == 'true' &&
+      needs.prepare.outputs.release_elixir == 'true' &&
+      needs.check-hex.outputs.exists != 'true' &&
+      needs.elixir-natives.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.ref }}
+
+      - name: Ensure GitHub release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/publish/ensure-github-release-exists.sh "${{ needs.prepare.outputs.tag }}"
+
+      - name: Download Elixir artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: elixir-*
+          path: dist/elixir
+          merge-multiple: true
+
+      - name: Upload binaries to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ needs.prepare.outputs.tag }}"
+          for file in dist/elixir/*.tar.gz; do
+            echo "Uploading $(basename "$file")..."
+            gh release upload "$TAG" "$file" --clobber
+          done
+
   publish-hex:
     name: Publish Elixir package to Hex.pm
-    needs: [prepare, validate-versions, check-hex, publish-crates]
+    needs: [prepare, validate-versions, check-hex, publish-crates, upload-elixir-release]
     if: |
       always() &&
       needs.prepare.outputs.dry_run != 'true' &&
@@ -2778,6 +2946,8 @@ jobs:
       - publish-maven
       - publish-nuget
       - publish-php
+      - elixir-natives
+      - upload-elixir-release
       - publish-hex
       - publish-homebrew
       - upload-cli-release
@@ -2822,6 +2992,8 @@ jobs:
           RESULT_PUBLISH_MAVEN: ${{ needs.publish-maven.result }}
           RESULT_PUBLISH_NUGET: ${{ needs.publish-nuget.result }}
           RESULT_PUBLISH_PHP: ${{ needs.publish-php.result }}
+          RESULT_ELIXIR_NATIVES: ${{ needs.elixir-natives.result }}
+          RESULT_UPLOAD_ELIXIR_RELEASE: ${{ needs.upload-elixir-release.result }}
           RESULT_PUBLISH_HEX: ${{ needs.publish-hex.result }}
           RESULT_PUBLISH_HOMEBREW: ${{ needs.publish-homebrew.result }}
           RESULT_UPLOAD_CLI_RELEASE: ${{ needs.upload-cli-release.result }}
