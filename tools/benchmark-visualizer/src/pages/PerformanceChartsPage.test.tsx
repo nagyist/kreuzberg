@@ -298,7 +298,7 @@ describe("PerformanceChartsPage", () => {
 				error: null,
 			});
 
-			const { rerender } = render(<PerformanceChartsPage />);
+			render(<PerformanceChartsPage />);
 
 			// The component defaults to no_ocr, so we'd need to test clearing it
 			// which would require more complex test setup
