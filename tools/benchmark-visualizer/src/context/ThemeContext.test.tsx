@@ -19,7 +19,7 @@ const localStorageMock = {
 	},
 };
 
-Object.defineProperty(global, "localStorage", {
+Object.defineProperty(globalThis, "localStorage", {
 	value: localStorageMock,
 	writable: true,
 });
@@ -95,7 +95,7 @@ describe("ThemeContext", () => {
 		it("should provide useTheme hook to consumers", () => {
 			const TestComponent = () => {
 				try {
-					const { theme, resolvedTheme, setTheme } = useTheme();
+					const { theme, resolvedTheme } = useTheme();
 					return (
 						<div>
 							<div data-testid="theme">{theme}</div>
@@ -187,8 +187,6 @@ describe("ThemeContext", () => {
 		});
 
 		it("should manage dark class on documentElement", () => {
-			const _initialHasDarkClass = document.documentElement.classList.contains("dark");
-
 			render(
 				<ThemeProvider>
 					<div>Test</div>

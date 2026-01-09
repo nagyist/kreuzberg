@@ -13,7 +13,7 @@ vi.mock("@/context/BenchmarkContext", () => ({
 
 // Mock filter components
 vi.mock("@/components/filters/FileTypeFilter", () => ({
-	FileTypeFilter: ({ selectedFileTypes, onFileTypesChange }: any) => (
+	FileTypeFilter: ({ onFileTypesChange }: any) => (
 		<div data-testid="filters-file-type">
 			<button onClick={() => onFileTypesChange(["pdf"])} data-testid="filter-pdf">
 				PDF

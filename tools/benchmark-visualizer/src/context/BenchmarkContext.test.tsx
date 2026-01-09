@@ -442,7 +442,7 @@ describe("BenchmarkContext", () => {
 			let renderCount = 0;
 
 			const TestMemoComponent = () => {
-				const { data, loading, error } = useBenchmark();
+				const { loading } = useBenchmark();
 				renderCount++;
 
 				return (
@@ -457,8 +457,6 @@ describe("BenchmarkContext", () => {
 					<TestMemoComponent />
 				</BenchmarkProvider>,
 			);
-
-			const _initialRenderCount = renderCount;
 
 			// Rerender parent (but context value should be memoized)
 			rerender(

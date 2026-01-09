@@ -7,7 +7,7 @@ describe("benchmarkService", () => {
 	let fetchMock: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(() => {
-		fetchMock = vi.spyOn(global, "fetch");
+		fetchMock = vi.spyOn(globalThis, "fetch");
 	});
 
 	afterEach(() => {
