@@ -78,7 +78,8 @@ html {
 
 [data-md-color-scheme="slate"] .highlight {
 	position: relative;
-	background: #323040;
+	background: #2a2836;
+	border: 1px solid rgba(255, 255, 255, 0.1);
 	border-radius: 12px;
 	padding: 16px 16px 0 16px;
 	margin-bottom: 1.5rem;
@@ -132,7 +133,8 @@ html {
 
 [data-md-color-scheme="default"] .highlight {
 	position: relative;
-	background: #ffffff;
+	background: #f8f9fa;
+	border: 1px solid rgba(0, 0, 0, 0.08);
 	border-radius: 12px;
 	padding: 16px 16px 0 16px;
 	margin-bottom: 1.5rem;
@@ -212,14 +214,14 @@ html {
 [data-md-color-scheme="slate"] .highlight .k,
 [data-md-color-scheme="slate"] .highlight .kn,
 [data-md-color-scheme="slate"] .highlight .kd {
-	color: #da2ae0;
+	color: #c678dd;
 }
 
 [data-md-color-scheme="slate"] .highlight .c,
 [data-md-color-scheme="slate"] .highlight .c1,
 [data-md-color-scheme="slate"] .highlight .cm,
 [data-md-color-scheme="slate"] .highlight .ch {
-	color: rgba(50, 48, 64, 0.6);
+	color: rgba(255, 255, 255, 0.5);
 }
 
 [data-md-color-scheme="slate"] .highlight .n,
@@ -227,17 +229,17 @@ html {
 [data-md-color-scheme="slate"] .highlight .ni,
 [data-md-color-scheme="slate"] .highlight .nn,
 [data-md-color-scheme="slate"] .highlight .no {
-	color: #5a5869;
+	color: rgba(255, 255, 255, 0.85);
 }
 
 [data-md-color-scheme="slate"] .highlight .o {
-	color: #5a5869;
+	color: rgba(255, 255, 255, 0.75);
 }
 
 [data-md-color-scheme="slate"] .highlight .s,
 [data-md-color-scheme="slate"] .highlight .s1,
 [data-md-color-scheme="slate"] .highlight .s2 {
-	color: #affff0;
+	color: #98c379;
 }
 
 [data-md-color-scheme="slate"] .highlight .nf,

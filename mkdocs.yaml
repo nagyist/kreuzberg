@@ -13,13 +13,6 @@ theme:
   logo: assets/logo.svg
   favicon: assets/favicon.ico
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: custom
-      accent: custom
-      toggle:
-        icon: moon
-        name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: custom
@@ -27,6 +20,13 @@ theme:
       toggle:
         icon: sun
         name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: moon
+        name: Switch to dark mode
   font:
     text: Inter
     code: JetBrains Mono
