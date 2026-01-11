@@ -2978,6 +2978,11 @@ jobs:
         if: ${{ needs.prepare.outputs.release_go == 'true' }}
         run: scripts/publish/go/tag-and-push-go-module.sh "${{ needs.prepare.outputs.tag }}"
 
+      - name: Publish release from draft state
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/publish/finalize-release.sh "${{ needs.prepare.outputs.tag }}"
+
       - name: Aggregate release status
         id: status
         env:

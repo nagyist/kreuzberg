@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Kreuzberg RC13 Comprehensive Test Suite")
 final class ExtractionTests {
     private static final Path TEST_DOCUMENTS =
-        Paths.get("../../kreuzberg/test_documents").toAbsolutePath().normalize();
+        Paths.get("../../../test_documents").toAbsolutePath().normalize();
 
     @BeforeAll
     static void verifyTestDocumentsExist() {
@@ -437,7 +437,8 @@ final class ExtractionTests {
         void testExtractBytesRejectsNullData() {
             assertThatThrownBy(() ->
                 Kreuzberg.extractBytes(null, "application/pdf", null))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(KreuzbergException.class)
+                .hasMessageContaining("data");
         }
 
         @Test

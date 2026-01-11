@@ -159,7 +159,7 @@ html-to-markdown-rs = { workspace = true, features = [
     "inline-images",
     "metadata",
 ], optional = true }
-quick-xml = { version = "0.38.4", features = ["serialize"], optional = true }
+quick-xml = { version = "0.39.0", features = ["serialize"], optional = true }
 tar = { version = "0.4.44", optional = true }
 sevenz-rust2 = { version = "0.20.1", optional = true }
 lzma-rust2 = { workspace = true, optional = true }
@@ -173,7 +173,7 @@ rst_parser = { version = "0.4", optional = true }
 fb2 = { version = "0.4", optional = true }
 typst-syntax = { version = "0.14", optional = true }
 
-kreuzberg-tesseract = { version = "4.0.0", optional = true }
+kreuzberg-tesseract = { path = "../kreuzberg-tesseract", optional = true }
 image = { workspace = true, default-features = false, features = [
     "png",
     "jpeg",
@@ -231,7 +231,7 @@ reqwest = { workspace = true, default-features = false, features = [
     "rustls",
 ], optional = true }
 # Use rustls-tls for fastembed on non-Windows platforms
-fastembed = { version = "5.7", default-features = false, features = [
+fastembed = { version = "5.8", default-features = false, features = [
     "hf-hub-rustls-tls",
     "ort-load-dynamic",
 ], optional = true }
@@ -245,7 +245,7 @@ reqwest = { workspace = true, default-features = false, features = [
     "native-tls",
 ], optional = true }
 # Use native-tls for fastembed on Windows
-fastembed = { version = "5.7", default-features = false, features = [
+fastembed = { version = "5.8", default-features = false, features = [
     "hf-hub-native-tls",
     "ort-load-dynamic",
 ], optional = true }

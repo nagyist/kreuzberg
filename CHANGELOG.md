@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.1] - 2026-01-11
+
+### Fixed
+
+#### PyPI Source Distribution
+- **sdist includes all workspace crates**: Fixed issue where `kreuzberg-tesseract` was missing from PyPI source distributions, causing builds from source to fail ([#277](https://github.com/kreuzberg-dev/kreuzberg/issues/277))
+- Changed `kreuzberg-tesseract` from published crate dependency to path dependency so maturin automatically includes it in sdist
+
+#### Homebrew
+- **Bottle publishing workflow**: Fixed workflow to publish releases from draft state, ensuring bottles are downloadable from public URLs
+- Added `--draft=false` flag to release creation and finalization script
+
+#### Test Apps & Bindings
+- **Java tests**: Fixed test document path (was `../../kreuzberg/test_documents`, now `../../../test_documents`) and exception type expectation
+- **Ruby API signatures**: Updated RBS type definitions to match keyword argument signatures (`path:` instead of positional `path`)
+- **Browser WASM types**: Fixed Svelte 5 variable naming conventions and removed call to non-existent `detectMimeType()` API
+
+#### Build & Lint
+- **Python build security**: Added `filter='data'` to `tarfile.extractall()` for secure extraction
+- **Python type annotations**: Fixed mypy errors in build.py
+
+---
+
 ## [4.0.0] - 2026-01-10
 
 ### Highlights

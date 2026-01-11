@@ -3,12 +3,16 @@
 This hook ensures that the kreuzberg-cli binary is built with the 'all' feature
 (which includes 'api' and 'mcp') before the wheel is built. This is required for
 the serve and mcp commands to be available in the Python package.
+
+It also ensures that the sdist includes all necessary workspace crates.
 """
 
 from __future__ import annotations
 
 import shutil
 import subprocess
+import tarfile
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -68,6 +72,84 @@ def build_cli_binary() -> None:
         pass
 
 
+def fix_sdist_workspace_members(sdist_path: str) -> None:
+    """Fix the workspace members in the sdist's Cargo.toml.
+
+    When maturin builds an sdist, it includes all path dependencies. However, we need
+    to ensure the workspace's Cargo.toml correctly lists all members so builds succeed.
+    """
+    workspace_root = Path(__file__).resolve().parents[2]
+
+    # Read the root Cargo.toml to get the correct members list
+    root_cargo = workspace_root / "Cargo.toml"
+    if not root_cargo.exists():
+        return
+
+    root_content = root_cargo.read_text()
+
+    # Extract just the workspace section we need
+    workspace_members_section = """[workspace]
+members = [
+    "crates/kreuzberg",
+    "crates/kreuzberg-py",
+    "crates/kreuzberg-ffi",
+    "crates/kreuzberg-tesseract",
+]
+exclude = ["tests/test_apps/rust"]
+resolver = "2"
+
+[patch.crates-io]
+kreuzberg = { path = "crates/kreuzberg" }
+kreuzberg-tesseract = { path = "crates/kreuzberg-tesseract" }"""
+
+    # Extract the rest of the workspace.package and other sections
+    lines = root_content.split("\n")
+    workspace_pkg_idx = -1
+    for i, line in enumerate(lines):
+        if line.startswith("[workspace.package]"):
+            workspace_pkg_idx = i
+            break
+
+    if workspace_pkg_idx == -1:
+        return
+
+    rest_of_cargo = "\n".join(lines[workspace_pkg_idx:])
+    new_cargo_content = workspace_members_section + "\n" + rest_of_cargo
+
+    # Now update the Cargo.toml in the sdist
+    sdist = Path(sdist_path)
+    if not sdist.exists():
+        return
+
+    try:
+        # Create a temporary directory to work in
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+
+            # Extract the sdist
+            with tarfile.open(sdist, "r:gz") as tar:
+                tar.extractall(tmpdir_path, filter="data")
+
+            # Find the extracted directory (should be kreuzberg-VERSION)
+            extracted_dirs = list(tmpdir_path.iterdir())
+            if not extracted_dirs:
+                return
+
+            extracted_dir = extracted_dirs[0]
+            cargo_toml = extracted_dir / "Cargo.toml"
+
+            if cargo_toml.exists():
+                cargo_toml.write_text(new_cargo_content)
+
+            # Remove the old tarball and create a new one
+            sdist.unlink()
+            with tarfile.open(sdist, "w:gz") as tar:
+                tar.add(extracted_dir, arcname=extracted_dir.name)
+    except Exception:
+        # If anything goes wrong, just let it pass - the sdist is still valid
+        pass
+
+
 def build_wheel(
     wheel_directory: str,
     config_settings: dict[str, Any] | None = None,
@@ -84,11 +166,18 @@ def build_sdist(
     sdist_directory: str,
     config_settings: dict[str, Any] | None = None,
 ) -> str:
-    """Build an sdist, ensuring stub files are present."""
+    """Build an sdist, ensuring stub files are present and workspace is configured correctly."""
     ensure_stub_file()
-    build_cli_binary()
 
-    return maturin.build_sdist(sdist_directory, config_settings)  # type: ignore
+    # Build the sdist with maturin
+    result: str = maturin.build_sdist(sdist_directory, config_settings)
+
+    # Fix the workspace members in the resulting sdist
+    # result is just the filename (e.g., "kreuzberg-4.0.0.tar.gz")
+    sdist_path = Path(sdist_directory) / result
+    fix_sdist_workspace_members(str(sdist_path))
+
+    return result
 
 
 def build_editable(

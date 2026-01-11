@@ -2,40 +2,32 @@
 import * as kreuzberg from "@kreuzberg/wasm";
 import { onMount } from "svelte";
 
-let _status = "Loading...";
-let _error: string | null = null;
-let _isInitialized = false;
+let status = "Loading...";
+let error: string | null = null;
+let isInitialized = false;
 let testResults: string[] = [];
 
 onMount(async () => {
 	try {
-		_status = "Initializing Kreuzberg WASM...";
+		status = "Initializing Kreuzberg WASM...";
 		testResults = [];
 
 		// Check if WASM is available
 		await kreuzberg.initWasm();
-		_isInitialized = true;
+		isInitialized = true;
 		testResults.push("✓ WASM initialized successfully");
 
 		// Get version
 		try {
-			const version = await kreuzberg.getVersion();
+			const version = kreuzberg.getVersion();
 			testResults.push(`✓ Version: ${version}`);
 		} catch (_e) {
 			testResults.push("⚠ Could not get version (may not be exported)");
 		}
 
-		// Try to detect MIME type
-		try {
-			const mimeType = kreuzberg.detectMimeType("test.pdf");
-			testResults.push(`✓ MIME type detection works: ${mimeType}`);
-		} catch (e) {
-			testResults.push(`✗ MIME type detection failed: ${String(e)}`);
-		}
-
 		// Try creating a simple config
 		try {
-			const _config = {
+			const config = {
 				chunking: {
 					maxChars: 1000,
 					chunkOverlap: 100,
@@ -46,10 +38,10 @@ onMount(async () => {
 			testResults.push(`✗ Config creation failed: ${String(e)}`);
 		}
 
-		_status = "All basic tests completed!";
+		status = "All basic tests completed!";
 	} catch (err) {
-		_error = String(err);
-		_status = "Error during initialization";
+		error = String(err);
+		status = "Error during initialization";
 		console.error("Kreuzberg initialization error:", err);
 	}
 });
