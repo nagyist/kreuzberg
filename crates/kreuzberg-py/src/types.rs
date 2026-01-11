@@ -275,7 +275,12 @@ impl ExtractionResult {
             let format_json = serde_json::to_value(format).map_err(|e| {
                 PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to serialize format: {}", e))
             })?;
-            metadata_dict.set_item("format", json_value_to_py(py, &format_json)?)?;
+            // Flatten format metadata into root metadata dict (matching Rust serde(flatten) behavior)
+            if let serde_json::Value::Object(format_obj) = format_json {
+                for (key, value) in format_obj {
+                    metadata_dict.set_item(&key, json_value_to_py(py, &value)?)?;
+                }
+            }
         }
 
         let metadata = metadata_dict.clone().unbind();
