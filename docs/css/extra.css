@@ -753,22 +753,17 @@ strong {
 	font-style: normal;
 	font-weight: 400;
 	line-height: 23.8px;
-	transition: all 0.2s ease;
 	border-radius: 4px;
-	padding: 0;
+	padding: 4px 12px;
 }
 
 .md-nav__link.md-nav__link--active {
 	background: linear-gradient(90deg, rgba(204, 121, 167, 0.15) 0%, rgba(204, 121, 167, 0.1) 100%);
-	border-radius: 4px;
-	padding: 8px 12px;
 	color: #323040;
 }
 
 .md-nav__link:not(.md-nav__link--active):hover {
 	background: #fafafa;
-	border-radius: 4px;
-	padding: 8px 12px;
 	color: #CC79A7;
 }
 
@@ -778,15 +773,11 @@ strong {
 
 [data-md-color-scheme="slate"] .md-nav__link.md-nav__link--active {
 	background: linear-gradient(90deg, rgba(86, 180, 233, 0.2) 0%, rgba(86, 180, 233, 0.1) 100%);
-	border-radius: 4px;
-	padding: 8px 12px;
 	color: #ffffff;
 }
 
 [data-md-color-scheme="slate"] .md-nav__link:not(.md-nav__link--active):hover {
 	background: #323040;
-	border-radius: 4px;
-	padding: 8px 12px;
 	color: #56B4E9;
 }
 
