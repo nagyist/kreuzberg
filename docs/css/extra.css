@@ -404,7 +404,7 @@ html {
 }
 
 [data-md-color-scheme="slate"] .md-top:hover svg {
-	fill: #000000;
+	fill: #000000 !important;
 }
 
 :root > * {
@@ -1217,7 +1217,7 @@ nav.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav > .md-nav__list 
 }
 
 [data-md-color-scheme="default"] .md-top:hover {
-	background-color: var(--md-accent-fg-color);
+	background-color: #DA2AE0 !important;
 }
 
 [data-md-color-scheme="default"] .md-top:hover svg {
@@ -1225,11 +1225,11 @@ nav.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav > .md-nav__list 
 }
 
 [data-md-color-scheme="slate"] .md-top:hover {
-	background-color: var(--md-accent-fg-color);
+	background-color: #58FBDA !important;
 }
 
 [data-md-color-scheme="slate"] .md-top svg {
-	fill: var(--md-default-fg-color);
+	fill: #000000 !important;
 }
 
 .benchmark-dashboard {
@@ -1260,7 +1260,7 @@ nav.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav > .md-nav__list 
 }
 
 .md-typeset h2 a {
-	color: var(--md-accent-fg-color);
+	color: #DA2AE0 !important;
 	font-family: inherit;
 	font-size: inherit;
 	font-weight: inherit;
@@ -1268,7 +1268,22 @@ nav.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav > .md-nav__list 
 }
 
 [data-md-color-scheme="slate"] .md-typeset h2 a {
-	color: var(--md-accent-fg-color);
+	color: #58FBDA !important;
+}
+
+.md-typeset .headerlink {
+	color: transparent;
+	transition: color 0.2s ease;
+}
+
+.md-typeset .headerlink:hover,
+.md-typeset :target > .headerlink {
+	color: #DA2AE0 !important;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .headerlink:hover,
+[data-md-color-scheme="slate"] .md-typeset :target > .headerlink {
+	color: #58FBDA !important;
 }
 
 /* Hide sidebar on benchmarks page and make content full-width */
