@@ -176,6 +176,10 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
         shell: bash
 
+      - name: Install wasm-pack
+        run: scripts/ci/wasm/install-wasm-pack.sh
+        shell: bash
+
       - name: Check disk space before lint
         run: scripts/ci/validate/show-disk-space.sh "Disk space before lint"
         shell: bash
