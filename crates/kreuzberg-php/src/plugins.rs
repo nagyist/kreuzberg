@@ -270,26 +270,32 @@ pub fn kreuzberg_clear_post_processors() {
 /// ```
 #[php_function]
 pub fn kreuzberg_run_post_processors(result: &mut ExtractionResult) -> PhpResult<()> {
-    POST_PROCESSOR_REGISTRY.with(|registry| {
+    // Clone callbacks while holding borrow, then release borrow before invoking
+    // This prevents RefCell re-entrance panic if callbacks re-enter Rust code
+    let callbacks: Vec<(String, Zval)> = POST_PROCESSOR_REGISTRY.with(|registry| {
         let registry = registry.borrow();
+        registry
+            .iter()
+            .map(|(name, callback)| (name.clone(), callback.shallow_clone()))
+            .collect()
+    });
 
-        if registry.is_empty() {
-            return Ok(());
+    if callbacks.is_empty() {
+        return Ok(());
+    }
+
+    for (name, callback) in callbacks {
+        let args = vec![result as &dyn IntoZvalDyn];
+        let modified = callback
+            .try_call(args)
+            .map_err(|e| PhpException::default(format!("Post-processor '{}' failed to execute: {}", name, e)))?;
+
+        if let Some(modified_result) = modified.extract::<&ExtractionResult>() {
+            *result = modified_result.clone();
         }
+    }
 
-        for (name, callback) in registry.iter() {
-            let args = vec![result as &dyn IntoZvalDyn];
-            let modified = callback
-                .try_call(args)
-                .map_err(|e| PhpException::default(format!("Post-processor '{}' failed to execute: {}", name, e)))?;
-
-            if let Some(modified_result) = modified.extract::<&ExtractionResult>() {
-                *result = modified_result.clone();
-            }
-        }
-
-        Ok(())
-    })
+    Ok(())
 }
 
 /// Register a PHP validator callback.
@@ -455,31 +461,37 @@ pub fn kreuzberg_clear_validators() {
 /// This function is called automatically during extraction. Users should not call it directly.
 #[php_function]
 pub fn kreuzberg_run_validators(result: &mut Zval) -> PhpResult<()> {
-    VALIDATOR_REGISTRY.with(|registry| {
+    // Clone callbacks while holding borrow, then release borrow before invoking
+    // This prevents RefCell re-entrance panic if callbacks re-enter Rust code
+    let callbacks: Vec<(String, Zval)> = VALIDATOR_REGISTRY.with(|registry| {
         let registry = registry.borrow();
+        registry
+            .iter()
+            .map(|(name, callback)| (name.clone(), callback.shallow_clone()))
+            .collect()
+    });
 
-        if registry.is_empty() {
-            return Ok(());
+    if callbacks.is_empty() {
+        return Ok(());
+    }
+
+    for (name, callback) in callbacks {
+        let args = vec![result as &dyn IntoZvalDyn];
+        let validation_result = callback
+            .try_call(args)
+            .map_err(|e| PhpException::default(format!("Validator '{}' failed to execute: {}", name, e)))?;
+
+        if let Some(is_valid) = validation_result.extract::<bool>()
+            && !is_valid
+        {
+            return Err(PhpException::default(format!(
+                "Validation failed: validator '{}' returned false",
+                name
+            )));
         }
+    }
 
-        for (name, callback) in registry.iter() {
-            let args = vec![result as &dyn IntoZvalDyn];
-            let validation_result = callback
-                .try_call(args)
-                .map_err(|e| PhpException::default(format!("Validator '{}' failed to execute: {}", name, e)))?;
-
-            if let Some(is_valid) = validation_result.extract::<bool>()
-                && !is_valid
-            {
-                return Err(PhpException::default(format!(
-                    "Validation failed: validator '{}' returned false",
-                    name
-                )));
-            }
-        }
-
-        Ok(())
-    })
+    Ok(())
 }
 
 /// Register a custom extractor for a specific MIME type.
@@ -646,52 +658,54 @@ pub fn kreuzberg_test_plugin(plugin_type: String, plugin_name: String, test_data
         )));
     }
 
-    EXTRACTOR_REGISTRY.with(|registry| {
+    // Clone callback while holding borrow, then release borrow before invoking
+    // This prevents RefCell re-entrance panic if callback re-enters Rust code
+    let callback = EXTRACTOR_REGISTRY.with(|registry| {
         let registry = registry.borrow();
-
-        let callback = registry
+        registry
             .get(&plugin_name)
-            .ok_or_else(|| PhpException::default(format!("Extractor '{}' is not registered", plugin_name)))?;
+            .map(|cb| cb.shallow_clone())
+            .ok_or_else(|| PhpException::default(format!("Extractor '{}' is not registered", plugin_name)))
+    })?;
 
-        let test_array = test_data
-            .array()
-            .ok_or_else(|| PhpException::default("test_data must be an array".to_string()))?;
+    let test_array = test_data
+        .array()
+        .ok_or_else(|| PhpException::default("test_data must be an array".to_string()))?;
 
-        let bytes_val = test_array
-            .get("bytes")
-            .ok_or_else(|| PhpException::default("test_data must contain 'bytes' key".to_string()))?;
+    let bytes_val = test_array
+        .get("bytes")
+        .ok_or_else(|| PhpException::default("test_data must contain 'bytes' key".to_string()))?;
 
-        let mime_type_val = test_array
-            .get("mime_type")
-            .ok_or_else(|| PhpException::default("test_data must contain 'mime_type' key".to_string()))?;
+    let mime_type_val = test_array
+        .get("mime_type")
+        .ok_or_else(|| PhpException::default("test_data must contain 'mime_type' key".to_string()))?;
 
-        let args = vec![bytes_val as &dyn IntoZvalDyn, mime_type_val as &dyn IntoZvalDyn];
+    let args = vec![bytes_val as &dyn IntoZvalDyn, mime_type_val as &dyn IntoZvalDyn];
 
-        let result = callback.try_call(args).map_err(|e| {
-            PhpException::default(format!(
-                "Failed to call extractor callback for '{}': {:?}",
-                plugin_name, e
-            ))
-        })?;
+    let result = callback.try_call(args).map_err(|e| {
+        PhpException::default(format!(
+            "Failed to call extractor callback for '{}': {:?}",
+            plugin_name, e
+        ))
+    })?;
 
-        if let Some(result_array) = result.array() {
-            if result_array.get("content").is_none() {
-                return Err(PhpException::default(
-                    "Extractor result must contain 'content' key".to_string(),
-                ));
-            }
-
-            if let Some(content_val) = result_array.get("content")
-                && content_val.str().is_none()
-            {
-                return Err(PhpException::default("'content' field must be a string".to_string()));
-            }
-
-            Ok(true)
-        } else {
-            Err(PhpException::default("Extractor must return an array".to_string()))
+    if let Some(result_array) = result.array() {
+        if result_array.get("content").is_none() {
+            return Err(PhpException::default(
+                "Extractor result must contain 'content' key".to_string(),
+            ));
         }
-    })
+
+        if let Some(content_val) = result_array.get("content")
+            && content_val.str().is_none()
+        {
+            return Err(PhpException::default("'content' field must be a string".to_string()));
+        }
+
+        Ok(true)
+    } else {
+        Err(PhpException::default("Extractor must return an array".to_string()))
+    }
 }
 
 /// Internal: Check if a custom extractor is registered for a MIME type.
@@ -710,26 +724,28 @@ pub(crate) fn has_custom_extractor(mime_type: &str) -> bool {
 /// This is an internal function used by the extraction pipeline to invoke
 /// a registered custom extractor.
 pub(crate) fn call_custom_extractor(mime_type: &str, bytes: &[u8]) -> PhpResult<Zval> {
-    EXTRACTOR_REGISTRY.with(|registry| {
+    // Clone callback while holding borrow, then release borrow before invoking
+    // This prevents RefCell re-entrance panic if callback re-enters Rust code
+    let callback = EXTRACTOR_REGISTRY.with(|registry| {
         let registry = registry.borrow();
-
-        let callback = registry
+        registry
             .get(mime_type)
-            .ok_or_else(|| PhpException::default(format!("No custom extractor registered for '{}'", mime_type)))?;
+            .map(|cb| cb.shallow_clone())
+            .ok_or_else(|| PhpException::default(format!("No custom extractor registered for '{}'", mime_type)))
+    })?;
 
-        let mut bytes_zval = Zval::new();
-        bytes_zval.set_binary(bytes.to_vec());
+    let mut bytes_zval = Zval::new();
+    bytes_zval.set_binary(bytes.to_vec());
 
-        let mut mime_zval = Zval::new();
-        mime_zval.set_string(mime_type, false)?;
+    let mut mime_zval = Zval::new();
+    mime_zval.set_string(mime_type, false)?;
 
-        let args = vec![&bytes_zval as &dyn IntoZvalDyn, &mime_zval as &dyn IntoZvalDyn];
-        let result = callback
-            .try_call(args)
-            .map_err(|e| PhpException::default(format!("Custom extractor callback failed: {:?}", e)))?;
+    let args = vec![&bytes_zval as &dyn IntoZvalDyn, &mime_zval as &dyn IntoZvalDyn];
+    let result = callback
+        .try_call(args)
+        .map_err(|e| PhpException::default(format!("Custom extractor callback failed: {:?}", e)))?;
 
-        Ok(result)
-    })
+    Ok(result)
 }
 
 /// Returns all function builders for the plugins module.
