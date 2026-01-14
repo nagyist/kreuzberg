@@ -54,7 +54,7 @@ Kreuzberg uses the `text-splitter` library with two chunking strategies:
 
 === "C#"
 
-    --8<-- "snippets/csharp/advanced/chunking_config.cs"
+    --8<-- "snippets/csharp/advanced/chunking_config.md"
 
 === "Go"
 
@@ -101,7 +101,7 @@ Each chunk includes:
 
 === "C#"
 
-    --8<-- "snippets/csharp/advanced/chunking_rag.cs"
+    --8<-- "snippets/csharp/advanced/chunking_rag.md"
 
 === "Go"
 
@@ -197,7 +197,7 @@ Detect languages in extracted text using the fast `whatlang` library. Supports 6
 
 === "C#"
 
-    --8<-- "snippets/csharp/advanced/language_detection_config.cs"
+    --8<-- "snippets/csharp/advanced/language_detection_config.md"
 
 === "Go"
 
@@ -269,7 +269,7 @@ ISO 639-3 codes including:
 
 === "C#"
 
-    --8<-- "snippets/csharp/advanced/language_detection_multilingual.cs"
+    --8<-- "snippets/csharp/advanced/language_detection_multilingual.md"
 
 === "Go"
 
