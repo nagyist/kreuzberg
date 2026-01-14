@@ -49,7 +49,7 @@ defmodule Kreuzberg.MixProject do
         mix.exs
         README.md
         .formatter.exs
-        checksum-Elixir.exs
+        checksum-Elixir.Kreuzberg.Native.exs
       )
     ]
   end
