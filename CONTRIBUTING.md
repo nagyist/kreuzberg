@@ -533,6 +533,6 @@ task e2e:lint:all
 Have questions about contributing? Please:
 - Check the [Kreuzberg documentation](https://kreuzberg.dev/)
 - Open an issue on [GitHub](https://github.com/kreuzberg-dev/kreuzberg/issues)
-- Join our [Discord community](https://discord.gg/pXxagNK2zN)
+- Join our [Discord community](https://discord.gg/xt9WY3GnKR)
 
 Thank you for contributing to Kreuzberg!

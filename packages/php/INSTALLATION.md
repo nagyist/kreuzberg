@@ -311,7 +311,7 @@ composer remove kreuzberg/kreuzberg
 
 - **Documentation**: https://kreuzberg.dev
 - **GitHub Issues**: https://github.com/kreuzberg-dev/kreuzberg/issues
-- **Discord**: https://discord.gg/pXxagNK2zN
+- **Discord**: https://discord.gg/xt9WY3GnKR
 
 ## Next Steps
 

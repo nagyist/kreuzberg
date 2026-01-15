@@ -11,7 +11,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-kreuzberg.dev-blue)](https://kreuzberg.dev/)
-[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289da)](https://discord.gg/pXxagNK2zN)
+[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289da)](https://discord.gg/xt9WY3GnKR)
 
 High-performance document intelligence library for Rust. Extract text, metadata, and structured information from PDFs, Office documents, images, and 56 formats.
 
