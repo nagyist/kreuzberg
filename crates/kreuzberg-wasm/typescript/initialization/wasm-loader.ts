@@ -9,73 +9,20 @@
 import { wrapWasmError } from "../adapters/wasm-adapter.js";
 import { hasWasm, isBrowser } from "../runtime.js";
 import { initializePdfiumAsync } from "./pdfium-loader.js";
+import {
+	type WasmModule,
+	type ModuleInfo,
+	getWasmModule,
+	setWasmModule,
+	isInitialized,
+	setInitialized,
+	getInitializationError,
+	setInitializationError,
+	getInitializationPromise,
+	setInitializationPromise,
+} from "./state.js";
 
-export type WasmModule = {
-	extractBytes: (data: Uint8Array, mimeType: string, config: Record<string, unknown> | null) => Promise<unknown>;
-	extractBytesSync: (data: Uint8Array, mimeType: string, config: Record<string, unknown> | null) => unknown;
-	batchExtractBytes: (
-		dataList: Uint8Array[],
-		mimeTypes: string[],
-		config: Record<string, unknown> | null,
-	) => Promise<unknown>;
-	batchExtractBytesSync: (
-		dataList: Uint8Array[],
-		mimeTypes: string[],
-		config: Record<string, unknown> | null,
-	) => unknown;
-	extractFile: (file: File, mimeType: string | null, config: Record<string, unknown> | null) => Promise<unknown>;
-	batchExtractFiles: (files: File[], config: Record<string, unknown> | null) => Promise<unknown>;
-
-	detectMimeFromBytes: (data: Uint8Array) => string;
-	normalizeMimeType: (mimeType: string) => string;
-	getMimeFromExtension: (extension: string) => string | null;
-	getExtensionsForMime: (mimeType: string) => string[];
-
-	loadConfigFromString: (content: string, format: string) => Record<string, unknown>;
-	discoverConfig: () => Record<string, unknown>;
-
-	version: () => string;
-	get_module_info: () => ModuleInfo;
-
-	register_ocr_backend: (backend: unknown) => void;
-	unregister_ocr_backend: (name: string) => void;
-	list_ocr_backends: () => string[];
-	clear_ocr_backends: () => void;
-
-	register_post_processor: (processor: unknown) => void;
-	unregister_post_processor: (name: string) => void;
-	list_post_processors: () => string[];
-	clear_post_processors: () => void;
-
-	register_validator: (validator: unknown) => void;
-	unregister_validator: (name: string) => void;
-	list_validators: () => string[];
-	clear_validators: () => void;
-
-	initialize_pdfium_render: (pdfiumWasmModule: unknown, localWasmModule: unknown, debug: boolean) => boolean;
-	read_block_from_callback_wasm: (param: number, position: number, pBuf: number, size: number) => number;
-	write_block_from_callback_wasm: (param: number, buf: number, size: number) => number;
-
-	default?: () => Promise<void>;
-};
-
-export type ModuleInfo = {
-	name: () => string;
-	version: () => string;
-	free: () => void;
-};
-
-/** WASM module instance */
-let wasm: WasmModule | null = null;
-
-/** Initialize flag */
-let initialized = false;
-
-/** Initialization error (if any) */
-let initializationError: Error | null = null;
-
-/** Initialization promise for handling concurrent init calls */
-let initializationPromise: Promise<void> | null = null;
+export type { WasmModule, ModuleInfo };
 
 /**
  * Get the loaded WASM module
@@ -83,18 +30,14 @@ let initializationPromise: Promise<void> | null = null;
  * @returns The WASM module instance or null if not loaded
  * @internal
  */
-export function getWasmModule(): WasmModule | null {
-	return wasm;
-}
+export { getWasmModule };
 
 /**
  * Check if WASM module is initialized
  *
  * @returns True if WASM module is initialized, false otherwise
  */
-export function isInitialized(): boolean {
-	return initialized;
-}
+export { isInitialized };
 
 /**
  * Get initialization error if module failed to load
@@ -102,9 +45,7 @@ export function isInitialized(): boolean {
  * @returns The error that occurred during initialization, or null if no error
  * @internal
  */
-export function getInitializationError(): Error | null {
-	return initializationError;
-}
+export { getInitializationError };
 
 /**
  * Get WASM module version
@@ -113,15 +54,16 @@ export function getInitializationError(): Error | null {
  * @returns The version string of the WASM module
  */
 export function getVersion(): string {
-	if (!initialized) {
+	if (!isInitialized()) {
 		throw new Error("WASM module not initialized. Call initWasm() first.");
 	}
 
-	if (!wasm) {
+	const wasmModule = getWasmModule();
+	if (!wasmModule) {
 		throw new Error("WASM module not loaded. Call initWasm() first.");
 	}
 
-	return wasm.version();
+	return wasmModule.version();
 }
 
 /**
@@ -168,15 +110,16 @@ export function getVersion(): string {
  * ```
  */
 export async function initWasm(): Promise<void> {
-	if (initialized) {
+	if (isInitialized()) {
 		return;
 	}
 
-	if (initializationPromise) {
-		return initializationPromise;
+	let currentPromise = getInitializationPromise();
+	if (currentPromise) {
+		return currentPromise;
 	}
 
-	initializationPromise = (async () => {
+	currentPromise = (async () => {
 		try {
 			if (!hasWasm()) {
 				throw new Error("WebAssembly is not supported in this environment");
@@ -192,25 +135,27 @@ export async function initWasm(): Promise<void> {
 			} catch {
 				wasmModule = await import(/* @vite-ignore */ fallbackPath);
 			}
-			wasm = wasmModule as unknown as WasmModule;
+			const loadedModule = wasmModule as unknown as WasmModule;
+			setWasmModule(loadedModule);
 
-			if (wasm && typeof wasm.default === "function") {
-				await wasm.default();
+			if (loadedModule && typeof loadedModule.default === "function") {
+				await loadedModule.default();
 			}
 
-			if (isBrowser() && wasm && typeof wasm.initialize_pdfium_render === "function") {
-				initializePdfiumAsync(wasm).catch((error) => {
+			if (isBrowser() && loadedModule && typeof loadedModule.initialize_pdfium_render === "function") {
+				initializePdfiumAsync(loadedModule).catch((error) => {
 					console.warn("PDFium auto-initialization failed (PDF extraction disabled):", error);
 				});
 			}
 
-			initialized = true;
-			initializationError = null;
+			setInitialized(true);
+			setInitializationError(null);
 		} catch (error) {
-			initializationError = error instanceof Error ? error : new Error(String(error));
+			setInitializationError(error instanceof Error ? error : new Error(String(error)));
 			throw wrapWasmError(error, "initializing Kreuzberg WASM module");
 		}
 	})();
 
-	return initializationPromise;
+	setInitializationPromise(currentPromise);
+	return currentPromise;
 }

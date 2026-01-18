@@ -7,7 +7,7 @@
  */
 
 import { isBrowser } from "../runtime.js";
-import type { WasmModule } from "./wasm-loader.js";
+import type { WasmModule } from "./state.js";
 
 /**
  * Initialize PDFium WASM module asynchronously
