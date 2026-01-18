@@ -4,7 +4,7 @@ defmodule Kreuzberg.ExtractionResult do
 
   Contains all extracted data from a processed document, including content,
   metadata, tables, detected languages, chunks with embeddings, images with
-  OCR results, and per-page information.
+  OCR results, per-page information, and semantic elements.
 
   ## Fields
 
@@ -53,6 +53,12 @@ defmodule Kreuzberg.ExtractionResult do
       - nil if keyword extraction is disabled
       - Each keyword is a map with "text" and "score" fields
       - Used for document classification, tagging, and search optimization
+
+    * `:elements` - Optional list of semantic element structs
+      - nil if element-based extraction is not enabled
+      - Each element is a Kreuzberg.Element struct with type and metadata
+      - Provides fine-grained semantic classification of document content
+      - Compatible with Unstructured.io element format
 
   ## Examples
 
@@ -105,7 +111,8 @@ defmodule Kreuzberg.ExtractionResult do
           chunks: list(Kreuzberg.Chunk.t()) | nil,
           images: list(Kreuzberg.Image.t()) | nil,
           pages: list(Kreuzberg.Page.t()) | nil,
-          keywords: list(map()) | nil
+          keywords: list(map()) | nil,
+          elements: list(Kreuzberg.Element.t()) | nil
         }
 
   defstruct [
@@ -116,6 +123,7 @@ defmodule Kreuzberg.ExtractionResult do
     :images,
     :pages,
     :keywords,
+    :elements,
     metadata: %Kreuzberg.Metadata{},
     tables: []
   ]
@@ -135,6 +143,7 @@ defmodule Kreuzberg.ExtractionResult do
       * `:images` - List of image structs or maps
       * `:pages` - List of page structs or maps
       * `:keywords` - List of keyword structs or maps
+      * `:elements` - List of element structs or maps
 
   ## Returns
 
@@ -151,7 +160,9 @@ defmodule Kreuzberg.ExtractionResult do
         detected_languages: nil,
         chunks: nil,
         images: nil,
-        pages: nil
+        pages: nil,
+        keywords: nil,
+        elements: nil
       }
 
       iex> metadata = %Kreuzberg.Metadata{page_count: 5}
@@ -165,7 +176,9 @@ defmodule Kreuzberg.ExtractionResult do
         detected_languages: ["en", "de"],
         chunks: nil,
         images: nil,
-        pages: nil
+        pages: nil,
+        keywords: nil,
+        elements: nil
       }
   """
   @spec new(
@@ -185,7 +198,8 @@ defmodule Kreuzberg.ExtractionResult do
       chunks: normalize_chunks(Keyword.get(opts, :chunks)),
       images: normalize_images(Keyword.get(opts, :images)),
       pages: normalize_pages(Keyword.get(opts, :pages)),
-      keywords: normalize_keywords(Keyword.get(opts, :keywords))
+      keywords: normalize_keywords(Keyword.get(opts, :keywords)),
+      elements: normalize_elements(Keyword.get(opts, :elements))
     }
   end
 
@@ -252,4 +266,17 @@ defmodule Kreuzberg.ExtractionResult do
   defp normalize_keywords(nil), do: nil
   defp normalize_keywords([]), do: []
   defp normalize_keywords(keywords) when is_list(keywords), do: keywords
+
+  @doc false
+  @spec normalize_elements(list() | nil) :: list(Kreuzberg.Element.t()) | nil
+  defp normalize_elements(nil), do: nil
+  defp normalize_elements([]), do: []
+
+  defp normalize_elements(elements) when is_list(elements) do
+    Enum.map(elements, fn
+      %Kreuzberg.Element{} = element -> element
+      map when is_map(map) -> Kreuzberg.Element.from_map(map)
+      other -> other
+    end)
+  end
 end

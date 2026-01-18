@@ -78,6 +78,7 @@ fn build_archive_result(
         chunks: None,
         images: None,
         pages: None,
+        elements: None,
     }
 }
 

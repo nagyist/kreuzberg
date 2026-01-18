@@ -221,6 +221,7 @@ impl SyncExtractor for HtmlExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 }

@@ -1199,10 +1199,11 @@ public final class Kreuzberg {
 		String imagesJson = KreuzbergFFI.readCString(result.get(ValueLayout.ADDRESS, KreuzbergFFI.IMAGES_OFFSET));
 		String pageStructureJson = KreuzbergFFI
 				.readCString(result.get(ValueLayout.ADDRESS, KreuzbergFFI.PAGE_STRUCTURE_OFFSET));
+		String elementsJson = KreuzbergFFI.readCString(result.get(ValueLayout.ADDRESS, KreuzbergFFI.ELEMENTS_OFFSET));
 		boolean success = result.get(ValueLayout.JAVA_BOOLEAN, KreuzbergFFI.SUCCESS_OFFSET);
 
 		return ResultParser.parse(content, mimeType, tablesJson, detectedLanguagesJson, metadataJson, chunksJson,
-				imagesJson, pageStructureJson, success);
+				imagesJson, pageStructureJson, elementsJson, success);
 	}
 
 	/**
@@ -1234,7 +1235,8 @@ public final class Kreuzberg {
 				if (ptr == null || ptr.address() == 0) {
 					results.add(new ExtractionResult("", "",
 
-							Collections.emptyMap(), List.of(), List.of(), List.of(), List.of(), null, false));
+							Collections.emptyMap(), List.of(), List.of(), List.of(), List.of(), null, List.of(),
+							false));
 				} else {
 					// Use parseResult (not parseAndFreeResult) to avoid double-free.
 					// Memory is freed collectively by KREUZBERG_FREE_BATCH_RESULT in the finally

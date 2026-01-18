@@ -1,5 +1,6 @@
 pub mod structured;
 pub mod text;
+pub mod transform;
 
 #[cfg(feature = "ocr")]
 pub mod image;
@@ -46,6 +47,9 @@ pub mod markdown;
 
 pub use structured::{JsonExtractionConfig, StructuredDataResult, parse_json, parse_toml, parse_yaml};
 pub use text::parse_text;
+pub use transform::{
+    ListItemMetadata, ListType, detect_list_items, generate_element_id, transform_extraction_result_to_elements,
+};
 
 #[cfg(feature = "ocr")]
 pub use image::{ImageMetadata, extract_image_metadata};

@@ -12,6 +12,7 @@ type ExtractionResult struct {
 	Chunks            []Chunk          `json:"chunks,omitempty"`
 	Images            []ExtractedImage `json:"images,omitempty"`
 	Pages             []PageContent    `json:"pages,omitempty"`
+	Elements          []Element        `json:"elements,omitempty"`
 	Success           bool             `json:"success"`
 }
 
@@ -359,4 +360,74 @@ type PageContent struct {
 	Content    string           `json:"content"`
 	Tables     []Table          `json:"tables,omitempty"`
 	Images     []ExtractedImage `json:"images,omitempty"`
+}
+
+// ElementType defines semantic classification for extracted elements.
+type ElementType string
+
+const (
+	// ElementTypeTitle marks a document title element.
+	ElementTypeTitle ElementType = "title"
+	// ElementTypeNarrativeText marks main narrative text body.
+	ElementTypeNarrativeText ElementType = "narrative_text"
+	// ElementTypeHeading marks a section heading.
+	ElementTypeHeading ElementType = "heading"
+	// ElementTypeListItem marks a list item (bullet, numbered, etc.).
+	ElementTypeListItem ElementType = "list_item"
+	// ElementTypeTable marks a table element.
+	ElementTypeTable ElementType = "table"
+	// ElementTypeImage marks an image element.
+	ElementTypeImage ElementType = "image"
+	// ElementTypePageBreak marks a page break marker.
+	ElementTypePageBreak ElementType = "page_break"
+	// ElementTypeCodeBlock marks a code block.
+	ElementTypeCodeBlock ElementType = "code_block"
+	// ElementTypeBlockQuote marks a block quote.
+	ElementTypeBlockQuote ElementType = "block_quote"
+	// ElementTypeFooter marks footer text.
+	ElementTypeFooter ElementType = "footer"
+	// ElementTypeHeader marks header text.
+	ElementTypeHeader ElementType = "header"
+)
+
+// BoundingBox represents bounding box coordinates for element positioning.
+type BoundingBox struct {
+	// X0 is the left x-coordinate.
+	X0 float64 `json:"x0"`
+	// Y0 is the bottom y-coordinate.
+	Y0 float64 `json:"y0"`
+	// X1 is the right x-coordinate.
+	X1 float64 `json:"x1"`
+	// Y1 is the top y-coordinate.
+	Y1 float64 `json:"y1"`
+}
+
+// ElementMetadata contains metadata for a semantic element.
+type ElementMetadata struct {
+	// PageNumber is the 1-indexed page number.
+	PageNumber *int64 `json:"page_number,omitempty"`
+	// Filename is the source filename or document name.
+	Filename *string `json:"filename,omitempty"`
+	// Coordinates contains bounding box coordinates if available.
+	Coordinates *BoundingBox `json:"coordinates,omitempty"`
+	// ElementIndex is the position index in the element sequence.
+	ElementIndex *int64 `json:"element_index,omitempty"`
+	// Additional contains custom metadata fields.
+	Additional map[string]string `json:"additional,omitempty"`
+}
+
+// Element represents a semantic element extracted from a document.
+//
+// It combines semantic classification, unique identification, and metadata
+// for tracking origin and position within the source document.
+// This type supports Unstructured.io element format when output_format='element_based'.
+type Element struct {
+	// ElementID is a unique element identifier (deterministic hash-based ID).
+	ElementID string `json:"element_id"`
+	// ElementType is the semantic type classification of the element.
+	ElementType ElementType `json:"element_type"`
+	// Text is the content string of the element.
+	Text string `json:"text"`
+	// Metadata contains element metadata including page number, coordinates, etc.
+	Metadata ElementMetadata `json:"metadata"`
 }

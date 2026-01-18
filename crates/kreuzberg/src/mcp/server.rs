@@ -871,6 +871,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let formatted = format_extraction_result(&result);
@@ -908,6 +909,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let formatted = format_extraction_result(&result);
@@ -930,6 +932,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let formatted = format_extraction_result(&result);
@@ -949,6 +952,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let formatted = format_extraction_result(&result);

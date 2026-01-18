@@ -11,7 +11,7 @@ module Kreuzberg
   # rubocop:disable Metrics/ClassLength
   class Result
     attr_reader :content, :mime_type, :metadata, :metadata_json, :tables,
-                :detected_languages, :chunks, :images, :pages
+                :detected_languages, :chunks, :images, :pages, :elements
 
     # @!attribute [r] cells
     #   @return [Array<Array<String>>] Table cells (2D array)
@@ -114,6 +114,68 @@ module Kreuzberg
       end
     end
 
+    # @!attribute [r] x0
+    #   @return [Float] Left x-coordinate
+    # @!attribute [r] y0
+    #   @return [Float] Bottom y-coordinate
+    # @!attribute [r] x1
+    #   @return [Float] Right x-coordinate
+    # @!attribute [r] y1
+    #   @return [Float] Top y-coordinate
+    ElementBoundingBox = Struct.new(:x0, :y0, :x1, :y1, keyword_init: true) do
+      def to_h
+        { x0: x0, y0: y0, x1: x1, y1: y1 }
+      end
+    end
+
+    # @!attribute [r] page_number
+    #   @return [Integer, nil] Page number (1-indexed)
+    # @!attribute [r] filename
+    #   @return [String, nil] Source filename or document name
+    # @!attribute [r] coordinates
+    #   @return [ElementBoundingBox, nil] Bounding box coordinates if available
+    # @!attribute [r] element_index
+    #   @return [Integer, nil] Position index in the element sequence
+    # @!attribute [r] additional
+    #   @return [Hash<String, String>] Additional custom metadata
+    ElementMetadataStruct = Struct.new(
+      :page_number,
+      :filename,
+      :coordinates,
+      :element_index,
+      :additional,
+      keyword_init: true
+    ) do
+      def to_h
+        {
+          page_number: page_number,
+          filename: filename,
+          coordinates: coordinates&.to_h,
+          element_index: element_index,
+          additional: additional
+        }
+      end
+    end
+
+    # @!attribute [r] element_id
+    #   @return [String] Unique element identifier
+    # @!attribute [r] element_type
+    #   @return [String] Semantic type of the element
+    # @!attribute [r] text
+    #   @return [String] Text content of the element
+    # @!attribute [r] metadata
+    #   @return [ElementMetadataStruct] Metadata about the element
+    ElementStruct = Struct.new(:element_id, :element_type, :text, :metadata, keyword_init: true) do
+      def to_h
+        {
+          element_id: element_id,
+          element_type: element_type,
+          text: text,
+          metadata: metadata&.to_h
+        }
+      end
+    end
+
     # Initialize from native hash result
     #
     # @param hash [Hash] Hash returned from native extension
@@ -128,6 +190,7 @@ module Kreuzberg
       @chunks = parse_chunks(get_value(hash, 'chunks'))
       @images = parse_images(get_value(hash, 'images'))
       @pages = parse_pages(get_value(hash, 'pages'))
+      @elements = parse_elements(get_value(hash, 'elements'))
     end
 
     # Convert to hash
@@ -143,7 +206,8 @@ module Kreuzberg
         detected_languages: @detected_languages,
         chunks: serialize_chunks,
         images: serialize_images,
-        pages: serialize_pages
+        pages: serialize_pages,
+        elements: serialize_elements
       }
     end
 
@@ -249,6 +313,10 @@ module Kreuzberg
       @pages&.map(&:to_h)
     end
 
+    def serialize_elements
+      @elements&.map(&:to_h)
+    end
+
     def get_value(hash, key, default = nil)
       hash[key] || hash[key.to_sym] || default
     end
@@ -328,6 +396,43 @@ module Kreuzberg
           images: parse_images(page_hash['images'])
         )
       end
+    end
+
+    def parse_elements(elements_data)
+      return nil if elements_data.nil?
+
+      elements_data.map { |element_hash| parse_element(element_hash) }
+    end
+
+    def parse_element(element_hash)
+      metadata_hash = element_hash['metadata'] || {}
+      coordinates = parse_element_coordinates(metadata_hash['coordinates'])
+
+      metadata = ElementMetadataStruct.new(
+        page_number: metadata_hash['page_number'],
+        filename: metadata_hash['filename'],
+        coordinates: coordinates,
+        element_index: metadata_hash['element_index'],
+        additional: metadata_hash['additional'] || {}
+      )
+
+      ElementStruct.new(
+        element_id: element_hash['element_id'],
+        element_type: element_hash['element_type'],
+        text: element_hash['text'],
+        metadata: metadata
+      )
+    end
+
+    def parse_element_coordinates(coordinates_data)
+      return nil if coordinates_data.nil?
+
+      ElementBoundingBox.new(
+        x0: coordinates_data['x0'].to_f,
+        y0: coordinates_data['y0'].to_f,
+        x1: coordinates_data['x1'].to_f,
+        y1: coordinates_data['y1'].to_f
+      )
     end
   end
   # rubocop:enable Metrics/ClassLength

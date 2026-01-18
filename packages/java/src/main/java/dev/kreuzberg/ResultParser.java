@@ -22,6 +22,8 @@ final class ResultParser {
 	};
 	private static final TypeReference<List<ExtractedImage>> IMAGE_LIST = new TypeReference<>() {
 	};
+	private static final TypeReference<List<Element>> ELEMENT_LIST = new TypeReference<>() {
+	};
 	private static final TypeReference<Map<String, Object>> METADATA_MAP = new TypeReference<>() {
 	};
 	private static final TypeReference<EmbeddingPreset> EMBEDDING_PRESET = new TypeReference<>() {
@@ -33,8 +35,8 @@ final class ResultParser {
 	}
 
 	static ExtractionResult parse(String content, String mimeType, String tablesJson, String detectedLanguagesJson,
-			String metadataJson, String chunksJson, String imagesJson, String pageStructureJson, boolean success)
-			throws KreuzbergException {
+			String metadataJson, String chunksJson, String imagesJson, String pageStructureJson, String elementsJson,
+			boolean success) throws KreuzbergException {
 		try {
 			Map<String, Object> metadata = decode(metadataJson, METADATA_MAP, Collections.emptyMap());
 			List<Table> tables = decode(tablesJson, TABLE_LIST, List.of());
@@ -42,9 +44,10 @@ final class ResultParser {
 			List<Chunk> chunks = decode(chunksJson, CHUNK_LIST, List.of());
 			List<ExtractedImage> images = decode(imagesJson, IMAGE_LIST, List.of());
 			PageStructure pageStructure = decode(pageStructureJson, PAGE_STRUCTURE, null);
+			List<Element> elements = decode(elementsJson, ELEMENT_LIST, List.of());
 
 			return new ExtractionResult(content != null ? content : "", mimeType != null ? mimeType : "", metadata,
-					tables, detectedLanguages, chunks, images, pageStructure, success);
+					tables, detectedLanguages, chunks, images, pageStructure, elements, success);
 		} catch (Exception e) {
 			throw new KreuzbergException("Failed to parse extraction result", e);
 		}
@@ -80,7 +83,8 @@ final class ResultParser {
 					wire.tables != null ? wire.tables : List.of(),
 					wire.detectedLanguages != null ? wire.detectedLanguages : List.of(),
 					wire.chunks != null ? wire.chunks : List.of(), wire.images != null ? wire.images : List.of(),
-					wire.pageStructure, wire.success == null || wire.success);
+					wire.pageStructure, wire.elements != null ? wire.elements : List.of(),
+					wire.success == null || wire.success);
 		} catch (Exception e) {
 			throw new KreuzbergException("Failed to parse result JSON", e);
 		}
@@ -89,7 +93,7 @@ final class ResultParser {
 	static String toJson(ExtractionResult result) throws Exception {
 		WireExtractionResult wire = new WireExtractionResult(result.getContent(), result.getMimeType(),
 				result.getMetadata(), result.getTables(), result.getDetectedLanguages(), result.getChunks(),
-				result.getImages(), result.getPageStructure().orElse(null), result.isSuccess());
+				result.getImages(), result.getPageStructure().orElse(null), result.getElements(), result.isSuccess());
 		return MAPPER.writeValueAsString(wire);
 	}
 
@@ -110,13 +114,15 @@ final class ResultParser {
 		private final List<Chunk> chunks;
 		private final List<ExtractedImage> images;
 		private final PageStructure pageStructure;
+		private final List<Element> elements;
 		private final Boolean success;
 
 		WireExtractionResult(@JsonProperty("content") String content, @JsonProperty("mime_type") String mimeType,
 				@JsonProperty("metadata") Map<String, Object> metadata, @JsonProperty("tables") List<Table> tables,
 				@JsonProperty("detected_languages") List<String> detectedLanguages,
 				@JsonProperty("chunks") List<Chunk> chunks, @JsonProperty("images") List<ExtractedImage> images,
-				@JsonProperty("page_structure") PageStructure pageStructure, @JsonProperty("success") Boolean success) {
+				@JsonProperty("page_structure") PageStructure pageStructure,
+				@JsonProperty("elements") List<Element> elements, @JsonProperty("success") Boolean success) {
 			this.content = content;
 			this.mimeType = mimeType;
 			this.metadata = metadata;
@@ -125,6 +131,7 @@ final class ResultParser {
 			this.chunks = chunks;
 			this.images = images;
 			this.pageStructure = pageStructure;
+			this.elements = elements;
 			this.success = success;
 		}
 	}

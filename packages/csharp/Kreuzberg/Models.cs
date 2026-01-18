@@ -5,6 +5,188 @@ using System.Text.Json.Serialization;
 namespace Kreuzberg;
 
 /// <summary>
+/// Semantic element type classification for extracted document content.
+///
+/// Categorizes text content into semantic units for downstream processing.
+/// Compatible with Unstructured.io element types.
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum ElementType
+{
+    /// <summary>
+    /// Document title element.
+    /// </summary>
+    [JsonPropertyName("title")]
+    Title,
+
+    /// <summary>
+    /// Main narrative text body element.
+    /// </summary>
+    [JsonPropertyName("narrative_text")]
+    NarrativeText,
+
+    /// <summary>
+    /// Section heading element.
+    /// </summary>
+    [JsonPropertyName("heading")]
+    Heading,
+
+    /// <summary>
+    /// List item element (bullet, numbered, etc.).
+    /// </summary>
+    [JsonPropertyName("list_item")]
+    ListItem,
+
+    /// <summary>
+    /// Table element.
+    /// </summary>
+    [JsonPropertyName("table")]
+    Table,
+
+    /// <summary>
+    /// Image element.
+    /// </summary>
+    [JsonPropertyName("image")]
+    Image,
+
+    /// <summary>
+    /// Page break marker element.
+    /// </summary>
+    [JsonPropertyName("page_break")]
+    PageBreak,
+
+    /// <summary>
+    /// Code block element.
+    /// </summary>
+    [JsonPropertyName("code_block")]
+    CodeBlock,
+
+    /// <summary>
+    /// Block quote element.
+    /// </summary>
+    [JsonPropertyName("block_quote")]
+    BlockQuote,
+
+    /// <summary>
+    /// Footer text element.
+    /// </summary>
+    [JsonPropertyName("footer")]
+    Footer,
+
+    /// <summary>
+    /// Header text element.
+    /// </summary>
+    [JsonPropertyName("header")]
+    Header,
+}
+
+/// <summary>
+/// Bounding box coordinates for element positioning on a page.
+///
+/// Defines the rectangular region occupied by an element using normalized or
+/// absolute coordinates depending on the document format.
+/// </summary>
+public sealed class BoundingBox
+{
+    /// <summary>
+    /// Left x-coordinate (origin from left edge).
+    /// </summary>
+    [JsonPropertyName("x0")]
+    public double X0 { get; init; }
+
+    /// <summary>
+    /// Bottom y-coordinate (origin from bottom edge).
+    /// </summary>
+    [JsonPropertyName("y0")]
+    public double Y0 { get; init; }
+
+    /// <summary>
+    /// Right x-coordinate (origin from left edge).
+    /// </summary>
+    [JsonPropertyName("x1")]
+    public double X1 { get; init; }
+
+    /// <summary>
+    /// Top y-coordinate (origin from bottom edge).
+    /// </summary>
+    [JsonPropertyName("y1")]
+    public double Y1 { get; init; }
+}
+
+/// <summary>
+/// Metadata for a semantic element extracted from a document.
+///
+/// Includes positioning information, page references, and custom metadata
+/// for tracking element origin and context within the source document.
+/// </summary>
+public sealed class ElementMetadata
+{
+    /// <summary>
+    /// Page number (1-indexed) where this element appears in the document, if available.
+    /// </summary>
+    [JsonPropertyName("page_number")]
+    public int? PageNumber { get; init; }
+
+    /// <summary>
+    /// Source filename or document name from which this element was extracted, if available.
+    /// </summary>
+    [JsonPropertyName("filename")]
+    public string? Filename { get; init; }
+
+    /// <summary>
+    /// Bounding box coordinates for this element on the page, if available.
+    /// </summary>
+    [JsonPropertyName("coordinates")]
+    public BoundingBox? Coordinates { get; init; }
+
+    /// <summary>
+    /// Position index of this element in the document's element sequence, if available.
+    /// </summary>
+    [JsonPropertyName("element_index")]
+    public int? ElementIndex { get; init; }
+
+    /// <summary>
+    /// Additional custom metadata fields for this element.
+    /// </summary>
+    [JsonPropertyName("additional")]
+    public Dictionary<string, string>? Additional { get; init; }
+}
+
+/// <summary>
+/// A semantic element extracted from a document.
+///
+/// Represents a logical unit of content with semantic classification, unique identifier,
+/// and metadata for tracking origin, position, and context within the source document.
+/// Compatible with Unstructured.io element format when output_format='element_based'.
+/// </summary>
+public sealed class Element
+{
+    /// <summary>
+    /// Unique identifier for this element (deterministic hash-based ID).
+    /// </summary>
+    [JsonPropertyName("element_id")]
+    public string ElementId { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Semantic type classification for this element.
+    /// </summary>
+    [JsonPropertyName("element_type")]
+    public ElementType ElementType { get; init; }
+
+    /// <summary>
+    /// Text content of this element.
+    /// </summary>
+    [JsonPropertyName("text")]
+    public string Text { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Metadata about this element including page number, coordinates, and custom fields.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public ElementMetadata Metadata { get; init; } = new();
+}
+
+/// <summary>
 /// The main result of document extraction containing extracted content, metadata, and structured data.
 /// </summary>
 public sealed class ExtractionResult
@@ -56,6 +238,13 @@ public sealed class ExtractionResult
     /// </summary>
     [JsonPropertyName("pages")]
     public List<PageContent>? Pages { get; set; }
+
+    /// <summary>
+    /// Semantic elements extracted from the document when output_format='element_based'.
+    /// Each element represents a logical unit of content with semantic classification and metadata.
+    /// </summary>
+    [JsonPropertyName("elements")]
+    public List<Element>? Elements { get; set; }
 
     /// <summary>
     /// Indicates whether extraction completed successfully.

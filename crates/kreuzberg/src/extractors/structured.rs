@@ -86,6 +86,7 @@ impl DocumentExtractor for StructuredExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 

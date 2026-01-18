@@ -85,6 +85,23 @@ pub async fn extract_handler(
                     )))
                 })?;
             }
+            "output_format" => {
+                let format_str = field
+                    .text()
+                    .await
+                    .map_err(|e| ApiError::validation(crate::error::KreuzbergError::validation(e.to_string())))?;
+
+                config.output_format = match format_str.to_lowercase().as_str() {
+                    "unified" => crate::types::OutputFormat::Unified,
+                    "element_based" | "elements" => crate::types::OutputFormat::ElementBased,
+                    _ => {
+                        return Err(ApiError::validation(crate::error::KreuzbergError::validation(format!(
+                            "Invalid output_format: '{}'. Valid values: 'unified', 'element_based', 'elements'",
+                            format_str
+                        ))));
+                    }
+                };
+            }
             _ => {}
         }
     }

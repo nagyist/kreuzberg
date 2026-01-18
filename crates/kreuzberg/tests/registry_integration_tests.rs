@@ -126,6 +126,7 @@ impl DocumentExtractor for MockExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

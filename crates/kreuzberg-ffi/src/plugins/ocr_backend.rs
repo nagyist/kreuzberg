@@ -167,6 +167,7 @@ impl OcrBackend for FfiOcrBackend {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

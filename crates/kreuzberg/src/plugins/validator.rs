@@ -490,6 +490,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -509,6 +510,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -530,6 +532,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -566,6 +569,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -614,6 +618,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let txt_result = ExtractionResult {
@@ -625,6 +630,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         assert!(validator.should_validate(&pdf_result, &config));
@@ -709,6 +715,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -741,6 +748,7 @@ mod tests {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -768,6 +776,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();
@@ -797,6 +806,7 @@ mod tests {
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             };
 
             assert!(validator.validate(&result, &config).await.is_ok());
@@ -816,6 +826,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let config = ExtractionConfig::default();

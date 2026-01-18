@@ -662,6 +662,7 @@ mod tests {
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             })
         }
 
@@ -707,6 +708,7 @@ mod tests {
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             })
         }
 

@@ -24,8 +24,8 @@ use kreuzberg::{
     Chunk as RustChunk, ChunkMetadata as RustChunkMetadata, ChunkingConfig as RustChunkingConfig,
     EmbeddingConfig as RustEmbeddingConfig, EmbeddingModelType as RustEmbeddingModelType, ExtractionConfig,
     ExtractionResult as RustExtractionResult, ImageExtractionConfig as RustImageExtractionConfig, KNOWN_FORMATS,
-    LanguageDetectionConfig as RustLanguageDetectionConfig, OcrConfig as RustOcrConfig, PdfConfig as RustPdfConfig,
-    PostProcessorConfig as RustPostProcessorConfig, TesseractConfig as RustTesseractConfig,
+    LanguageDetectionConfig as RustLanguageDetectionConfig, OcrConfig as RustOcrConfig, OutputFormat,
+    PdfConfig as RustPdfConfig, PostProcessorConfig as RustPostProcessorConfig, TesseractConfig as RustTesseractConfig,
     TokenReductionConfig as RustTokenReductionConfig,
 };
 use lazy_static::lazy_static;
@@ -1277,6 +1277,7 @@ impl TryFrom<JsExtractionConfig> for ExtractionConfig {
             html_options,
             max_concurrent_extractions: val.max_concurrent_extractions.map(|v| v as usize),
             pages: val.pages.map(|p| p.try_into()).transpose()?,
+            output_format: OutputFormat::Unified,
         })
     }
 }
@@ -1898,6 +1899,7 @@ impl TryFrom<JsExtractionResult> for RustExtractionResult {
             chunks,
             images,
             pages: None,
+            elements: None,
         })
     }
 }
@@ -2949,6 +2951,7 @@ impl RustOcrBackend for JsOcrBackend {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

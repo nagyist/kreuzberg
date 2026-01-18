@@ -378,6 +378,7 @@ async fn test_concurrent_pipeline_processing() {
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             };
 
             run_pipeline(result, &config).await

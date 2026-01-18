@@ -225,6 +225,7 @@ impl OcrBackend for TesseractBackend {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 
@@ -279,6 +280,7 @@ impl OcrBackend for TesseractBackend {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 

@@ -91,6 +91,7 @@ impl DocumentExtractor for PlainTextExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 
@@ -184,6 +185,7 @@ impl DocumentExtractor for MarkdownExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 

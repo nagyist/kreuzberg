@@ -441,6 +441,7 @@ impl DocumentExtractor for FictionBookExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

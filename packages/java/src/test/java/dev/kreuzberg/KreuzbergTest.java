@@ -78,7 +78,7 @@ class KreuzbergTest {
 		PostProcessor processor = result -> {
 			return new ExtractionResult(result.getContent().toUpperCase(), result.getMimeType(), result.getMetadata(),
 					result.getTables(), result.getDetectedLanguages(), result.getChunks(), result.getImages(),
-					result.getPageStructure().orElse(null), result.isSuccess());
+					result.getPageStructure().orElse(null), result.getElements(), result.isSuccess());
 		};
 
 		Kreuzberg.registerPostProcessor(name, processor);

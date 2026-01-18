@@ -92,6 +92,7 @@ impl ExtractionConfig {
                 html_options: html_options_inner,
                 max_concurrent_extractions,
                 pages: pages.map(Into::into),
+                output_format: Default::default(),
             },
             html_options_dict,
         })

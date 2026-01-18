@@ -18,6 +18,7 @@ namespace Kreuzberg\Types;
  * @property-read array<Keyword>|null $keywords Extracted keywords with scores if KeywordConfig provided
  * @property-read array<mixed, mixed>|null $embeddings Generated embeddings if enabled
  * @property-read array<mixed, mixed>|null $tesseract Tesseract OCR configuration results if enabled
+ * @property-read array<Element>|null $elements Semantic elements when output_format='element_based'
  */
 readonly class ExtractionResult
 {
@@ -30,6 +31,7 @@ readonly class ExtractionResult
      * @param array<mixed, mixed>|null $embeddings
      * @param array<Keyword>|null $keywords
      * @param array<mixed, mixed>|null $tesseract
+     * @param array<Element>|null $elements
      */
     public function __construct(
         public string $content,
@@ -43,6 +45,7 @@ readonly class ExtractionResult
         public ?array $embeddings = null,
         public ?array $keywords = null,
         public ?array $tesseract = null,
+        public ?array $elements = null,
     ) {
     }
 
@@ -164,6 +167,17 @@ readonly class ExtractionResult
             $tesseract = null;
         }
 
+        $elements = null;
+        if (isset($data['elements'])) {
+            /** @var array<array<string, mixed>> $elementsData */
+            $elementsData = $data['elements'];
+            $elements = array_map(
+                /** @param array<string, mixed> $element */
+                static fn (array $element): Element => Element::fromArray($element),
+                $elementsData,
+            );
+        }
+
         return new self(
             content: $content,
             mimeType: $mimeType,
@@ -180,6 +194,7 @@ readonly class ExtractionResult
             embeddings: $embeddings,
             keywords: $keywords,
             tesseract: $tesseract,
+            elements: $elements,
         );
     }
 }

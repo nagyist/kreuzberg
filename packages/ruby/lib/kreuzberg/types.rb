@@ -3,6 +3,110 @@
 require 'sorbet-runtime'
 
 module Kreuzberg
+  # Semantic element type classification.
+  #
+  # Categorizes text content into semantic units for downstream processing.
+  # Supports the element types commonly found in Unstructured documents.
+  #
+  # @example
+  #   type = Kreuzberg::ElementType::TITLE
+  #
+  ElementType = T.type_alias do
+    T.any(
+      'title',
+      'narrative_text',
+      'heading',
+      'list_item',
+      'table',
+      'image',
+      'page_break',
+      'code_block',
+      'block_quote',
+      'footer',
+      'header'
+    )
+  end
+
+  # Bounding box coordinates for element positioning.
+  #
+  # Represents rectangular coordinates for an element within a page.
+  #
+  # @example
+  #   bbox = Kreuzberg::BoundingBox.new(
+  #     x0: 10.0,
+  #     y0: 20.0,
+  #     x1: 100.0,
+  #     y1: 50.0
+  #   )
+  #   puts "Width: #{bbox.x1 - bbox.x0}"
+  #
+  class BoundingBox < T::Struct
+    extend T::Sig
+
+    const :x0, Float
+
+    const :y0, Float
+
+    const :x1, Float
+
+    const :y1, Float
+  end
+
+  # Metadata for a semantic element.
+  #
+  # Provides contextual information about an extracted element including
+  # its position within the document and custom metadata fields.
+  #
+  # @example
+  #   metadata = Kreuzberg::ElementMetadata.new(
+  #     page_number: 1,
+  #     filename: "document.pdf",
+  #     coordinates: bbox,
+  #     element_index: 5,
+  #     additional: { "style" => "bold" }
+  #   )
+  #
+  class ElementMetadata < T::Struct
+    extend T::Sig
+
+    const :page_number, T.nilable(Integer)
+
+    const :filename, T.nilable(String)
+
+    const :coordinates, T.nilable(BoundingBox)
+
+    const :element_index, T.nilable(Integer)
+
+    const :additional, T::Hash[String, String]
+  end
+
+  # Semantic element extracted from document.
+  #
+  # Represents a logical unit of content with semantic classification,
+  # unique identifier, and metadata for tracking origin and position.
+  # Compatible with Unstructured.io element format when output_format='element_based'.
+  #
+  # @example
+  #   element = Kreuzberg::Element.new(
+  #     element_id: "elem-abc123",
+  #     element_type: "narrative_text",
+  #     text: "This is the main content.",
+  #     metadata: metadata
+  #   )
+  #   puts "#{element.element_type}: #{element.text}"
+  #
+  class Element < T::Struct
+    extend T::Sig
+
+    const :element_id, String
+
+    const :element_type, String
+
+    const :text, String
+
+    const :metadata, ElementMetadata
+  end
+
   # Header/Heading metadata
   #
   # Represents a heading element found in the HTML document

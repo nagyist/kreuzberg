@@ -140,6 +140,7 @@ impl DocumentExtractor for ExcelExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 
@@ -184,6 +185,7 @@ impl DocumentExtractor for ExcelExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 

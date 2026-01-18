@@ -166,6 +166,7 @@ impl DocumentExtractor for ImageExtractor {
             detected_languages: None,
             chunks: None,
             images: None,
+            elements: None,
         })
     }
 

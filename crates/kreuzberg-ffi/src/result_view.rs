@@ -453,6 +453,7 @@ mod tests {
             ]),
             images: None,
             pages: None,
+            elements: None,
         }
     }
 
@@ -717,6 +718,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let result_ptr = &result as *const ExtractionResult;

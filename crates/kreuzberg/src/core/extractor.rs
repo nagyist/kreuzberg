@@ -416,6 +416,7 @@ pub async fn batch_extract_file(
                     chunks: None,
                     images: None,
                     pages: None,
+                    elements: None,
                 });
             }
             Err(join_err) => {
@@ -514,6 +515,7 @@ pub async fn batch_extract_bytes(
                     chunks: None,
                     images: None,
                     pages: None,
+                    elements: None,
                 });
             }
             Err(join_err) => {
@@ -626,6 +628,7 @@ pub fn batch_extract_bytes_sync(
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             }
         }));
     }

@@ -18,8 +18,8 @@ use kreuzberg::types::TesseractConfig as RustTesseractConfig;
 use kreuzberg::pdf::HierarchyConfig;
 use kreuzberg::{
     ChunkingConfig, EmbeddingConfig, ExtractionConfig, ExtractionResult as RustExtractionResult,
-    ImageExtractionConfig, ImagePreprocessingConfig, KreuzbergError, LanguageDetectionConfig, OcrConfig, PdfConfig,
-    PostProcessorConfig, TokenReductionConfig,
+    ImageExtractionConfig, ImagePreprocessingConfig, KreuzbergError, LanguageDetectionConfig, OcrConfig,
+    OutputFormat, PdfConfig, PostProcessorConfig, TokenReductionConfig,
 };
 use magnus::exception::ExceptionClass;
 use magnus::r_hash::ForEach;
@@ -1257,6 +1257,20 @@ fn parse_extraction_config(ruby: &Ruby, opts: Option<RHash>) -> Result<Extractio
             let value = usize::try_convert(val)?;
             config.max_concurrent_extractions = Some(value);
         }
+
+        if let Some(val) = get_kw(ruby, hash, "output_format") {
+            let format_str = String::try_convert(val)?;
+            config.output_format = match format_str.as_str() {
+                "unified" | "Unified" => OutputFormat::Unified,
+                "element_based" | "ElementBased" | "elements" => OutputFormat::ElementBased,
+                _ => {
+                    return Err(runtime_error(format!(
+                        "Invalid output_format: '{}'. Expected 'unified' or 'element_based'",
+                        format_str
+                    )))
+                }
+            };
+        }
     }
 
     Ok(config)
@@ -1834,6 +1848,70 @@ fn extraction_result_to_ruby(ruby: &Ruby, result: RustExtractionResult) -> Resul
         set_hash_entry(ruby, &hash, "pages", pages_array.into_value_with(ruby))?;
     } else {
         set_hash_entry(ruby, &hash, "pages", ruby.qnil().as_value())?;
+    }
+
+    if let Some(elements_list) = result.elements {
+        let elements_array = ruby.ary_new();
+        for element in elements_list {
+            let element_hash = ruby.hash_new();
+            element_hash.aset("element_id", element.element_id.as_ref())?;
+
+            // Convert ElementType to snake_case string
+            use kreuzberg::types::ElementType as ET;
+            let element_type_str = match element.element_type {
+                ET::Title => "title",
+                ET::NarrativeText => "narrative_text",
+                ET::Heading => "heading",
+                ET::ListItem => "list_item",
+                ET::Table => "table",
+                ET::Image => "image",
+                ET::PageBreak => "page_break",
+                ET::CodeBlock => "code_block",
+                ET::BlockQuote => "block_quote",
+                ET::Footer => "footer",
+                ET::Header => "header",
+            };
+            element_hash.aset("element_type", element_type_str)?;
+            element_hash.aset("text", element.text)?;
+
+            let metadata_hash = ruby.hash_new();
+            if let Some(page_num) = element.metadata.page_number {
+                metadata_hash.aset("page_number", page_num as i64)?;
+            } else {
+                metadata_hash.aset("page_number", ruby.qnil().as_value())?;
+            }
+            if let Some(filename) = &element.metadata.filename {
+                metadata_hash.aset("filename", filename.as_str())?;
+            } else {
+                metadata_hash.aset("filename", ruby.qnil().as_value())?;
+            }
+            if let Some(coords) = element.metadata.coordinates {
+                let coords_hash = ruby.hash_new();
+                coords_hash.aset("x0", coords.x0)?;
+                coords_hash.aset("y0", coords.y0)?;
+                coords_hash.aset("x1", coords.x1)?;
+                coords_hash.aset("y1", coords.y1)?;
+                metadata_hash.aset("coordinates", coords_hash)?;
+            } else {
+                metadata_hash.aset("coordinates", ruby.qnil().as_value())?;
+            }
+            if let Some(elem_idx) = element.metadata.element_index {
+                metadata_hash.aset("element_index", elem_idx as i64)?;
+            } else {
+                metadata_hash.aset("element_index", ruby.qnil().as_value())?;
+            }
+            let additional_hash = ruby.hash_new();
+            for (key, value) in &element.metadata.additional {
+                additional_hash.aset(key.as_str(), value.as_str())?;
+            }
+            metadata_hash.aset("additional", additional_hash)?;
+
+            element_hash.aset("metadata", metadata_hash)?;
+            elements_array.push(element_hash)?;
+        }
+        set_hash_entry(ruby, &hash, "elements", elements_array.into_value_with(ruby))?;
+    } else {
+        set_hash_entry(ruby, &hash, "elements", ruby.qnil().as_value())?;
     }
 
     Ok(hash)
@@ -2594,6 +2672,7 @@ fn register_ocr_backend(name: String, backend: Value) -> Result<(), Error> {
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             })
         }
 

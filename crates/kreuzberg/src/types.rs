@@ -173,6 +173,14 @@ pub struct ExtractionResult {
     /// with tables and images mapped to their respective pages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pages: Option<Vec<PageContent>>,
+
+    /// Semantic elements when element-based output format is enabled.
+    ///
+    /// When output_format is set to ElementBased, this field contains semantic
+    /// elements with type classification, unique identifiers, and metadata for
+    /// Unstructured-compatible element-based processing.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub elements: Option<Vec<Element>>,
 }
 
 /// Format-specific metadata (discriminated union).
@@ -1448,6 +1456,130 @@ pub struct LibreOfficeConversionResult {
     pub target_format: String,
     /// Target MIME type after conversion
     pub target_mime: String,
+}
+
+// ============================================================================
+// Element-based Output Format Types (Unstructured-compatible)
+// ============================================================================
+
+/// Output format selection for extraction results.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum OutputFormat {
+    /// Unified format with all content in `content` field
+    #[default]
+    Unified,
+    /// Element-based format with semantic element extraction
+    ElementBased,
+}
+
+/// Unique identifier for semantic elements.
+///
+/// Wraps a string identifier that is deterministically generated
+/// from element type, content, and page number.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ElementId(String);
+
+impl ElementId {
+    /// Create a new ElementId from a string.
+    ///
+    /// # Errors
+    ///
+    /// Returns error if the string is not valid.
+    pub fn new(hex_str: impl Into<String>) -> std::result::Result<Self, String> {
+        let s = hex_str.into();
+        if s.is_empty() {
+            return Err("ElementId cannot be empty".to_string());
+        }
+        Ok(ElementId(s))
+    }
+}
+
+impl AsRef<str> for ElementId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::fmt::Display for ElementId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+/// Semantic element type classification.
+///
+/// Categorizes text content into semantic units for downstream processing.
+/// Supports the element types commonly found in Unstructured documents.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ElementType {
+    /// Document title
+    Title,
+    /// Main narrative text body
+    NarrativeText,
+    /// Section heading
+    Heading,
+    /// List item (bullet, numbered, etc.)
+    ListItem,
+    /// Table element
+    Table,
+    /// Image element
+    Image,
+    /// Page break marker
+    PageBreak,
+    /// Code block
+    CodeBlock,
+    /// Block quote
+    BlockQuote,
+    /// Footer text
+    Footer,
+    /// Header text
+    Header,
+}
+
+/// Bounding box coordinates for element positioning.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct BoundingBox {
+    /// Left x-coordinate
+    pub x0: f64,
+    /// Bottom y-coordinate
+    pub y0: f64,
+    /// Right x-coordinate
+    pub x1: f64,
+    /// Top y-coordinate
+    pub y1: f64,
+}
+
+/// Metadata for a semantic element.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ElementMetadata {
+    /// Page number (1-indexed)
+    pub page_number: Option<usize>,
+    /// Source filename or document name
+    pub filename: Option<String>,
+    /// Bounding box coordinates if available
+    pub coordinates: Option<BoundingBox>,
+    /// Position index in the element sequence
+    pub element_index: Option<usize>,
+    /// Additional custom metadata
+    pub additional: HashMap<String, String>,
+}
+
+/// Semantic element extracted from document.
+///
+/// Represents a logical unit of content with semantic classification,
+/// unique identifier, and metadata for tracking origin and position.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Element {
+    /// Unique element identifier
+    pub element_id: ElementId,
+    /// Semantic type of this element
+    pub element_type: ElementType,
+    /// Text content of the element
+    pub text: String,
+    /// Metadata about the element
+    pub metadata: ElementMetadata,
 }
 
 #[cfg(test)]

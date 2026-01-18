@@ -479,6 +479,7 @@ mod tests {
                 chunks: None,
                 images: None,
                 pages: None,
+                elements: None,
             })
         }
 

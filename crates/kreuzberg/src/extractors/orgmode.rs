@@ -305,6 +305,7 @@ impl DocumentExtractor for OrgModeExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

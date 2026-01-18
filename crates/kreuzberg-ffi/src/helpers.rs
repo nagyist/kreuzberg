@@ -66,6 +66,7 @@ pub fn to_c_extraction_result(result: ExtractionResult) -> std::result::Result<*
         chunks,
         images,
         pages,
+        elements: _,
     } = result;
 
     let sanitized_content = if content.contains('\0') {
@@ -345,6 +346,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let c_result = to_c_extraction_result(result);
@@ -382,6 +384,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let c_result = to_c_extraction_result(result);
@@ -429,6 +432,7 @@ mod tests {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         };
 
         let c_result = to_c_extraction_result(result);
@@ -506,6 +510,7 @@ mod tests {
             chunks: Some(vec![chunk]),
             images: None,
             pages: None,
+            elements: None,
         };
 
         let c_result = to_c_extraction_result(result);

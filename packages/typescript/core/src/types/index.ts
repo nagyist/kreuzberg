@@ -71,8 +71,12 @@ export type {
 	ValidatorProtocol,
 } from "./protocols.js";
 export type {
+	BoundingBox,
 	Chunk,
 	ChunkMetadata,
+	Element,
+	ElementMetadata,
+	ElementType,
 	ExtractedImage,
 	ExtractionResult,
 	Table,

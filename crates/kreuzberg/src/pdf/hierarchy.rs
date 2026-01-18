@@ -33,6 +33,89 @@ pub struct BoundingBox {
 }
 
 impl BoundingBox {
+    /// Create a new bounding box with zero-size validation.
+    ///
+    /// # Arguments
+    ///
+    /// * `left` - Left x-coordinate
+    /// * `top` - Top y-coordinate
+    /// * `right` - Right x-coordinate
+    /// * `bottom` - Bottom y-coordinate
+    ///
+    /// # Returns
+    ///
+    /// `Ok(BoundingBox)` if the box has non-zero area, or
+    /// `Err` if the box has zero width or height
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - Width (`right - left`) is less than 1e-10 (near-zero)
+    /// - Height (`bottom - top`) is less than 1e-10 (near-zero)
+    pub fn new(left: f32, top: f32, right: f32, bottom: f32) -> std::result::Result<BoundingBox, String> {
+        let width = (right - left).abs();
+        let height = (bottom - top).abs();
+
+        if width < 1e-10 || height < 1e-10 {
+            return Err(format!(
+                "BoundingBox has zero or near-zero area: width={}, height={}",
+                width, height
+            ));
+        }
+
+        Ok(BoundingBox {
+            left,
+            top,
+            right,
+            bottom,
+        })
+    }
+
+    /// Create a new bounding box without validation (unchecked).
+    ///
+    /// This is useful when you know the coordinates are valid or want to
+    /// defer validation. Use with caution - invalid boxes may cause issues
+    /// in calculations like area, width, and height.
+    ///
+    /// # Arguments
+    ///
+    /// * `left` - Left x-coordinate
+    /// * `top` - Top y-coordinate
+    /// * `right` - Right x-coordinate
+    /// * `bottom` - Bottom y-coordinate
+    ///
+    /// # Returns
+    ///
+    /// A BoundingBox without any validation
+    pub fn new_unchecked(left: f32, top: f32, right: f32, bottom: f32) -> BoundingBox {
+        BoundingBox {
+            left,
+            top,
+            right,
+            bottom,
+        }
+    }
+
+    /// Get the width of the bounding box.
+    ///
+    /// # Returns
+    ///
+    /// The width (right - left). No absolute value is taken as
+    /// the BoundingBox::new() constructor ensures correct ordering.
+    pub fn width(&self) -> f32 {
+        self.right - self.left
+    }
+
+    /// Get the height of the bounding box.
+    ///
+    /// # Returns
+    ///
+    /// The height (bottom - top). No absolute value is taken as
+    /// the BoundingBox::new() constructor ensures correct ordering.
+    pub fn height(&self) -> f32 {
+        self.bottom - self.top
+    }
+
     /// Calculate the Intersection over Union (IOU) between this bounding box and another.
     ///
     /// IOU = intersection_area / union_area
@@ -899,5 +982,49 @@ mod tests {
         let cloned = char_data.clone();
         assert_eq!(cloned.text, char_data.text);
         assert_eq!(cloned.font_size, char_data.font_size);
+    }
+
+    #[test]
+    fn test_bounding_box_new_valid() {
+        let bbox = BoundingBox::new(10.0, 20.0, 30.0, 40.0);
+        assert!(bbox.is_ok());
+        let bbox = bbox.unwrap();
+        assert_eq!(bbox.width(), 20.0);
+        assert_eq!(bbox.height(), 20.0);
+    }
+
+    #[test]
+    fn test_bounding_box_new_zero_width() {
+        let bbox = BoundingBox::new(10.0, 20.0, 10.0, 40.0);
+        assert!(bbox.is_err());
+        let error_msg = bbox.unwrap_err();
+        assert!(error_msg.contains("zero or near-zero area"));
+    }
+
+    #[test]
+    fn test_bounding_box_new_zero_height() {
+        let bbox = BoundingBox::new(10.0, 20.0, 30.0, 20.0);
+        assert!(bbox.is_err());
+        let error_msg = bbox.unwrap_err();
+        assert!(error_msg.contains("zero or near-zero area"));
+    }
+
+    #[test]
+    fn test_bounding_box_new_unchecked() {
+        let bbox = BoundingBox::new_unchecked(10.0, 20.0, 30.0, 40.0);
+        assert_eq!(bbox.width(), 20.0);
+        assert_eq!(bbox.height(), 20.0);
+    }
+
+    #[test]
+    fn test_bounding_box_width_and_height() {
+        let bbox = BoundingBox {
+            left: 5.0,
+            top: 10.0,
+            right: 25.0,
+            bottom: 50.0,
+        };
+        assert_eq!(bbox.width(), 20.0);
+        assert_eq!(bbox.height(), 40.0);
     }
 }

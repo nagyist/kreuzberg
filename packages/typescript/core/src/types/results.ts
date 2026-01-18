@@ -44,6 +44,81 @@ export interface ExtractedImage {
 	ocrResult?: ExtractionResult | null;
 }
 
+// ============================================================================
+// Element-based output types (compatible with Unstructured.io format)
+
+/**
+ * Semantic element type classification.
+ *
+ * Categorizes text content into semantic units for downstream processing.
+ * Supports element types commonly found in document analysis.
+ */
+export type ElementType =
+	| "title"
+	| "narrative_text"
+	| "heading"
+	| "list_item"
+	| "table"
+	| "image"
+	| "page_break"
+	| "code_block"
+	| "block_quote"
+	| "footer"
+	| "header";
+
+/**
+ * Bounding box coordinates for element positioning.
+ *
+ * Represents a rectangular region in a document with normalized coordinates.
+ */
+export interface BoundingBox {
+	/** Left x-coordinate (0.0 to 1.0 or page-width normalized) */
+	x0: number;
+	/** Bottom y-coordinate (0.0 to 1.0 or page-height normalized) */
+	y0: number;
+	/** Right x-coordinate (0.0 to 1.0 or page-width normalized) */
+	x1: number;
+	/** Top y-coordinate (0.0 to 1.0 or page-height normalized) */
+	y1: number;
+}
+
+/**
+ * Metadata for a semantic element.
+ *
+ * Provides contextual information about an extracted element including
+ * page location, document filename, spatial coordinates, and custom metadata.
+ */
+export interface ElementMetadata {
+	/** Page number (1-indexed), or null if not available */
+	page_number?: number | null;
+	/** Source filename or document name, or null if not available */
+	filename?: string | null;
+	/** Bounding box coordinates if available, or null */
+	coordinates?: BoundingBox | null;
+	/** Position index in the element sequence, or null if not available */
+	element_index?: number | null;
+	/** Additional custom metadata fields */
+	additional?: Record<string, string>;
+}
+
+/**
+ * Semantic element extracted from document.
+ *
+ * Represents a logical unit of content with semantic classification,
+ * unique identifier, and metadata for tracking origin and position.
+ * Compatible with Unstructured.io element format.
+ */
+export interface Element {
+	/** Unique element identifier (deterministic hash-based ID) */
+	elementId: string;
+	/** Semantic type of this element */
+	elementType: ElementType;
+	/** Text content of the element */
+	text: string;
+	/** Metadata about the element including page number, coordinates, etc. */
+	metadata: ElementMetadata;
+}
+
 export interface ExtractionResult {
 	content: string;
 	mimeType: string;
@@ -52,6 +127,7 @@ export interface ExtractionResult {
 	detectedLanguages: string[] | null;
 	chunks: Chunk[] | null;
 	images: ExtractedImage[] | null;
+	elements?: Element[] | null;
 	keywords?: ExtractedKeyword[] | null;
 
 	/**

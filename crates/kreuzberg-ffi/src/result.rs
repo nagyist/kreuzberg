@@ -399,6 +399,7 @@ mod tests {
             ]),
             images: None,
             pages: None,
+            elements: None,
         }
     }
 

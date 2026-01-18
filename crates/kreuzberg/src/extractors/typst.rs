@@ -113,6 +113,7 @@ impl DocumentExtractor for TypstExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

@@ -94,6 +94,7 @@ impl DocumentExtractor for LatexExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

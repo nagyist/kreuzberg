@@ -22,6 +22,7 @@ public final class ExtractionResult {
 	private final List<Chunk> chunks;
 	private final List<ExtractedImage> images;
 	private final PageStructure pageStructure;
+	private final List<Element> elements;
 	private final boolean success;
 	private final Optional<String> language;
 	private final Optional<String> date;
@@ -29,7 +30,7 @@ public final class ExtractionResult {
 
 	ExtractionResult(String content, String mimeType, Map<String, Object> metadata, List<Table> tables,
 			List<String> detectedLanguages, List<Chunk> chunks, List<ExtractedImage> images,
-			PageStructure pageStructure, boolean success) {
+			PageStructure pageStructure, List<Element> elements, boolean success) {
 		this.content = Objects.requireNonNull(content, "content must not be null");
 		this.mimeType = Objects.requireNonNull(mimeType, "mimeType must not be null");
 		this.metadata = Collections.unmodifiableMap(metadata != null ? metadata : Collections.emptyMap());
@@ -42,6 +43,7 @@ public final class ExtractionResult {
 		this.chunks = Collections.unmodifiableList(chunks != null ? chunks : List.of());
 		this.images = Collections.unmodifiableList(images != null ? images : List.of());
 		this.pageStructure = pageStructure;
+		this.elements = Collections.unmodifiableList(elements != null ? elements : List.of());
 		this.success = success;
 		this.language = Optional.ofNullable((String) this.metadata.get("language"));
 		this.date = Optional.ofNullable((String) this.metadata.get("date"));
@@ -74,6 +76,21 @@ public final class ExtractionResult {
 
 	public List<ExtractedImage> getImages() {
 		return images;
+	}
+
+	/**
+	 * Get the semantic elements extracted from the document.
+	 *
+	 * <p>
+	 * Available when extraction is configured with
+	 * {@code output_format="element_based"}. Returns an empty list if element
+	 * extraction is not enabled or if no elements were extracted.
+	 *
+	 * @return unmodifiable list of semantic elements (never null, but may be empty)
+	 * @since 4.1.0
+	 */
+	public List<Element> getElements() {
+		return elements;
 	}
 
 	/**
@@ -223,6 +240,6 @@ public final class ExtractionResult {
 	public String toString() {
 		return "ExtractionResult{" + "contentLength=" + content.length() + ", mimeType='" + mimeType + '\''
 				+ ", tables=" + tables.size() + ", detectedLanguages=" + detectedLanguages + ", chunks=" + chunks.size()
-				+ ", images=" + images.size() + ", success=" + success + '}';
+				+ ", images=" + images.size() + ", elements=" + elements.size() + ", success=" + success + '}';
 	}
 }

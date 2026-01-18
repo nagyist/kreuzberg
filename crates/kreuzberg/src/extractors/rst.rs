@@ -454,6 +454,7 @@ impl DocumentExtractor for RstExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

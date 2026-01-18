@@ -405,6 +405,7 @@ impl DocumentExtractor for DocbookExtractor {
             chunks: None,
             images: None,
             pages: None,
+            elements: None,
         })
     }
 

@@ -129,6 +129,14 @@ pub struct ExtractionConfig {
     /// large batches. Defaults to twice the number of CPU cores.
     #[serde(default)]
     pub max_concurrent_extractions: Option<usize>,
+
+    /// Output format for extraction results
+    ///
+    /// Controls whether results are returned in unified format (default) with all
+    /// content in the `content` field, or element-based format with semantic
+    /// elements (for Unstructured-compatible output).
+    #[serde(default)]
+    pub output_format: crate::types::OutputFormat,
 }
 
 /// Post-processor configuration.
@@ -464,6 +472,7 @@ impl Default for ExtractionConfig {
             #[cfg(feature = "html")]
             html_options: None,
             max_concurrent_extractions: None,
+            output_format: crate::types::OutputFormat::Unified,
         }
     }
 }
