@@ -1,9 +1,6 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use std::ffi::CStr;
 
-use crate::kreuzberg_get_valid_ocr_backends;
-use crate::kreuzberg_free_string;
 use crate::error_handling::convert_error;
 
 #[napi]

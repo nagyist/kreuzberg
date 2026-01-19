@@ -70,29 +70,9 @@ pub use plugins::{
     register_ocr_backend, unregister_ocr_backend, list_ocr_backends, clear_ocr_backends,
 };
 
-// Core imports for type conversions and utilities
-use base64::Engine;
-use html_to_markdown_rs::options::{
-    CodeBlockStyle, ConversionOptions, HeadingStyle, HighlightStyle, ListIndentType, NewlineStyle,
-    PreprocessingOptions as HtmlPreprocessingOptions, PreprocessingPreset, WhitespaceMode,
-};
-use kreuzberg::keywords::{
-    KeywordAlgorithm as RustKeywordAlgorithm, KeywordConfig as RustKeywordConfig, RakeParams as RustRakeParams,
-    YakeParams as RustYakeParams,
-};
-use kreuzberg::pdf::HierarchyConfig as RustHierarchyConfig;
-use kreuzberg::plugins::registry::{get_post_processor_registry, get_validator_registry};
-use kreuzberg::{
-    Chunk as RustChunk, ChunkMetadata as RustChunkMetadata, ChunkingConfig as RustChunkingConfig,
-    EmbeddingConfig as RustEmbeddingConfig, EmbeddingModelType as RustEmbeddingModelType, ExtractionConfig,
-    ExtractionResult as RustExtractionResult, ImageExtractionConfig as RustImageExtractionConfig, KNOWN_FORMATS,
-    LanguageDetectionConfig as RustLanguageDetectionConfig, OcrConfig as RustOcrConfig, OutputFormat,
-    PdfConfig as RustPdfConfig, PostProcessorConfig as RustPostProcessorConfig, TesseractConfig as RustTesseractConfig,
-    TokenReductionConfig as RustTokenReductionConfig,
-};
+// Core imports for utilities and FFI types
+use kreuzberg::{ExtractionConfig, ExtractionResult as RustExtractionResult, KNOWN_FORMATS};
 use lazy_static::lazy_static;
-use napi::bindgen_prelude::*;
-use napi_derive::napi;
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
 use std::ffi::{CStr, c_char};

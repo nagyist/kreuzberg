@@ -99,6 +99,7 @@ pub(crate) fn convert_error(err: kreuzberg::KreuzbergError) -> napi::Error {
 /// ```rust,ignore
 /// validate_plugin_object(&processor, "PostProcessor", &["name", "process"])?;
 /// ```
+#[allow(dead_code)]
 pub(crate) fn validate_plugin_object(obj: &Object, plugin_type: &str, required_methods: &[&str]) -> Result<()> {
     let mut missing_methods = Vec::new();
 

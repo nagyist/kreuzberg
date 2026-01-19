@@ -1,13 +1,6 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use napi::threadsafe_function::ThreadsafeFunction;
-use async_trait::async_trait;
-use std::sync::Arc;
-
-use kreuzberg::plugins::{Plugin, Validator as RustValidator};
-use kreuzberg::plugins::registry::get_validator_registry;
-
-use crate::error_handling::validate_plugin_object;
 
 // Plugin impl stub - not currently functional after module refactoring
 
@@ -46,6 +39,7 @@ use crate::error_handling::validate_plugin_object;
 ///   }
 /// });
 /// ```
+#[allow(dead_code)]
 pub struct JsValidator {
     pub name: String,
     pub validate_fn: ThreadsafeFunction<String>,
@@ -59,8 +53,6 @@ pub fn register_validator(_validator: Object) -> Result<()> {
         "register_validator not yet implemented for refactored module",
     ))
 }
-
-use crate::result::JsExtractionResult;
 
 #[napi]
 pub fn unregister_validator(_name: String) -> Result<()> {

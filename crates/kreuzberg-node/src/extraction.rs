@@ -1,6 +1,5 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use kreuzberg::ExtractionConfig;
 
 use crate::error_handling::convert_error;
 use crate::result::{JsExtractionResult, resolve_config};

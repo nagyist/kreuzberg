@@ -1,13 +1,6 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use napi::threadsafe_function::ThreadsafeFunction;
-use async_trait::async_trait;
-use std::sync::Arc;
-
-use kreuzberg::plugins::{Plugin, OcrBackend as RustOcrBackend, OcrBackendType};
-use kreuzberg::plugins::registry::get_ocr_backend_registry;
-
-use crate::error_handling::validate_plugin_object;
 
 // Plugin impl stub - not currently functional after module refactoring
 
@@ -58,6 +51,7 @@ use crate::error_handling::validate_plugin_object;
 ///   }
 /// });
 /// ```
+#[allow(dead_code)]
 pub struct JsOcrBackend {
     pub name: String,
     pub process_image_fn: ThreadsafeFunction<(String, String)>,
@@ -71,8 +65,6 @@ pub fn register_ocr_backend(_backend: Object) -> Result<()> {
         "register_ocr_backend not yet implemented for refactored module",
     ))
 }
-
-use base64::Engine;
 
 #[napi]
 pub fn unregister_ocr_backend(_name: String) -> Result<()> {

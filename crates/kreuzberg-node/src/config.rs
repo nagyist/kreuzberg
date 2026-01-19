@@ -13,12 +13,11 @@ use kreuzberg::pdf::HierarchyConfig as RustHierarchyConfig;
 use kreuzberg::{
     ChunkingConfig as RustChunkingConfig, EmbeddingConfig as RustEmbeddingConfig,
     EmbeddingModelType as RustEmbeddingModelType, ExtractionConfig, ImageExtractionConfig as RustImageExtractionConfig,
-    LanguageDetectionConfig as RustLanguageDetectionConfig, OcrConfig as RustOcrConfig, OutputFormat,
+    LanguageDetectionConfig as RustLanguageDetectionConfig, OcrConfig as RustOcrConfig,
     PdfConfig as RustPdfConfig, PostProcessorConfig as RustPostProcessorConfig, TesseractConfig as RustTesseractConfig,
     TokenReductionConfig as RustTokenReductionConfig,
 };
-use std::collections::HashMap;
-use std::ffi::{CStr, c_char};
+use std::ffi::c_char;
 
 #[allow(improper_ctypes)]
 unsafe extern "C" {
@@ -610,9 +609,9 @@ fn parse_heading_style(value: &str) -> Result<HeadingStyle> {
         )
     })?;
 
-    let discriminant = unsafe { kreuzberg_parse_heading_style(c_str.as_ptr()) };
+    let _discriminant = unsafe { kreuzberg_parse_heading_style(c_str.as_ptr()) };
 
-    match discriminant {
+    match _discriminant {
         0 => Ok(HeadingStyle::Atx),
         1 => Ok(HeadingStyle::Underlined),
         2 => Ok(HeadingStyle::AtxClosed),
@@ -698,9 +697,9 @@ fn parse_whitespace_mode(value: &str) -> Result<WhitespaceMode> {
         )
     })?;
 
-    let discriminant = unsafe { kreuzberg_parse_whitespace_mode(c_str.as_ptr()) };
+    let _discriminant = unsafe { kreuzberg_parse_whitespace_mode(c_str.as_ptr()) };
 
-    // Map discriminant to the actual enum variants
+    // Map _discriminant to the actual enum variants
     // The FFI recognizes: "normalized" and "strict" map to discriminants
     // Map based on the original behavior
     match value.to_lowercase().as_str() {

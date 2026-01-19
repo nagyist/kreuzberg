@@ -1,11 +1,8 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use base64::Engine;
 use kreuzberg::{
-    Chunk as RustChunk, ChunkMetadata as RustChunkMetadata, ExtractionResult as RustExtractionResult,
-    ExtractionConfig,
+    Chunk as RustChunk, ChunkMetadata as RustChunkMetadata, ExtractionConfig, ExtractionResult as RustExtractionResult,
 };
-use std::collections::HashMap;
 use crate::config::JsExtractionConfig;
 use crate::KNOWN_FORMAT_FIELDS;
 

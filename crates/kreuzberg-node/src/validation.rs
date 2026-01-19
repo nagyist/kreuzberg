@@ -25,6 +25,7 @@ use crate::kreuzberg_config_get_field;
 use crate::kreuzberg_config_merge;
 use crate::get_panic_context;
 
+#[allow(dead_code)]
 pub fn validate_mime_type(mime_type: String) -> Result<String> {
     kreuzberg::core::mime::validate_mime_type(&mime_type).map_err(convert_error)
 }

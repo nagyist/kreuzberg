@@ -1,13 +1,8 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use napi::threadsafe_function::ThreadsafeFunction;
-use async_trait::async_trait;
-use std::sync::Arc;
 
-use kreuzberg::plugins::{Plugin, PostProcessor as RustPostProcessor, ProcessingStage};
-use kreuzberg::plugins::registry::get_post_processor_registry;
-
-use crate::error_handling::validate_plugin_object;
+use kreuzberg::plugins::ProcessingStage;
 
 // Plugin impl stub - not currently functional after module refactoring
 // impl Plugin for JsPostProcessor {
@@ -76,6 +71,7 @@ use crate::error_handling::validate_plugin_object;
 ///   }
 /// });
 /// ```
+#[allow(dead_code)]
 pub struct JsPostProcessor {
     pub name: String,
     pub process_fn: ThreadsafeFunction<String>,
@@ -89,8 +85,6 @@ pub fn register_post_processor(_processor: Object) -> Result<()> {
         "register_post_processor not yet implemented for refactored module",
     ))
 }
-
-use crate::result::JsExtractionResult;
 
 #[napi]
 pub fn unregister_post_processor(_name: String) -> Result<()> {
