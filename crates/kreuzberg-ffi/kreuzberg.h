@@ -666,22 +666,6 @@ int kreuzberg_extract_batch_parallel(const char *const *files,
  * - `json_config` must be a valid null-terminated C string
  * - The returned pointer must be freed with `kreuzberg_config_free`
  * - Returns NULL if parsing fails (error available via `kreuzberg_last_error`)
- *
- * # Example (C)
- *
- * ```c
- * const char* config_json = "{\"use_cache\": true, \"ocr\": {\"backend\": \"tesseract\"}}";
- * ExtractionConfig* config = kreuzberg_config_from_json(config_json);
- * if (config == NULL) {
- *     printf("Error: %s\n", kreuzberg_last_error());
- *     return 1;
- * }
- *
- * // Use config...
- * // char* result = kreuzberg_extract_file_with_config("doc.pdf", config);
- *
- * kreuzberg_config_free(config);
- * ```
  */
 ExtractionConfig *kreuzberg_config_from_json(const char *json_config);
 
@@ -693,29 +677,11 @@ ExtractionConfig *kreuzberg_config_from_json(const char *json_config);
  * - `config` must be a pointer previously returned by a config creation function
  * - `config` can be NULL (no-op)
  * - `config` must not be used after this call
- *
- * # Example (C)
- *
- * ```c
- * ExtractionConfig* config = kreuzberg_config_from_json("{...}");
- * if (config != NULL) {
- *     // Use config...
- *     kreuzberg_config_free(config);
- * }
- * ```
  */
 void kreuzberg_config_free(ExtractionConfig *config);
 
 /**
  * Validate a JSON config string without parsing it.
- *
- * This function checks if a JSON config string is valid and would parse correctly,
- * without allocating the full ExtractionConfig structure. Useful for validation
- * before committing to parsing.
- *
- * # Arguments
- *
- * * `json_config` - Null-terminated C string containing JSON configuration
  *
  * # Returns
  *
@@ -725,121 +691,31 @@ void kreuzberg_config_free(ExtractionConfig *config);
  * # Safety
  *
  * - `json_config` must be a valid null-terminated C string
- *
- * # Example (C)
- *
- * ```c
- * const char* config_json = "{\"use_cache\": true}";
- * if (kreuzberg_config_is_valid(config_json)) {
- *     ExtractionConfig* config = kreuzberg_config_from_json(config_json);
- *     // Use config...
- *     kreuzberg_config_free(config);
- * } else {
- *     printf("Invalid config: %s\n", kreuzberg_last_error());
- * }
- * ```
  */
 int32_t kreuzberg_config_is_valid(const char *json_config);
 
 /**
  * Serialize an ExtractionConfig to JSON string.
  *
- * Converts an ExtractionConfig structure to its JSON representation, allowing
- * bindings to serialize configs without reimplementing serialization logic.
- *
- * # Arguments
- *
- * * `config` - Pointer to an ExtractionConfig structure
- *
- * # Returns
- *
- * A pointer to a C string containing JSON that MUST be freed with `kreuzberg_free_string`.
- * Returns NULL on error (check `kreuzberg_last_error`).
- *
  * # Safety
  *
  * - `config` must be a valid pointer to an ExtractionConfig
- * - `config` cannot be NULL
  * - The returned pointer must be freed with `kreuzberg_free_string`
- *
- * # Example (C)
- *
- * ```c
- * ExtractionConfig* config = kreuzberg_config_from_json("{\"use_cache\": true}");
- * if (config != NULL) {
- *     char* json = kreuzberg_config_to_json(config);
- *     if (json != NULL) {
- *         printf("Serialized: %s\n", json);
- *         kreuzberg_free_string(json);
- *     }
- *     kreuzberg_config_free(config);
- * }
- * ```
  */
 char *kreuzberg_config_to_json(const ExtractionConfig *config);
 
 /**
  * Get a specific field from config as JSON string.
  *
- * Retrieves a nested field from the configuration by path and returns its JSON
- * representation. Supports dot notation for nested fields (e.g., "ocr.backend").
- *
- * # Arguments
- *
- * * `config` - Pointer to an ExtractionConfig structure
- * * `field_name` - Null-terminated C string with field path (e.g., "use_cache", "ocr.backend")
- *
- * # Returns
- *
- * A pointer to a C string containing the field value as JSON, or NULL if:
- * - The field doesn't exist
- * - An error occurs during serialization
- *
- * The returned pointer (if non-NULL) must be freed with `kreuzberg_free_string`.
- *
  * # Safety
  *
  * - `config` must be a valid pointer to an ExtractionConfig
  * - `field_name` must be a valid null-terminated C string
- * - Neither parameter can be NULL
- *
- * # Example (C)
- *
- * ```c
- * ExtractionConfig* config = kreuzberg_config_from_json(
- *     "{\"use_cache\": true, \"ocr\": {\"backend\": \"tesseract\"}}"
- * );
- * if (config != NULL) {
- *     char* use_cache = kreuzberg_config_get_field(config, "use_cache");
- *     char* backend = kreuzberg_config_get_field(config, "ocr.backend");
- *
- *     if (use_cache != NULL) {
- *         printf("use_cache: %s\n", use_cache);
- *         kreuzberg_free_string(use_cache);
- *     }
- *
- *     if (backend != NULL) {
- *         printf("backend: %s\n", backend);
- *         kreuzberg_free_string(backend);
- *     }
- *
- *     kreuzberg_config_free(config);
- * }
- * ```
  */
 char *kreuzberg_config_get_field(const ExtractionConfig *config, const char *field_name);
 
 /**
  * Merge two configs (override takes precedence over base).
- *
- * Performs a shallow merge of two ExtractionConfig structures, where fields
- * from `override_config` take precedence over fields in `base`. The `base`
- * config is modified in-place.
- *
- * # Arguments
- *
- * * `base` - Pointer to the base ExtractionConfig (will be modified)
- * * `override_config` - Pointer to the override ExtractionConfig (read-only)
  *
  * # Returns
  *
@@ -850,42 +726,16 @@ char *kreuzberg_config_get_field(const ExtractionConfig *config, const char *fie
  *
  * - `base` must be a valid mutable pointer to an ExtractionConfig
  * - `override_config` must be a valid pointer to an ExtractionConfig
- * - Neither parameter can be NULL
- * - `base` is modified in-place
- *
- * # Example (C)
- *
- * ```c
- * ExtractionConfig* base = kreuzberg_config_from_json(
- *     "{\"use_cache\": true, \"force_ocr\": false}"
- * );
- * ExtractionConfig* override = kreuzberg_config_from_json(
- *     "{\"force_ocr\": true}"
- * );
- *
- * if (kreuzberg_config_merge(base, override) == 1) {
- *     // base now has: use_cache=true, force_ocr=true
- *     char* json = kreuzberg_config_to_json(base);
- *     printf("Merged config: %s\n", json);
- *     kreuzberg_free_string(json);
- * }
- *
- * kreuzberg_config_free(base);
- * kreuzberg_config_free(override);
- * ```
  */
 int32_t kreuzberg_config_merge(ExtractionConfig *base, const ExtractionConfig *override_config);
 
 /**
- * Load an ExtractionConfig from a file.
- *
- * Returns a JSON string representing the loaded configuration.
+ * Load an ExtractionConfig from a file (returns JSON string).
  *
  * # Safety
  *
  * - `file_path` must be a valid null-terminated C string
  * - The returned string must be freed with `kreuzberg_free_string`
- * - Returns NULL on error (check `kreuzberg_last_error`)
  */
 char *kreuzberg_load_extraction_config_from_file(const char *file_path);
 
@@ -896,44 +746,15 @@ char *kreuzberg_load_extraction_config_from_file(const char *file_path);
  *
  * - `path` must be a valid null-terminated C string
  * - The returned pointer must be freed with `kreuzberg_config_free`
- * - Returns NULL on error (check `kreuzberg_last_error`)
- *
- * # Example (C)
- *
- * ```c
- * ExtractionConfig* config = kreuzberg_config_from_file("config.toml");
- * if (config == NULL) {
- *     printf("Error: %s\n", kreuzberg_last_error());
- *     return 1;
- * }
- * kreuzberg_config_free(config);
- * ```
  */
 ExtractionConfig *kreuzberg_config_from_file(const char *path);
 
 /**
  * Discover and load an ExtractionConfig by searching parent directories.
  *
- * Searches the current directory and all parent directories for:
- * - `kreuzberg.toml`
- * - `kreuzberg.json`
- *
- * Returns the first config file found as a JSON string.
- *
  * # Safety
  *
  * - The returned string must be freed with `kreuzberg_free_string`
- * - Returns NULL if no config is found or on error
- *
- * # Example (C)
- *
- * ```c
- * char* config_json = kreuzberg_config_discover();
- * if (config_json != NULL) {
- *     printf("Discovered config: %s\n", config_json);
- *     kreuzberg_free_string(config_json);
- * }
- * ```
  */
 char *kreuzberg_config_discover(void);
 
@@ -943,7 +764,6 @@ char *kreuzberg_config_discover(void);
  * # Safety
  *
  * - Returned string is a JSON array and must be freed with `kreuzberg_free_string`
- * - Returns NULL on error (check `kreuzberg_last_error`)
  */
 char *kreuzberg_list_embedding_presets(void);
 
@@ -954,7 +774,6 @@ char *kreuzberg_list_embedding_presets(void);
  *
  * - `name` must be a valid null-terminated C string
  * - Returned string is JSON object and must be freed with `kreuzberg_free_string`
- * - Returns NULL on error (check `kreuzberg_last_error`)
  */
 char *kreuzberg_get_embedding_preset(const char *name);
 
@@ -1547,6 +1366,10 @@ struct CBatchResult *kreuzberg_batch_extract_bytes_sync(const struct CBytesWithM
  *
  * Valid values: "atx", "underlined", "atx_closed" | "atx-closed"
  * Returns: 0 = Atx, 1 = Underlined, 2 = AtxClosed, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_heading_style(const char *value);
 
@@ -1562,6 +1385,10 @@ const char *kreuzberg_heading_style_to_string(int32_t discriminant);
  *
  * Valid values: "indented", "backticks", "tildes"
  * Returns: 0 = Indented, 1 = Backticks, 2 = Tildes, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_code_block_style(const char *value);
 
@@ -1575,6 +1402,10 @@ const char *kreuzberg_code_block_style_to_string(int32_t discriminant);
  *
  * Valid values: "double_equal" | "==" | "double-equal", "html", "bold", "none"
  * Returns: 0 = DoubleEqual, 1 = Html, 2 = Bold, 3 = None, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_highlight_style(const char *value);
 
@@ -1588,6 +1419,10 @@ const char *kreuzberg_highlight_style_to_string(int32_t discriminant);
  *
  * Valid values: "spaces", "tabs"
  * Returns: 0 = Spaces, 1 = Tabs, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_list_indent_type(const char *value);
 
@@ -1601,6 +1436,10 @@ const char *kreuzberg_list_indent_type_to_string(int32_t discriminant);
  *
  * Valid values: "default", "preserve", "preserve_inner", "collapse"
  * Returns: 0 = Default, 1 = Preserve, 2 = PreserveInner, 3 = Collapse, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_whitespace_mode(const char *value);
 
@@ -1614,6 +1453,10 @@ const char *kreuzberg_whitespace_mode_to_string(int32_t discriminant);
  *
  * Valid values: "default", "spaces", "backslash"
  * Returns: 0 = Default, 1 = Spaces, 2 = Backslash, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_newline_style(const char *value);
 
@@ -1627,6 +1470,10 @@ const char *kreuzberg_newline_style_to_string(int32_t discriminant);
  *
  * Valid values: "none", "conservative", "aggressive"
  * Returns: 0 = None, 1 = Conservative, 2 = Aggressive, -1 = Invalid
+ *
+ * # Safety
+ *
+ * - `value` must be a valid null-terminated C string or NULL
  */
 int32_t kreuzberg_parse_preprocessing_preset(const char *value);
 
