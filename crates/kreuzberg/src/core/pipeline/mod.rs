@@ -3,162 +3,18 @@
 //! This module orchestrates the post-processing pipeline, executing validators,
 //! quality processing, chunking, and custom hooks in the correct order.
 
-use crate::core::config::{ExtractionConfig, OutputFormat};
-use crate::plugins::{PostProcessor, ProcessingStage};
+mod cache;
+mod format;
+
+pub use cache::clear_processor_cache;
+pub use format::apply_output_format;
+
+use crate::core::config::ExtractionConfig;
+use crate::plugins::ProcessingStage;
 use crate::types::ExtractionResult;
 use crate::{KreuzbergError, Result};
-use once_cell::sync::Lazy;
-use std::sync::Arc;
-use std::sync::RwLock as StdRwLock;
 
-/// Cached post-processors for each stage to reduce lock contention.
-///
-/// This cache is populated once during the first pipeline run and reused
-/// for all subsequent extractions, eliminating 3 of 4 registry lock acquisitions
-/// per extraction.
-struct ProcessorCache {
-    early: Arc<Vec<Arc<dyn PostProcessor>>>,
-    middle: Arc<Vec<Arc<dyn PostProcessor>>>,
-    late: Arc<Vec<Arc<dyn PostProcessor>>>,
-}
-
-impl ProcessorCache {
-    /// Create a new processor cache by fetching from the registry.
-    fn new() -> Result<Self> {
-        let processor_registry = crate::plugins::registry::get_post_processor_registry();
-        let registry = processor_registry
-            .read()
-            .map_err(|e| crate::KreuzbergError::Other(format!("Post-processor registry lock poisoned: {}", e)))?;
-
-        Ok(Self {
-            early: Arc::new(registry.get_for_stage(ProcessingStage::Early)),
-            middle: Arc::new(registry.get_for_stage(ProcessingStage::Middle)),
-            late: Arc::new(registry.get_for_stage(ProcessingStage::Late)),
-        })
-    }
-
-    /// Get processors for a specific stage from cache.
-    #[allow(dead_code)]
-    fn get_for_stage(&self, stage: ProcessingStage) -> Arc<Vec<Arc<dyn PostProcessor>>> {
-        match stage {
-            ProcessingStage::Early => Arc::clone(&self.early),
-            ProcessingStage::Middle => Arc::clone(&self.middle),
-            ProcessingStage::Late => Arc::clone(&self.late),
-        }
-    }
-}
-
-/// Lazy processor cache - initialized on first use, then cached.
-static PROCESSOR_CACHE: Lazy<StdRwLock<Option<ProcessorCache>>> = Lazy::new(|| StdRwLock::new(None));
-
-/// Clear the processor cache (primarily for testing when registry changes).
-#[allow(dead_code)]
-pub fn clear_processor_cache() -> Result<()> {
-    let mut cache = PROCESSOR_CACHE
-        .write()
-        .map_err(|e| crate::KreuzbergError::Other(format!("Processor cache lock poisoned: {}", e)))?;
-    *cache = None;
-    Ok(())
-}
-
-/// Apply output format conversion to the extraction result.
-///
-/// This function converts the result's content field based on the configured output format:
-/// - `Plain`: No conversion (default)
-/// - `Djot`: Use djot_content if available, otherwise keep plain text
-/// - `Markdown`: Convert to Markdown format (uses djot as it's similar)
-/// - `Html`: Convert to HTML format
-///
-/// # Arguments
-///
-/// * `result` - The extraction result to modify
-/// * `output_format` - The desired output format
-fn apply_output_format(result: &mut ExtractionResult, output_format: OutputFormat) {
-    match output_format {
-        OutputFormat::Plain => {
-            // Default - no conversion needed
-        }
-        OutputFormat::Djot => {
-            // Convert the extraction result to djot markup
-            match crate::extractors::djot_format::extraction_result_to_djot(result) {
-                Ok(djot_markup) => {
-                    result.content = djot_markup;
-                }
-                Err(e) => {
-                    // Keep original content on error, record error in metadata
-                    result.metadata.additional.insert(
-                        "output_format_error".to_string(),
-                        serde_json::Value::String(format!("Failed to convert to djot: {}", e)),
-                    );
-                }
-            }
-        }
-        OutputFormat::Markdown => {
-            // Djot is syntactically similar to Markdown, so we use djot output as a
-            // reasonable approximation. Full Markdown conversion would require a
-            // dedicated converter that handles the syntactic differences (e.g.,
-            // emphasis markers are swapped: djot uses _ for emphasis and * for strong,
-            // while CommonMark uses * for emphasis and ** for strong).
-            if result.djot_content.is_some() {
-                match crate::extractors::djot_format::extraction_result_to_djot(result) {
-                    Ok(djot_markup) => {
-                        result.content = djot_markup;
-                    }
-                    Err(e) => {
-                        // Keep original content on error, record error in metadata
-                        result.metadata.additional.insert(
-                            "output_format_error".to_string(),
-                            serde_json::Value::String(format!("Failed to convert to markdown: {}", e)),
-                        );
-                    }
-                }
-            }
-            // For non-djot documents, content remains as-is
-        }
-        OutputFormat::Html => {
-            // Convert to HTML format
-            if result.djot_content.is_some() {
-                // First generate djot markup, then convert to HTML
-                match crate::extractors::djot_format::extraction_result_to_djot(result) {
-                    Ok(djot_markup) => {
-                        match crate::extractors::djot_format::djot_to_html(&djot_markup) {
-                            Ok(html) => {
-                                result.content = html;
-                            }
-                            Err(e) => {
-                                // Keep original content on error, record error in metadata
-                                result.metadata.additional.insert(
-                                    "output_format_error".to_string(),
-                                    serde_json::Value::String(format!("Failed to convert djot to HTML: {}", e)),
-                                );
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        // Keep original content on error, record error in metadata
-                        result.metadata.additional.insert(
-                            "output_format_error".to_string(),
-                            serde_json::Value::String(format!("Failed to generate djot for HTML conversion: {}", e)),
-                        );
-                    }
-                }
-            } else {
-                // For non-djot documents, wrap plain text in basic HTML
-                let escaped_content = html_escape(&result.content);
-                result.content = format!("<pre>{}</pre>", escaped_content);
-            }
-        }
-    }
-}
-
-/// Escape HTML special characters in a string.
-fn html_escape(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
-}
+use cache::{ProcessorCache, PROCESSOR_CACHE};
 
 /// Run the post-processing pipeline on an extraction result.
 ///
@@ -194,96 +50,201 @@ pub async fn run_pipeline(mut result: ExtractionResult, config: &ExtractionConfi
     let postprocessing_enabled = pp_config.is_none_or(|c| c.enabled);
 
     if postprocessing_enabled {
-        #[cfg(any(feature = "keywords-yake", feature = "keywords-rake"))]
-        {
-            let _ = crate::keywords::ensure_initialized();
+        initialize_features();
+        initialize_processor_cache()?;
+
+        let (early_processors, middle_processors, late_processors) =
+            get_processors_from_cache()?;
+
+        execute_processors(
+            &mut result,
+            config,
+            &pp_config,
+            early_processors,
+            middle_processors,
+            late_processors,
+        )
+        .await?;
+    }
+
+    execute_chunking(&mut result, config)?;
+    execute_language_detection(&mut result, config)?;
+    execute_validators(&result, config).await?;
+
+    // Transform to element-based output if requested
+    if config.result_format == crate::types::OutputFormat::ElementBased {
+        result.elements = Some(crate::extraction::transform::transform_extraction_result_to_elements(
+            &result,
+        ));
+    }
+
+    // Apply output format conversion as the final step
+    apply_output_format(&mut result, config.output_format);
+
+    Ok(result)
+}
+
+/// Run the post-processing pipeline synchronously (WASM-compatible version).
+///
+/// This is a synchronous implementation for WASM and non-async contexts.
+/// It performs a subset of the full async pipeline, excluding async post-processors
+/// and validators.
+///
+/// # Arguments
+///
+/// * `result` - The extraction result to process
+/// * `config` - Extraction configuration
+///
+/// # Returns
+///
+/// The processed extraction result.
+///
+/// # Notes
+///
+/// This function is only available when the `tokio-runtime` feature is disabled.
+/// It handles:
+/// - Quality processing (if enabled)
+/// - Chunking (if enabled)
+/// - Language detection (if enabled)
+///
+/// It does NOT handle:
+/// - Async post-processors
+/// - Async validators
+#[cfg(not(feature = "tokio-runtime"))]
+pub fn run_pipeline_sync(mut result: ExtractionResult, config: &ExtractionConfig) -> Result<ExtractionResult> {
+    execute_chunking(&mut result, config)?;
+    execute_language_detection(&mut result, config)?;
+
+    // Transform to element-based output if requested
+    if config.result_format == crate::types::OutputFormat::ElementBased {
+        result.elements = Some(crate::extraction::transform::transform_extraction_result_to_elements(
+            &result,
+        ));
+    }
+
+    // Apply output format conversion as the final step
+    apply_output_format(&mut result, config.output_format);
+
+    Ok(result)
+}
+
+/// Initialize feature-specific systems that may be needed during pipeline execution.
+fn initialize_features() {
+    #[cfg(any(feature = "keywords-yake", feature = "keywords-rake"))]
+    {
+        let _ = crate::keywords::ensure_initialized();
+    }
+
+    #[cfg(feature = "language-detection")]
+    {
+        let _ = crate::language_detection::ensure_initialized();
+    }
+
+    #[cfg(feature = "chunking")]
+    {
+        let _ = crate::chunking::ensure_initialized();
+    }
+
+    #[cfg(feature = "quality")]
+    {
+        let registry = crate::plugins::registry::get_post_processor_registry();
+        if let Ok(mut reg) = registry.write() {
+            let _ = reg.register(std::sync::Arc::new(crate::text::QualityProcessor), 30);
         }
+    }
+}
 
-        #[cfg(feature = "language-detection")]
-        {
-            let _ = crate::language_detection::ensure_initialized();
-        }
+/// Initialize the processor cache if not already initialized.
+fn initialize_processor_cache() -> Result<()> {
+    let mut cache_lock = PROCESSOR_CACHE
+        .write()
+        .map_err(|e| crate::KreuzbergError::Other(format!("Processor cache lock poisoned: {}", e)))?;
+    if cache_lock.is_none() {
+        *cache_lock = Some(ProcessorCache::new()?);
+    }
+    Ok(())
+}
 
-        #[cfg(feature = "chunking")]
-        {
-            let _ = crate::chunking::ensure_initialized();
-        }
+/// Get processors from the cache, organized by stage.
+fn get_processors_from_cache(
+) -> Result<(std::sync::Arc<Vec<std::sync::Arc<dyn crate::plugins::PostProcessor>>>, std::sync::Arc<Vec<std::sync::Arc<dyn crate::plugins::PostProcessor>>>, std::sync::Arc<Vec<std::sync::Arc<dyn crate::plugins::PostProcessor>>>)> {
+    let cache_lock = PROCESSOR_CACHE
+        .read()
+        .map_err(|e| crate::KreuzbergError::Other(format!("Processor cache lock poisoned: {}", e)))?;
+    let cache = cache_lock
+        .as_ref()
+        .ok_or_else(|| crate::KreuzbergError::Other("Processor cache not initialized".to_string()))?;
+    Ok((
+        std::sync::Arc::clone(&cache.early),
+        std::sync::Arc::clone(&cache.middle),
+        std::sync::Arc::clone(&cache.late),
+    ))
+}
 
-        #[cfg(feature = "quality")]
-        {
-            let registry = crate::plugins::registry::get_post_processor_registry();
-            if let Ok(mut reg) = registry.write() {
-                let _ = reg.register(std::sync::Arc::new(crate::text::QualityProcessor), 30);
-            }
-        }
+/// Execute all registered post-processors by stage.
+async fn execute_processors(
+    result: &mut ExtractionResult,
+    config: &ExtractionConfig,
+    pp_config: &Option<&crate::core::config::PostProcessorConfig>,
+    early_processors: std::sync::Arc<Vec<std::sync::Arc<dyn crate::plugins::PostProcessor>>>,
+    middle_processors: std::sync::Arc<Vec<std::sync::Arc<dyn crate::plugins::PostProcessor>>>,
+    late_processors: std::sync::Arc<Vec<std::sync::Arc<dyn crate::plugins::PostProcessor>>>,
+) -> Result<()> {
+    for (_stage, processors_arc) in [
+        (ProcessingStage::Early, early_processors),
+        (ProcessingStage::Middle, middle_processors),
+        (ProcessingStage::Late, late_processors),
+    ] {
+        for processor in processors_arc.iter() {
+            let processor_name = processor.name();
 
-        {
-            let mut cache_lock = PROCESSOR_CACHE
-                .write()
-                .map_err(|e| crate::KreuzbergError::Other(format!("Processor cache lock poisoned: {}", e)))?;
-            if cache_lock.is_none() {
-                *cache_lock = Some(ProcessorCache::new()?);
-            }
-        }
+            let should_run = should_processor_run(pp_config, processor_name);
 
-        let (early_processors, middle_processors, late_processors) = {
-            let cache_lock = PROCESSOR_CACHE
-                .read()
-                .map_err(|e| crate::KreuzbergError::Other(format!("Processor cache lock poisoned: {}", e)))?;
-            let cache = cache_lock
-                .as_ref()
-                .ok_or_else(|| crate::KreuzbergError::Other("Processor cache not initialized".to_string()))?;
-            (
-                Arc::clone(&cache.early),
-                Arc::clone(&cache.middle),
-                Arc::clone(&cache.late),
-            )
-        };
-
-        for (_stage, processors_arc) in [
-            (ProcessingStage::Early, early_processors),
-            (ProcessingStage::Middle, middle_processors),
-            (ProcessingStage::Late, late_processors),
-        ] {
-            for processor in processors_arc.iter() {
-                let processor_name = processor.name();
-
-                let should_run = if let Some(config) = pp_config {
-                    if let Some(ref enabled_set) = config.enabled_set {
-                        enabled_set.contains(processor_name)
-                    } else if let Some(ref disabled_set) = config.disabled_set {
-                        !disabled_set.contains(processor_name)
-                    } else if let Some(ref enabled) = config.enabled_processors {
-                        enabled.iter().any(|name| name == processor_name)
-                    } else if let Some(ref disabled) = config.disabled_processors {
-                        !disabled.iter().any(|name| name == processor_name)
-                    } else {
-                        true
+            if should_run && processor.should_process(result, config) {
+                match processor.process(result, config).await {
+                    Ok(_) => {}
+                    Err(err @ KreuzbergError::Io(_))
+                    | Err(err @ KreuzbergError::LockPoisoned(_))
+                    | Err(err @ KreuzbergError::Plugin { .. }) => {
+                        return Err(err);
                     }
-                } else {
-                    true
-                };
-
-                if should_run && processor.should_process(&result, config) {
-                    match processor.process(&mut result, config).await {
-                        Ok(_) => {}
-                        Err(err @ KreuzbergError::Io(_))
-                        | Err(err @ KreuzbergError::LockPoisoned(_))
-                        | Err(err @ KreuzbergError::Plugin { .. }) => {
-                            return Err(err);
-                        }
-                        Err(err) => {
-                            result.metadata.additional.insert(
-                                format!("processing_error_{processor_name}"),
-                                serde_json::Value::String(err.to_string()),
-                            );
-                        }
+                    Err(err) => {
+                        result.metadata.additional.insert(
+                            format!("processing_error_{processor_name}"),
+                            serde_json::Value::String(err.to_string()),
+                        );
                     }
                 }
             }
         }
     }
+    Ok(())
+}
 
+/// Determine if a processor should run based on configuration.
+fn should_processor_run(
+    pp_config: &Option<&crate::core::config::PostProcessorConfig>,
+    processor_name: &str,
+) -> bool {
+    if let Some(config) = pp_config {
+        if let Some(ref enabled_set) = config.enabled_set {
+            enabled_set.contains(processor_name)
+        } else if let Some(ref disabled_set) = config.disabled_set {
+            !disabled_set.contains(processor_name)
+        } else if let Some(ref enabled) = config.enabled_processors {
+            enabled.iter().any(|name| name == processor_name)
+        } else if let Some(ref disabled) = config.disabled_processors {
+            !disabled.iter().any(|name| name == processor_name)
+        } else {
+            true
+        }
+    } else {
+        true
+    }
+}
+
+/// Execute chunking if configured.
+fn execute_chunking(result: &mut ExtractionResult, config: &ExtractionConfig) -> Result<()> {
     #[cfg(feature = "chunking")]
     if let Some(ref chunking_config) = config.chunking {
         let chunk_config = crate::chunking::ChunkingConfig {
@@ -351,153 +312,11 @@ pub async fn run_pipeline(mut result: ExtractionResult, config: &ExtractionConfi
         );
     }
 
-    #[cfg(feature = "language-detection")]
-    if let Some(ref lang_config) = config.language_detection {
-        match crate::language_detection::detect_languages(&result.content, lang_config) {
-            Ok(detected) => {
-                result.detected_languages = detected;
-            }
-            Err(e) => {
-                result.metadata.additional.insert(
-                    "language_detection_error".to_string(),
-                    serde_json::Value::String(e.to_string()),
-                );
-            }
-        }
-    }
-
-    #[cfg(not(feature = "language-detection"))]
-    if config.language_detection.is_some() {
-        result.metadata.additional.insert(
-            "language_detection_error".to_string(),
-            serde_json::Value::String("Language detection feature not enabled".to_string()),
-        );
-    }
-
-    {
-        let validator_registry = crate::plugins::registry::get_validator_registry();
-        let validators = {
-            let registry = validator_registry
-                .read()
-                .map_err(|e| crate::KreuzbergError::Other(format!("Validator registry lock poisoned: {}", e)))?;
-            registry.get_all()
-        };
-
-        if !validators.is_empty() {
-            for validator in validators {
-                if validator.should_validate(&result, config) {
-                    validator.validate(&result, config).await?;
-                }
-            }
-        }
-    }
-
-    // Transform to element-based output if requested
-    if config.result_format == crate::types::OutputFormat::ElementBased {
-        result.elements = Some(crate::extraction::transform::transform_extraction_result_to_elements(
-            &result,
-        ));
-    }
-
-    // Apply output format conversion as the final step
-    apply_output_format(&mut result, config.output_format);
-
-    Ok(result)
+    Ok(())
 }
 
-/// Run the post-processing pipeline synchronously (WASM-compatible version).
-///
-/// This is a synchronous implementation for WASM and non-async contexts.
-/// It performs a subset of the full async pipeline, excluding async post-processors
-/// and validators.
-///
-/// # Arguments
-///
-/// * `result` - The extraction result to process
-/// * `config` - Extraction configuration
-///
-/// # Returns
-///
-/// The processed extraction result.
-///
-/// # Notes
-///
-/// This function is only available when the `tokio-runtime` feature is disabled.
-/// It handles:
-/// - Quality processing (if enabled)
-/// - Chunking (if enabled)
-/// - Language detection (if enabled)
-///
-/// It does NOT handle:
-/// - Async post-processors
-/// - Async validators
-#[cfg(not(feature = "tokio-runtime"))]
-pub fn run_pipeline_sync(mut result: ExtractionResult, config: &ExtractionConfig) -> Result<ExtractionResult> {
-    #[cfg(feature = "chunking")]
-    if let Some(ref chunking_config) = config.chunking {
-        let chunk_config = crate::chunking::ChunkingConfig {
-            max_characters: chunking_config.max_chars,
-            overlap: chunking_config.max_overlap,
-            trim: true,
-            chunker_type: crate::chunking::ChunkerType::Text,
-        };
-
-        match crate::chunking::chunk_text(&result.content, &chunk_config, None) {
-            Ok(chunking_result) => {
-                result.chunks = Some(chunking_result.chunks);
-
-                if let Some(ref chunks) = result.chunks {
-                    result.metadata.additional.insert(
-                        "chunk_count".to_string(),
-                        serde_json::Value::Number(serde_json::Number::from(chunks.len())),
-                    );
-                }
-
-                #[cfg(feature = "embeddings")]
-                if let Some(ref embedding_config) = chunking_config.embedding
-                    && let Some(ref mut chunks) = result.chunks
-                {
-                    match crate::embeddings::generate_embeddings_for_chunks(chunks, embedding_config) {
-                        Ok(()) => {
-                            result
-                                .metadata
-                                .additional
-                                .insert("embeddings_generated".to_string(), serde_json::Value::Bool(true));
-                        }
-                        Err(e) => {
-                            result
-                                .metadata
-                                .additional
-                                .insert("embedding_error".to_string(), serde_json::Value::String(e.to_string()));
-                        }
-                    }
-                }
-
-                #[cfg(not(feature = "embeddings"))]
-                if chunking_config.embedding.is_some() {
-                    result.metadata.additional.insert(
-                        "embedding_error".to_string(),
-                        serde_json::Value::String("Embeddings feature not enabled".to_string()),
-                    );
-                }
-            }
-            Err(e) => {
-                result
-                    .metadata
-                    .additional
-                    .insert("chunking_error".to_string(), serde_json::Value::String(e.to_string()));
-            }
-        }
-    }
-
-    #[cfg(not(feature = "chunking"))]
-    if config.chunking.is_some() {
-        result.metadata.additional.insert(
-            "chunking_error".to_string(),
-            serde_json::Value::String("Chunking feature not enabled".to_string()),
-        );
-    }
-
+/// Execute language detection if configured.
+fn execute_language_detection(result: &mut ExtractionResult, config: &ExtractionConfig) -> Result<()> {
     #[cfg(feature = "language-detection")]
     if let Some(ref lang_config) = config.language_detection {
         match crate::language_detection::detect_languages(&result.content, lang_config) {
@@ -521,22 +340,34 @@ pub fn run_pipeline_sync(mut result: ExtractionResult, config: &ExtractionConfig
         );
     }
 
-    // Transform to element-based output if requested
-    if config.result_format == crate::types::OutputFormat::ElementBased {
-        result.elements = Some(crate::extraction::transform::transform_extraction_result_to_elements(
-            &result,
-        ));
+    Ok(())
+}
+
+/// Execute all registered validators.
+async fn execute_validators(result: &ExtractionResult, config: &ExtractionConfig) -> Result<()> {
+    let validator_registry = crate::plugins::registry::get_validator_registry();
+    let validators = {
+        let registry = validator_registry
+            .read()
+            .map_err(|e| crate::KreuzbergError::Other(format!("Validator registry lock poisoned: {}", e)))?;
+        registry.get_all()
+    };
+
+    if !validators.is_empty() {
+        for validator in validators {
+            if validator.should_validate(result, config) {
+                validator.validate(result, config).await?;
+            }
+        }
     }
 
-    // Apply output format conversion as the final step
-    apply_output_format(&mut result, config.output_format);
-
-    Ok(result)
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::config::OutputFormat;
     use crate::types::Metadata;
     use lazy_static::lazy_static;
 
@@ -1370,165 +1201,6 @@ Natural language processing enables computers to understand human language.
         assert!(processed.is_ok(), "All processors should run before validator");
     }
 
-    // ============================================================================
-    // Output Format Tests
-    // ============================================================================
-
-    #[test]
-    fn test_apply_output_format_plain() {
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Plain);
-
-        // Plain format should not modify content
-        assert_eq!(result.content, "Hello World");
-    }
-
-    #[test]
-    fn test_apply_output_format_djot_with_djot_content() {
-        use crate::types::{BlockType, DjotContent, FormattedBlock, InlineElement, InlineType};
-
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/djot".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            elements: None,
-            djot_content: Some(DjotContent {
-                plain_text: "Hello World".to_string(),
-                blocks: vec![FormattedBlock {
-                    block_type: BlockType::Heading,
-                    level: Some(1),
-                    inline_content: vec![InlineElement {
-                        element_type: InlineType::Text,
-                        content: "Hello World".to_string(),
-                        attributes: None,
-                        metadata: None,
-                    }],
-                    attributes: None,
-                    language: None,
-                    code: None,
-                    children: vec![],
-                }],
-                metadata: Metadata::default(),
-                tables: vec![],
-                images: vec![],
-                links: vec![],
-                footnotes: vec![],
-                attributes: std::collections::HashMap::new(),
-            }),
-        };
-
-        apply_output_format(&mut result, OutputFormat::Djot);
-
-        // The content should still be present (the function preserves content)
-        assert!(!result.content.is_empty());
-    }
-
-    #[test]
-    fn test_apply_output_format_djot_without_djot_content() {
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Djot);
-
-        // Without djot_content, content is converted to djot paragraphs
-        // extraction_result_to_djot creates paragraphs from plain text
-        assert!(result.content.contains("Hello World"));
-    }
-
-    #[test]
-    fn test_apply_output_format_html() {
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Html);
-
-        // For non-djot documents, HTML wraps content in <pre> tags
-        assert!(result.content.contains("<pre>"));
-        assert!(result.content.contains("Hello World"));
-        assert!(result.content.contains("</pre>"));
-    }
-
-    #[test]
-    fn test_apply_output_format_html_escapes_special_chars() {
-        let mut result = ExtractionResult {
-            content: "<script>alert('XSS')</script>".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Html);
-
-        // HTML special characters should be escaped
-        assert!(result.content.contains("&lt;"));
-        assert!(result.content.contains("&gt;"));
-        assert!(!result.content.contains("<script>"));
-    }
-
-    #[test]
-    fn test_apply_output_format_markdown() {
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Markdown);
-
-        // For non-djot documents without djot_content, markdown keeps content as-is
-        assert_eq!(result.content, "Hello World");
-    }
-
     #[tokio::test]
     async fn test_run_pipeline_with_output_format_plain() {
         let result = ExtractionResult {
@@ -1666,116 +1338,5 @@ Natural language processing enables computers to understand human language.
         let processed = run_pipeline(result, &config).await.unwrap();
         // The result should have gone through the pipeline successfully
         assert!(processed.djot_content.is_some());
-    }
-
-    #[test]
-    fn test_apply_output_format_preserves_metadata() {
-        let mut additional = std::collections::HashMap::new();
-        additional.insert("custom_key".to_string(), serde_json::json!("custom_value"));
-        let metadata = Metadata {
-            title: Some("Test Title".to_string()),
-            additional,
-            ..Default::default()
-        };
-
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata,
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Djot);
-
-        // Metadata should be preserved
-        assert_eq!(result.metadata.title, Some("Test Title".to_string()));
-        assert_eq!(
-            result.metadata.additional.get("custom_key"),
-            Some(&serde_json::json!("custom_value"))
-        );
-    }
-
-    #[test]
-    fn test_apply_output_format_preserves_tables() {
-        use crate::types::Table;
-
-        let table = Table {
-            cells: vec![vec!["A".to_string(), "B".to_string()]],
-            markdown: "| A | B |".to_string(),
-            page_number: 1,
-        };
-
-        let mut result = ExtractionResult {
-            content: "Hello World".to_string(),
-            mime_type: "text/plain".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![table],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            djot_content: None,
-            elements: None,
-        };
-
-        apply_output_format(&mut result, OutputFormat::Html);
-
-        // Tables should be preserved
-        assert_eq!(result.tables.len(), 1);
-        assert_eq!(result.tables[0].cells[0][0], "A");
-    }
-
-    #[test]
-    fn test_apply_output_format_preserves_djot_content() {
-        use crate::types::{BlockType, DjotContent, FormattedBlock, InlineElement, InlineType};
-
-        let djot_content = DjotContent {
-            plain_text: "test".to_string(),
-            blocks: vec![FormattedBlock {
-                block_type: BlockType::Paragraph,
-                level: None,
-                inline_content: vec![InlineElement {
-                    element_type: InlineType::Text,
-                    content: "test".to_string(),
-                    attributes: None,
-                    metadata: None,
-                }],
-                attributes: None,
-                language: None,
-                code: None,
-                children: vec![],
-            }],
-            metadata: Metadata::default(),
-            tables: vec![],
-            images: vec![],
-            links: vec![],
-            footnotes: vec![],
-            attributes: std::collections::HashMap::new(),
-        };
-
-        let mut result = ExtractionResult {
-            content: "test".to_string(),
-            mime_type: "text/djot".to_string(),
-            metadata: Metadata::default(),
-            tables: vec![],
-            detected_languages: None,
-            chunks: None,
-            images: None,
-            pages: None,
-            elements: None,
-            djot_content: Some(djot_content),
-        };
-
-        apply_output_format(&mut result, OutputFormat::Djot);
-
-        // djot_content should still be present after format application
-        assert!(result.djot_content.is_some());
-        assert_eq!(result.djot_content.as_ref().unwrap().blocks.len(), 1);
     }
 }
