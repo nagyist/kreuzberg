@@ -33,7 +33,28 @@ impl OcrProcessor {
         )
     ))]
     pub fn process_image(&self, image_bytes: &[u8], config: &TesseractConfig) -> Result<OcrExtractionResult, OcrError> {
-        execution::process_image_with_cache(image_bytes, config, &self.cache)
+        execution::process_image_with_cache(image_bytes, config, &self.cache, None)
+    }
+
+    /// Process an image with OCR and respect the output format from ExtractionConfig.
+    ///
+    /// This variant allows specifying an output format (Plain, Markdown, Djot) which
+    /// affects how the OCR result's mime_type is set when markdown output is requested.
+    #[cfg_attr(feature = "otel", tracing::instrument(
+        skip(self, image_bytes),
+        fields(
+            ocr.backend = "tesseract",
+            ocr.language = %config.language,
+            image.size_bytes = image_bytes.len(),
+        )
+    ))]
+    pub fn process_image_with_format(
+        &self,
+        image_bytes: &[u8],
+        config: &TesseractConfig,
+        output_format: crate::core::config::OutputFormat,
+    ) -> Result<OcrExtractionResult, OcrError> {
+        execution::process_image_with_cache(image_bytes, config, &self.cache, Some(output_format))
     }
 
     pub fn clear_cache(&self) -> Result<(), OcrError> {
@@ -45,7 +66,20 @@ impl OcrProcessor {
     }
 
     pub fn process_file(&self, file_path: &str, config: &TesseractConfig) -> Result<OcrExtractionResult, OcrError> {
-        execution::process_file_with_cache(file_path, config, &self.cache)
+        execution::process_file_with_cache(file_path, config, &self.cache, None)
+    }
+
+    /// Process a file with OCR and respect the output format from ExtractionConfig.
+    ///
+    /// This variant allows specifying an output format (Plain, Markdown, Djot) which
+    /// affects how the OCR result's mime_type is set when markdown output is requested.
+    pub fn process_file_with_format(
+        &self,
+        file_path: &str,
+        config: &TesseractConfig,
+        output_format: crate::core::config::OutputFormat,
+    ) -> Result<OcrExtractionResult, OcrError> {
+        execution::process_file_with_cache(file_path, config, &self.cache, Some(output_format))
     }
 
     /// Process multiple image files in parallel using Rayon.

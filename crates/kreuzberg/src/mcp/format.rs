@@ -15,6 +15,7 @@ pub(super) fn build_config(default_config: &ExtractionConfig, enable_ocr: bool, 
             backend: "tesseract".to_string(),
             language: "eng".to_string(),
             tesseract_config: None,
+            output_format: None,
         })
     } else {
         None

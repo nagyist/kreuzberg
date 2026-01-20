@@ -3,9 +3,22 @@
 use super::stack_management::check_wasm_size_limit;
 #[cfg(not(target_arch = "wasm32"))]
 use super::stack_management::{html_requires_large_stack, run_on_dedicated_stack};
+use crate::core::config::OutputFormat as KreuzbergOutputFormat;
 use crate::error::{KreuzbergError, Result};
 use crate::types::HtmlMetadata;
-use html_to_markdown_rs::{ConversionOptions, MetadataConfig, convert as convert_html, convert_with_metadata};
+use html_to_markdown_rs::{
+    ConversionOptions, MetadataConfig, OutputFormat as LibOutputFormat, convert as convert_html, convert_with_metadata,
+};
+
+/// Map Kreuzberg OutputFormat to html-to-markdown-rs OutputFormat.
+fn map_output_format(format: KreuzbergOutputFormat) -> LibOutputFormat {
+    match format {
+        KreuzbergOutputFormat::Markdown => LibOutputFormat::Markdown,
+        KreuzbergOutputFormat::Djot => LibOutputFormat::Djot,
+        // Plain and Html default to Markdown for HTML conversions
+        KreuzbergOutputFormat::Plain | KreuzbergOutputFormat::Html => LibOutputFormat::Markdown,
+    }
+}
 
 /// Resolve conversion options with sensible defaults.
 ///
@@ -13,8 +26,13 @@ use html_to_markdown_rs::{ConversionOptions, MetadataConfig, convert as convert_
 /// - `extract_metadata = true` (parse YAML frontmatter)
 /// - `hocr_spatial_tables = false` (disable hOCR table detection)
 /// - `preprocessing.enabled = false` (disable HTML preprocessing)
-pub fn resolve_conversion_options(options: Option<ConversionOptions>) -> ConversionOptions {
-    options.unwrap_or_else(|| ConversionOptions {
+///
+/// Sets output format based on the provided format parameter.
+pub fn resolve_conversion_options(
+    options: Option<ConversionOptions>,
+    output_format: KreuzbergOutputFormat,
+) -> ConversionOptions {
+    let mut opts = options.unwrap_or_else(|| ConversionOptions {
         extract_metadata: true,
         hocr_spatial_tables: false,
         preprocessing: super::types::PreprocessingOptions {
@@ -22,7 +40,10 @@ pub fn resolve_conversion_options(options: Option<ConversionOptions>) -> Convers
             ..Default::default()
         },
         ..Default::default()
-    })
+    });
+
+    opts.output_format = map_output_format(output_format);
+    opts
 }
 
 /// Internal conversion helper that applies options to the conversion.
@@ -31,12 +52,15 @@ fn convert_html_with_options(html: &str, options: ConversionOptions) -> Result<S
         .map_err(|e| KreuzbergError::parsing(format!("Failed to convert HTML to Markdown: {}", e)))
 }
 
-/// Convert HTML to markdown with optional configuration.
+/// Convert HTML with optional configuration and output format.
 ///
 /// Uses sensible defaults if no configuration is provided:
 /// - `extract_metadata = true` (parse YAML frontmatter)
 /// - `hocr_spatial_tables = false` (disable hOCR table detection)
 /// - `preprocessing.enabled = false` (disable HTML preprocessing)
+///
+/// Supports both markdown and djot output based on the output_format parameter.
+/// Defaults to Markdown for backward compatibility.
 ///
 /// # WASM Limitations
 ///
@@ -47,14 +71,20 @@ fn convert_html_with_options(html: &str, options: ConversionOptions) -> Result<S
 ///
 /// * `html` - The HTML string to convert
 /// * `options` - Optional conversion options; defaults will be used if None
+/// * `output_format` - Optional output format; defaults to Markdown if None
 ///
 /// # Returns
 ///
-/// A markdown string, or an error if conversion fails
-pub fn convert_html_to_markdown(html: &str, options: Option<ConversionOptions>) -> Result<String> {
+/// A markdown or djot string, or an error if conversion fails
+pub fn convert_html_to_markdown(
+    html: &str,
+    options: Option<ConversionOptions>,
+    output_format: Option<KreuzbergOutputFormat>,
+) -> Result<String> {
     check_wasm_size_limit(html)?;
 
-    let options = resolve_conversion_options(options);
+    let format = output_format.unwrap_or(KreuzbergOutputFormat::Markdown);
+    let options = resolve_conversion_options(options, format);
 
     #[cfg(not(target_arch = "wasm32"))]
     if html_requires_large_stack(html.len()) {
@@ -65,11 +95,14 @@ pub fn convert_html_to_markdown(html: &str, options: Option<ConversionOptions>) 
     convert_html_with_options(html, options)
 }
 
-/// Convert HTML to markdown with direct metadata extraction.
+/// Convert HTML with direct metadata extraction and output format support.
 ///
 /// Extracts metadata directly from HTML using the metadata extraction
 /// capabilities of the `html-to-markdown-rs` library, without relying
 /// on YAML frontmatter in the converted markdown.
+///
+/// Supports both markdown and djot output based on the output_format parameter.
+/// Defaults to Markdown for backward compatibility.
 ///
 /// # WASM Limitations
 ///
@@ -80,17 +113,20 @@ pub fn convert_html_to_markdown(html: &str, options: Option<ConversionOptions>) 
 ///
 /// * `html` - The HTML string to convert
 /// * `options` - Optional conversion options; defaults will be used if None
+/// * `output_format` - Optional output format; defaults to Markdown if None
 ///
 /// # Returns
 ///
-/// A tuple of (markdown, optional metadata), or an error if conversion fails
+/// A tuple of (markdown/djot content, optional metadata), or an error if conversion fails
 pub fn convert_html_to_markdown_with_metadata(
     html: &str,
     options: Option<ConversionOptions>,
+    output_format: Option<KreuzbergOutputFormat>,
 ) -> Result<(String, Option<HtmlMetadata>)> {
     check_wasm_size_limit(html)?;
 
-    let options = resolve_conversion_options(options);
+    let format = output_format.unwrap_or(KreuzbergOutputFormat::Markdown);
+    let options = resolve_conversion_options(options, format);
     let metadata_config = MetadataConfig::default();
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -99,10 +135,10 @@ pub fn convert_html_to_markdown_with_metadata(
         return run_on_dedicated_stack(move || {
             convert_with_metadata(&html, Some(options), metadata_config, None)
                 .map_err(|e| KreuzbergError::parsing(format!("HTML metadata extraction failed: {}", e)))
-                .map(|(markdown, extended_metadata)| {
+                .map(|(content, extended_metadata)| {
                     let html_metadata = HtmlMetadata::from(extended_metadata);
                     (
-                        markdown,
+                        content,
                         if html_metadata.is_empty() {
                             None
                         } else {
@@ -113,13 +149,13 @@ pub fn convert_html_to_markdown_with_metadata(
         });
     }
 
-    let (markdown, extended_metadata) = convert_with_metadata(html, Some(options), metadata_config, None)
+    let (content, extended_metadata) = convert_with_metadata(html, Some(options), metadata_config, None)
         .map_err(|e| KreuzbergError::parsing(format!("HTML metadata extraction failed: {}", e)))?;
 
     let html_metadata = HtmlMetadata::from(extended_metadata);
 
     Ok((
-        markdown,
+        content,
         if html_metadata.is_empty() {
             None
         } else {
@@ -135,7 +171,7 @@ mod tests {
     #[test]
     fn test_convert_simple_html() {
         let html = "<h1>Hello World</h1><p>This is a test.</p>";
-        let result = convert_html_to_markdown(html, None).unwrap();
+        let result = convert_html_to_markdown(html, None, None).unwrap();
         assert!(result.contains("# Hello World"));
         assert!(result.contains("This is a test."));
     }
@@ -147,14 +183,14 @@ mod tests {
             heading_style: super::super::types::HeadingStyle::Atx,
             ..Default::default()
         };
-        let result = convert_html_to_markdown(html, Some(options)).unwrap();
+        let result = convert_html_to_markdown(html, Some(options), None).unwrap();
         assert!(result.contains("# Heading"));
     }
 
     #[test]
     fn test_html_with_list() {
         let html = "<ul><li>Item 1</li><li>Item 2</li></ul>";
-        let result = convert_html_to_markdown(html, None).unwrap();
+        let result = convert_html_to_markdown(html, None, None).unwrap();
         assert!(result.contains("Item 1"));
         assert!(result.contains("Item 2"));
     }
@@ -162,7 +198,7 @@ mod tests {
     #[test]
     fn test_html_with_table() {
         let html = "<table><tr><th>Header</th></tr><tr><td>Data</td></tr></table>";
-        let result = convert_html_to_markdown(html, None).unwrap();
+        let result = convert_html_to_markdown(html, None, None).unwrap();
         assert!(result.contains("Header"));
         assert!(result.contains("Data"));
     }
@@ -174,7 +210,7 @@ mod tests {
         options.preprocessing.enabled = true;
         options.preprocessing.preset = super::super::types::PreprocessingPreset::Standard;
         options.preprocessing.remove_navigation = true;
-        let result = convert_html_to_markdown(html, Some(options)).unwrap();
+        let result = convert_html_to_markdown(html, Some(options), None).unwrap();
         assert!(result.contains("Content"));
     }
 
@@ -194,7 +230,7 @@ mod tests {
   </body>
 </html>
 "#;
-        let markdown = convert_html_to_markdown(html, None).expect("conversion failed");
+        let markdown = convert_html_to_markdown(html, None, None).expect("conversion failed");
         assert!(markdown.contains("Taylor Alison Swift"), "{markdown}");
     }
 
@@ -217,7 +253,7 @@ mod tests {
   </body>
 </html>"#;
 
-        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None, None).unwrap();
         let metadata = metadata.expect("metadata should be present");
 
         assert_eq!(
@@ -256,7 +292,7 @@ mod tests {
     fn test_metadata_empty_html() {
         let html = "";
 
-        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None, None).unwrap();
 
         assert!(
             metadata.is_none() || metadata.as_ref().unwrap().is_empty(),
@@ -275,7 +311,7 @@ mod tests {
   </body>
 </html>"#;
 
-        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None, None).unwrap();
 
         if let Some(meta) = metadata {
             assert!(
@@ -306,7 +342,7 @@ mod tests {
   </body>
 </html>"#;
 
-        let result = convert_html_to_markdown_with_metadata(html, None);
+        let result = convert_html_to_markdown_with_metadata(html, None, None);
         assert!(
             result.is_ok(),
             "Malformed HTML should be handled gracefully without error"
@@ -335,7 +371,7 @@ mod tests {
   </body>
 </html>"#;
 
-        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None, None).unwrap();
         let metadata = metadata.expect("metadata should be present");
 
         if let Some(title) = &metadata.title {
@@ -371,7 +407,7 @@ mod tests {
   </body>
 </html>"#;
 
-        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (_, metadata) = convert_html_to_markdown_with_metadata(html, None, None).unwrap();
         let metadata = metadata.expect("metadata should be present");
 
         if let Some(title) = &metadata.title {
@@ -418,7 +454,7 @@ mod tests {
 </body>
 </html>"#;
 
-        let result = convert_html_to_markdown_with_metadata(html, None);
+        let result = convert_html_to_markdown_with_metadata(html, None, None);
 
         assert!(
             result.is_ok(),
@@ -468,7 +504,7 @@ mod tests {
 </body>
 </html>"#;
 
-        let result = convert_html_to_markdown_with_metadata(html, None);
+        let result = convert_html_to_markdown_with_metadata(html, None, None);
         assert!(
             result.is_ok(),
             "HTML with script-like content should not cause error. Error: {:?}",
@@ -502,5 +538,55 @@ mod tests {
                 assert!(og_count > 0, "Open Graph tags should be extracted");
             }
         }
+    }
+
+    #[test]
+    fn test_convert_html_to_djot() {
+        use crate::core::config::OutputFormat;
+
+        let html = "<h1>Hello World</h1><p>This is a test.</p>";
+        let result = convert_html_to_markdown(html, None, Some(OutputFormat::Djot)).unwrap();
+        assert!(result.contains("# Hello World"));
+        assert!(result.contains("This is a test."));
+    }
+
+    #[test]
+    fn test_convert_html_to_djot_with_emphasis() {
+        use crate::core::config::OutputFormat;
+
+        let html = "<p>This is <strong>bold</strong> and <em>italic</em>.</p>";
+        let result = convert_html_to_markdown(html, None, Some(OutputFormat::Djot)).unwrap();
+        // Djot uses * for strong, _ for emphasis
+        assert!(result.contains("*bold*"));
+        assert!(result.contains("_italic_"));
+    }
+
+    #[test]
+    fn test_convert_html_with_metadata_djot() {
+        use crate::core::config::OutputFormat;
+
+        let html = r#"<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Page</title>
+    <meta name="description" content="Test description">
+  </head>
+  <body>
+    <h1>Content</h1>
+    <p>This is <strong>content</strong>.</p>
+  </body>
+</html>"#;
+
+        let (content, metadata) = convert_html_to_markdown_with_metadata(html, None, Some(OutputFormat::Djot)).unwrap();
+
+        // Content should be in djot format
+        assert!(content.contains("# Content"));
+        assert!(content.contains("*content*")); // Djot strong syntax
+
+        // Metadata should still be extracted
+        assert!(metadata.is_some());
+        let meta = metadata.unwrap();
+        assert_eq!(meta.title, Some("Test Page".to_string()));
+        assert_eq!(meta.description, Some("Test description".to_string()));
     }
 }

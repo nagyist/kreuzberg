@@ -14,11 +14,25 @@ use crate::types::ExtractionResult;
 /// - `Markdown`: Convert to Markdown format (uses djot as it's similar)
 /// - `Html`: Convert to HTML format
 ///
+/// Skips conversion if content was already formatted during extraction (e.g., HTML extractor
+/// already produced djot or markdown output).
+///
 /// # Arguments
 ///
 /// * `result` - The extraction result to modify
 /// * `output_format` - The desired output format
 pub fn apply_output_format(result: &mut ExtractionResult, output_format: OutputFormat) {
+    // Check if content was already formatted during extraction
+    let already_formatted = match result.mime_type.as_str() {
+        "text/markdown" if output_format == OutputFormat::Markdown => true,
+        "text/djot" if output_format == OutputFormat::Djot => true,
+        _ => false,
+    };
+
+    if already_formatted {
+        return; // Skip re-conversion
+    }
+
     match output_format {
         OutputFormat::Plain => {
             // Default - no conversion needed

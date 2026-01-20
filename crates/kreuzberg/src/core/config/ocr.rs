@@ -5,6 +5,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::formats::OutputFormat;
+
 /// OCR configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OcrConfig {
@@ -19,6 +21,10 @@ pub struct OcrConfig {
     /// Tesseract-specific configuration (optional)
     #[serde(default)]
     pub tesseract_config: Option<crate::types::TesseractConfig>,
+
+    /// Output format for OCR results (optional, for format conversion)
+    #[serde(default)]
+    pub output_format: Option<OutputFormat>,
 }
 
 impl Default for OcrConfig {
@@ -27,6 +33,7 @@ impl Default for OcrConfig {
             backend: default_tesseract_backend(),
             language: default_eng(),
             tesseract_config: None,
+            output_format: None,
         }
     }
 }
@@ -49,6 +56,7 @@ mod tests {
         assert_eq!(config.backend, "tesseract");
         assert_eq!(config.language, "eng");
         assert!(config.tesseract_config.is_none());
+        assert!(config.output_format.is_none());
     }
 
     #[test]
@@ -57,6 +65,7 @@ mod tests {
             backend: "tesseract".to_string(),
             language: "fra".to_string(),
             tesseract_config: None,
+            output_format: None,
         };
         assert_eq!(config.backend, "tesseract");
         assert_eq!(config.language, "fra");

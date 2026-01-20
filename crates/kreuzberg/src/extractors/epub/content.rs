@@ -46,7 +46,7 @@ pub(super) fn extract_content(
 
 /// Extract text from XHTML content using html-to-markdown-rs
 pub(super) fn extract_text_from_xhtml(xhtml: &str) -> String {
-    match crate::extraction::html::convert_html_to_markdown(xhtml, None) {
+    match crate::extraction::html::convert_html_to_markdown(xhtml, None, None) {
         Ok(markdown) => {
             let text = markdown_to_plain_text(&markdown);
             remove_html_comments(&text)

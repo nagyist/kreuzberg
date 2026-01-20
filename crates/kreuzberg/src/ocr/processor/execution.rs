@@ -5,6 +5,7 @@
 
 use super::config::{apply_tesseract_variables, hash_config};
 use super::validation::{resolve_tessdata_path, strip_control_characters, validate_language_and_traineddata};
+use crate::core::config::ExtractionConfig;
 use crate::ocr::cache::OcrCache;
 use crate::ocr::error::OcrError;
 use crate::ocr::hocr::convert_hocr_to_markdown;
@@ -48,11 +49,16 @@ where
 ///
 /// * `image_bytes` - Raw image data
 /// * `config` - OCR configuration
+/// * `extraction_config` - Optional extraction config for output format (markdown vs djot)
 ///
 /// # Returns
 ///
 /// OCR extraction result containing text and optional tables
-pub(super) fn perform_ocr(image_bytes: &[u8], config: &TesseractConfig) -> Result<OcrExtractionResult, OcrError> {
+pub(super) fn perform_ocr(
+    image_bytes: &[u8],
+    config: &TesseractConfig,
+    extraction_config: Option<&ExtractionConfig>,
+) -> Result<OcrExtractionResult, OcrError> {
     let ci_debug_enabled = env::var_os("KREUZBERG_CI_DEBUG").is_some();
     log_ci_debug(ci_debug_enabled, "perform_ocr:start", || {
         format!(
@@ -193,8 +199,19 @@ pub(super) fn perform_ocr(image_bytes: &[u8], config: &TesseractConfig) -> Resul
                 .get_hocr_text(0)
                 .map_err(|e| OcrError::ProcessingFailed(format!("Failed to extract hOCR: {}", e)))?;
 
-            let markdown = convert_hocr_to_markdown(&hocr, None)?;
-            (markdown, "text/markdown".to_string())
+            // Pass output format from extraction config
+            let output_format = extraction_config.map(|c| c.output_format);
+            let content = convert_hocr_to_markdown(&hocr, None, output_format)?;
+
+            // Set mime_type based on actual output format
+            let mime_type = extraction_config
+                .map(|c| match c.output_format {
+                    crate::core::config::OutputFormat::Djot => "text/djot",
+                    _ => "text/markdown",
+                })
+                .unwrap_or("text/markdown");
+
+            (content, mime_type.to_string())
         }
         "hocr" => {
             let hocr = api
@@ -290,6 +307,7 @@ pub(super) fn perform_ocr(image_bytes: &[u8], config: &TesseractConfig) -> Resul
 /// * `file_path` - Path to image file
 /// * `config` - OCR configuration
 /// * `cache` - Cache instance
+/// * `output_format` - Optional output format (Plain, Markdown, Djot) for proper mime_type handling
 ///
 /// # Returns
 ///
@@ -298,10 +316,11 @@ pub(super) fn process_file_with_cache(
     file_path: &str,
     config: &TesseractConfig,
     cache: &OcrCache,
+    output_format: Option<crate::core::config::OutputFormat>,
 ) -> Result<OcrExtractionResult, OcrError> {
     let image_bytes = std::fs::read(file_path)
         .map_err(|e| OcrError::IOError(format!("Failed to read file '{}': {}", file_path, e)))?;
-    process_image_with_cache(&image_bytes, config, cache)
+    process_image_with_cache(&image_bytes, config, cache, output_format)
 }
 
 /// Process an image and return OCR results, using cache if enabled.
@@ -311,6 +330,7 @@ pub(super) fn process_file_with_cache(
 /// * `image_bytes` - Raw image data
 /// * `config` - OCR configuration
 /// * `cache` - Cache instance
+/// * `output_format` - Optional output format (Plain, Markdown, Djot) for proper mime_type handling
 ///
 /// # Returns
 ///
@@ -319,6 +339,7 @@ pub(super) fn process_image_with_cache(
     image_bytes: &[u8],
     config: &TesseractConfig,
     cache: &OcrCache,
+    output_format: Option<crate::core::config::OutputFormat>,
 ) -> Result<OcrExtractionResult, OcrError> {
     config.validate().map_err(OcrError::InvalidConfiguration)?;
 
@@ -340,7 +361,13 @@ pub(super) fn process_image_with_cache(
     #[cfg(feature = "otel")]
     tracing::Span::current().record("cache.hit", false);
 
-    let result = perform_ocr(image_bytes, config)?;
+    // Create minimal ExtractionConfig with just the output format if provided
+    let extraction_config = output_format.map(|fmt| ExtractionConfig {
+        output_format: fmt,
+        ..Default::default()
+    });
+
+    let result = perform_ocr(image_bytes, config, extraction_config.as_ref())?;
 
     if config.use_cache {
         let _ = cache.set_cached_result(&image_hash, "tesseract", &config_str, &result);
@@ -362,7 +389,7 @@ pub(super) fn process_files_batch(
 
     file_paths
         .par_iter()
-        .map(|path| match process_file_with_cache(path, config, cache) {
+        .map(|path| match process_file_with_cache(path, config, cache, None) {
             Ok(result) => BatchItemResult {
                 file_path: path.clone(),
                 success: true,
@@ -443,7 +470,7 @@ mod tests {
             ..TesseractConfig::default()
         };
 
-        let result = process_file_with_cache("/nonexistent/file.png", &config, &cache);
+        let result = process_file_with_cache("/nonexistent/file.png", &config, &cache, None);
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Failed to read file"));
     }
@@ -460,7 +487,7 @@ mod tests {
         };
 
         let invalid_data = vec![0, 1, 2, 3, 4];
-        let result = process_image_with_cache(&invalid_data, &config, &cache);
+        let result = process_image_with_cache(&invalid_data, &config, &cache, None);
 
         assert!(result.is_err());
     }

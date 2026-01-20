@@ -192,6 +192,7 @@ impl OcrConfig {
                 backend: backend.unwrap_or_else(|| "tesseract".to_string()),
                 language: language.unwrap_or_else(|| "eng".to_string()),
                 tesseract_config: tesseract_config.map(Into::into),
+                output_format: None,
             },
         }
     }

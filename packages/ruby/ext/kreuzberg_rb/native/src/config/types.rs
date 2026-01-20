@@ -43,6 +43,7 @@ pub fn parse_ocr_config(ruby: &Ruby, hash: RHash) -> Result<OcrConfig, Error> {
         backend,
         language,
         tesseract_config: None,
+        output_format: None,
     };
 
     if let Some(val) = get_kw(ruby, hash, "tesseract_config")

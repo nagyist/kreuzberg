@@ -120,6 +120,7 @@ pub fn apply_extraction_overrides(
                 backend: "tesseract".to_string(),
                 language: "eng".to_string(),
                 tesseract_config: None,
+                output_format: None,
             });
         } else {
             config.ocr = None;

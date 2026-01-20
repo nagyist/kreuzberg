@@ -177,20 +177,24 @@ impl OcrBackend for TesseractBackend {
     async fn process_image(&self, image_bytes: &[u8], config: &OcrConfig) -> Result<ExtractionResult> {
         let tess_config = self.config_to_tesseract(config);
         let tess_config_clone = tess_config.clone();
+        let output_format = config.output_format;
 
         let processor = Arc::clone(&self.processor);
         let image_bytes = image_bytes.to_vec();
 
-        let ocr_result = tokio::task::spawn_blocking(move || processor.process_image(&image_bytes, &tess_config_clone))
-            .await
-            .map_err(|e| crate::KreuzbergError::Plugin {
-                message: format!("Tesseract task panicked: {}", e),
-                plugin_name: "tesseract".to_string(),
-            })?
-            .map_err(|e| crate::KreuzbergError::Ocr {
-                message: format!("Tesseract OCR failed: {}", e),
-                source: Some(Box::new(e)),
-            })?;
+        let ocr_result = tokio::task::spawn_blocking(move || match output_format {
+            Some(fmt) => processor.process_image_with_format(&image_bytes, &tess_config_clone, fmt),
+            None => processor.process_image(&image_bytes, &tess_config_clone),
+        })
+        .await
+        .map_err(|e| crate::KreuzbergError::Plugin {
+            message: format!("Tesseract task panicked: {}", e),
+            plugin_name: "tesseract".to_string(),
+        })?
+        .map_err(|e| crate::KreuzbergError::Ocr {
+            message: format!("Tesseract OCR failed: {}", e),
+            source: Some(Box::new(e)),
+        })?;
 
         let metadata = crate::types::Metadata {
             format: Some(crate::types::FormatMetadata::Ocr(crate::types::OcrMetadata {
@@ -233,20 +237,24 @@ impl OcrBackend for TesseractBackend {
     async fn process_file(&self, path: &Path, config: &OcrConfig) -> Result<ExtractionResult> {
         let tess_config = self.config_to_tesseract(config);
         let tess_config_clone = tess_config.clone();
+        let output_format = config.output_format;
 
         let processor = Arc::clone(&self.processor);
         let path_str = path.to_string_lossy().to_string();
 
-        let ocr_result = tokio::task::spawn_blocking(move || processor.process_file(&path_str, &tess_config_clone))
-            .await
-            .map_err(|e| crate::KreuzbergError::Plugin {
-                message: format!("Tesseract task panicked: {}", e),
-                plugin_name: "tesseract".to_string(),
-            })?
-            .map_err(|e| crate::KreuzbergError::Ocr {
-                message: format!("Tesseract OCR failed: {}", e),
-                source: Some(Box::new(e)),
-            })?;
+        let ocr_result = tokio::task::spawn_blocking(move || match output_format {
+            Some(fmt) => processor.process_file_with_format(&path_str, &tess_config_clone, fmt),
+            None => processor.process_file(&path_str, &tess_config_clone),
+        })
+        .await
+        .map_err(|e| crate::KreuzbergError::Plugin {
+            message: format!("Tesseract task panicked: {}", e),
+            plugin_name: "tesseract".to_string(),
+        })?
+        .map_err(|e| crate::KreuzbergError::Ocr {
+            message: format!("Tesseract OCR failed: {}", e),
+            source: Some(Box::new(e)),
+        })?;
 
         let metadata = crate::types::Metadata {
             format: Some(crate::types::FormatMetadata::Ocr(crate::types::OcrMetadata {
@@ -358,6 +366,7 @@ mod tests {
             backend: "tesseract".to_string(),
             language: "deu".to_string(),
             tesseract_config: None,
+            output_format: None,
         };
 
         let tess_config = backend.config_to_tesseract(&ocr_config);
@@ -379,6 +388,7 @@ mod tests {
             backend: "tesseract".to_string(),
             language: "eng".to_string(),
             tesseract_config: Some(custom_tess_config),
+            output_format: None,
         };
 
         let tess_config = backend.config_to_tesseract(&ocr_config);
@@ -422,6 +432,7 @@ mod tests {
             backend: "tesseract".to_string(),
             language: "eng".to_string(),
             tesseract_config: Some(custom_tess_config),
+            output_format: None,
         };
 
         let tess_config = backend.config_to_tesseract(&ocr_config);

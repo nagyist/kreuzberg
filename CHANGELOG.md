@@ -36,6 +36,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CLI support with `--content-format` flag and `KREUZBERG_CONTENT_FORMAT` environment variable
   - Independent from `result_format` (Unified vs ElementBased structure)
 
+- **Djot output format support for HTML and OCR**: HTML-to-Markdown and hOCR-to-Markdown conversions now support direct Djot output
+  - Threads `output_format` from `ExtractionConfig` through HTML converter (`convert_html_to_markdown`, `convert_html_to_markdown_with_metadata`)
+  - Threads `output_format` through hOCR converter (`convert_hocr_to_markdown`)
+  - OCR processor now accepts `ExtractionConfig` to properly propagate output format settings
+  - PPTX image OCR now respects output format configuration
+  - Added `output_format` field to `OcrConfig` struct for OCR-specific format control
+  - Double-conversion prevention: Pipeline checks `mime_type` to skip redundant conversions when content is already in target format
+  - HTML extractor sets correct `mime_type` ("text/djot" vs "text/markdown") based on output format
+  - 7 new tests for djot HTML/hOCR conversion and double-conversion prevention
+
 - **Element-based output format**: New `ResultFormat::ElementBased` option provides Unstructured.io-compatible semantic element extraction
   - Extracts structured elements: titles, paragraphs, lists, tables, images, page breaks, headings, code blocks, block quotes, headers, footers
   - Each element includes rich metadata: bounding boxes, page numbers, confidence scores, hierarchy information

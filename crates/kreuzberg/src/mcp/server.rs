@@ -648,6 +648,7 @@ mod tests {
                 backend: "tesseract".to_string(),
                 language: "spa".to_string(),
                 tesseract_config: None,
+                output_format: None,
             }),
             ..Default::default()
         };

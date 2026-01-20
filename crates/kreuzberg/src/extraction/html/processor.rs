@@ -9,6 +9,7 @@ use super::stack_management::check_wasm_size_limit;
 #[cfg(not(target_arch = "wasm32"))]
 use super::stack_management::{html_requires_large_stack, run_on_dedicated_stack};
 use super::types::HtmlExtractionResult;
+use crate::core::config::OutputFormat as KreuzbergOutputFormat;
 use crate::error::{KreuzbergError, Result};
 use html_to_markdown_rs::{ConversionOptions, InlineImageConfig as LibInlineImageConfig, convert_with_inline_images};
 
@@ -36,13 +37,14 @@ fn convert_inline_images_with_large_stack(
     run_on_dedicated_stack(move || convert_inline_images_with_options(&html, options, image_config))
 }
 
-/// Process HTML with optional image extraction.
+/// Process HTML with optional image extraction and output format support.
 ///
 /// This is the main entry point for HTML processing. It handles:
 /// - Size limit validation (WASM builds)
 /// - Stack management for large documents (native builds)
 /// - Image extraction if requested
 /// - Warning collection
+/// - Output format selection (markdown or djot)
 ///
 /// # WASM Limitations
 ///
@@ -54,20 +56,22 @@ fn convert_inline_images_with_large_stack(
 /// * `options` - Optional conversion options
 /// * `extract_images` - Whether to extract inline images
 /// * `max_image_size` - Maximum size in bytes for extracted images
+/// * `output_format` - Desired output format (markdown or djot)
 ///
 /// # Returns
 ///
-/// An HtmlExtractionResult containing the markdown, extracted images, and any warnings
+/// An HtmlExtractionResult containing the markdown/djot content, extracted images, and any warnings
 pub fn process_html(
     html: &str,
     options: Option<ConversionOptions>,
     extract_images: bool,
     max_image_size: u64,
+    output_format: KreuzbergOutputFormat,
 ) -> Result<HtmlExtractionResult> {
     check_wasm_size_limit(html)?;
 
     if extract_images {
-        let options = resolve_conversion_options(options.clone());
+        let options = resolve_conversion_options(options.clone(), output_format);
         let mut img_config = LibInlineImageConfig::new(max_image_size);
         img_config.filename_prefix = Some("inline-image".to_string());
 
@@ -95,11 +99,10 @@ pub fn process_html(
             warnings,
         })
     } else {
-        let options = resolve_conversion_options(options);
-        let markdown = convert_html_to_markdown(html, Some(options))?;
+        let content = convert_html_to_markdown(html, options, Some(output_format))?;
 
         Ok(HtmlExtractionResult {
-            markdown,
+            markdown: content,
             images: Vec::new(),
             warnings: Vec::new(),
         })
@@ -114,7 +117,7 @@ mod tests {
     #[test]
     fn test_process_html_without_images() {
         let html = "<h1>Test</h1><p>Content</p>";
-        let result = process_html(html, None, false, 1024 * 1024).unwrap();
+        let result = process_html(html, None, false, 1024 * 1024, KreuzbergOutputFormat::Markdown).unwrap();
         assert!(result.markdown.contains("# Test"));
         assert!(result.markdown.contains("Content"));
         assert!(result.images.is_empty());
@@ -126,14 +129,14 @@ mod tests {
         let html = r#"<p>Image: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Test"></p>"#;
         let mut options = ConversionOptions::default();
         options.preprocessing.enabled = false;
-        let result = process_html(html, Some(options), true, 1024 * 1024).unwrap();
+        let result = process_html(html, Some(options), true, 1024 * 1024, KreuzbergOutputFormat::Markdown).unwrap();
         assert_eq!(result.images.len(), 1);
         assert_eq!(result.images[0].format, "png");
     }
 
     #[test]
     fn test_process_html_empty_string() {
-        let result = process_html("", None, false, 1024).unwrap();
+        let result = process_html("", None, false, 1024, KreuzbergOutputFormat::Markdown).unwrap();
         assert!(result.markdown.is_empty() || result.markdown.trim().is_empty());
         assert!(result.images.is_empty());
     }
@@ -177,7 +180,7 @@ mod tests {
 
         let start = std::time::Instant::now();
 
-        let result = process_html(&html, None, false, 1024 * 1024);
+        let result = process_html(&html, None, false, 1024 * 1024, KreuzbergOutputFormat::Markdown);
 
         let duration = start.elapsed();
 
@@ -222,7 +225,7 @@ mod tests {
             html_under.len()
         );
 
-        let result = process_html(&html_under, None, false, 1024);
+        let result = process_html(&html_under, None, false, 1024, KreuzbergOutputFormat::Markdown);
         #[cfg(target_arch = "wasm32")]
         assert!(result.is_ok(), "HTML under 2MB should be accepted in WASM");
         #[cfg(not(target_arch = "wasm32"))]
@@ -248,7 +251,7 @@ mod tests {
             html_over.len()
         );
 
-        let result = process_html(&html_over, None, false, 1024);
+        let result = process_html(&html_over, None, false, 1024, KreuzbergOutputFormat::Markdown);
         #[cfg(target_arch = "wasm32")]
         {
             assert!(result.is_err(), "HTML over 2MB should be rejected in WASM with error");
@@ -313,7 +316,8 @@ mod tests {
             .map(|thread_id| {
                 let html = Arc::clone(&html);
                 std::thread::spawn(move || {
-                    let result = super::super::converter::convert_html_to_markdown_with_metadata(html.as_ref(), None);
+                    let result =
+                        super::super::converter::convert_html_to_markdown_with_metadata(html.as_ref(), None, None);
 
                     assert!(
                         result.is_ok(),
@@ -411,7 +415,8 @@ mod tests {
             <footer><p>2024 Example</p></footer>\
         </body></html>";
 
-        let (markdown, metadata) = super::super::converter::convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (markdown, metadata) =
+            super::super::converter::convert_html_to_markdown_with_metadata(html, None, None).unwrap();
         let metadata = metadata.expect("comprehensive HTML should have metadata");
 
         assert_eq!(
@@ -570,7 +575,8 @@ mod tests {
     </article>\
 </body></html>";
 
-        let (markdown, metadata) = super::super::converter::convert_html_to_markdown_with_metadata(html, None).unwrap();
+        let (markdown, metadata) =
+            super::super::converter::convert_html_to_markdown_with_metadata(html, None, None).unwrap();
         let metadata = metadata.expect("real-world HTML should have metadata");
 
         assert_eq!(
