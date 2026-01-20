@@ -323,6 +323,3 @@ pub fn extraction_result_to_ruby(ruby: &Ruby, result: RustExtractionResult) -> R
 
     Ok(hash)
 }
-
-// Re-export for convenience
-pub use extraction_result_to_ruby;

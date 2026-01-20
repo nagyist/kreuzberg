@@ -10,6 +10,7 @@ use html_to_markdown_rs::options::{
     CodeBlockStyle, ConversionOptions, HeadingStyle, HighlightStyle, ListIndentType, NewlineStyle,
     PreprocessingPreset, PreprocessingOptions,
 };
+use html_to_markdown_rs::WhitespaceMode;
 use kreuzberg::core::config::PageConfig;
 use kreuzberg::keywords::{
     KeywordAlgorithm as RustKeywordAlgorithm, KeywordConfig as RustKeywordConfig, RakeParams as RustRakeParams,
