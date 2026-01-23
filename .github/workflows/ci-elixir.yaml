@@ -82,6 +82,17 @@ jobs:
       - name: Install system dependencies
         uses: ./.github/actions/install-system-deps
 
+      - name: Setup Tesseract tessdata (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          mkdir -p /c/tess/tessdata
+          curl -fsSL -o /c/tess/tessdata/eng.traineddata \
+            "https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata"
+          curl -fsSL -o /c/tess/tessdata/osd.traineddata \
+            "https://github.com/tesseract-ocr/tessdata_fast/raw/main/osd.traineddata"
+          echo "TESSDATA_PREFIX=/c/tess/tessdata" >> "$GITHUB_ENV"
+
       - name: Free disk space before setup
         if: startsWith(matrix.os, 'ubuntu')
         uses: ./.github/actions/free-disk-space-linux
