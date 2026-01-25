@@ -1,0 +1,48 @@
+name: API Consistency
+'on':
+  pull_request:
+    paths:
+    - crates/kreuzberg/src/core/config/extraction/core.rs
+    - packages/typescript/core/src/types/config.ts
+    - packages/python/kreuzberg/_internal_bindings.pyi
+    - packages/go/v4/config_types.go
+    - packages/ruby/lib/kreuzberg/config.rb
+    - packages/php/src/Config/ExtractionConfig.php
+    - packages/java/src/main/java/dev/kreuzberg/config/ExtractionConfig.java
+    - packages/csharp/Kreuzberg/Models.cs
+    - packages/elixir/lib/kreuzberg/config.ex
+    - scripts/verify_api_parity.py
+    - .github/workflows/api-consistency.yaml
+  push:
+    branches:
+    - main
+    - feature/**
+    paths:
+    - crates/kreuzberg/src/core/config/extraction/core.rs
+    - packages/typescript/core/src/types/config.ts
+    - packages/python/kreuzberg/_internal_bindings.pyi
+    - packages/go/v4/config_types.go
+    - packages/ruby/lib/kreuzberg/config.rb
+    - packages/php/src/Config/ExtractionConfig.php
+    - packages/java/src/main/java/dev/kreuzberg/config/ExtractionConfig.java
+    - packages/csharp/Kreuzberg/Models.cs
+    - packages/elixir/lib/kreuzberg/config.ex
+    - scripts/verify_api_parity.py
+    - .github/workflows/api-consistency.yaml
+jobs:
+  verify-api-parity:
+    name: Verify API Parity Across All Bindings
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Verify API parity across language bindings
+      run: python scripts/verify_api_parity.py
