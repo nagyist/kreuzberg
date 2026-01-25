@@ -4,131 +4,69 @@
 
 use crate::{ExtractionConfig, ExtractionResult as KreuzbergResult};
 
-/// Merge two extraction configurations, with override values taking precedence.
+/// Merge extraction configuration using JSON-level merge.
 ///
-/// This function performs a field-by-field merge where override fields replace
-/// base config fields when they differ from their defaults. This allows partial
-/// config updates while preserving unspecified fields from the base config.
+/// This function performs a JSON-level merge where fields present in the override
+/// JSON take precedence over the base config. This approach correctly handles
+/// boolean fields that are explicitly set to their default values.
 ///
 /// # Strategy
 ///
-/// For each field in ExtractionConfig:
-/// - If the override field is non-default, use the override value
-/// - If the override field is default, use the base config value
-/// - For Option types, override takes precedence if Some
-/// - For boolean types, override takes precedence if true (or explicitly set)
+/// 1. Serialize base config to JSON
+/// 2. For each field in the override JSON, merge into base JSON (field-by-field override)
+/// 3. Deserialize merged JSON back to ExtractionConfig
+///
+/// This ensures that explicitly provided values always take precedence, even if
+/// they match the default value. Unspecified fields are preserved from base config.
 ///
 /// # Examples
 ///
 /// ```rust,no_run
 /// use kreuzberg::{ExtractionConfig, OutputFormat};
+/// use serde_json::json;
 ///
 /// let mut base = ExtractionConfig::default();
 /// base.use_cache = true;
 ///
-/// let override_json = serde_json::json!({
+/// let override_json = json!({
 ///     "force_ocr": true,
 /// });
 ///
-/// let override_config: ExtractionConfig =
-///     serde_json::from_value(override_json).unwrap();
-///
-/// let merged = merge_configs(&base, &override_config);
+/// let merged = merge_configs(&base, &override_json).unwrap();
 /// assert_eq!(merged.use_cache, true);  // from base
 /// assert_eq!(merged.force_ocr, true);  // from override
 /// ```
-fn merge_configs(base: &ExtractionConfig, override_config: &ExtractionConfig) -> ExtractionConfig {
-    ExtractionConfig {
-        // Boolean fields: use override if true, otherwise use base
-        use_cache: if override_config.use_cache == ExtractionConfig::default().use_cache {
-            base.use_cache
-        } else {
-            override_config.use_cache
-        },
-        enable_quality_processing: if override_config.enable_quality_processing
-            == ExtractionConfig::default().enable_quality_processing
-        {
-            base.enable_quality_processing
-        } else {
-            override_config.enable_quality_processing
-        },
-        force_ocr: if override_config.force_ocr {
-            true
-        } else {
-            base.force_ocr
-        },
+fn merge_configs(base: &ExtractionConfig, override_json: serde_json::Value) -> Result<ExtractionConfig, String> {
+    // Serialize base config to JSON
+    let mut config_json = serde_json::to_value(base)
+        .map_err(|e| format!("Failed to serialize base config to JSON: {}", e))?;
 
-        // Option fields: override takes precedence if Some, otherwise use base
-        ocr: override_config.ocr.clone().or_else(|| base.ocr.clone()),
-        chunking: override_config.chunking.clone().or_else(|| base.chunking.clone()),
-        images: override_config.images.clone().or_else(|| base.images.clone()),
-
-        #[cfg(feature = "pdf")]
-        pdf_options: override_config
-            .pdf_options
-            .clone()
-            .or_else(|| base.pdf_options.clone()),
-
-        token_reduction: override_config
-            .token_reduction
-            .clone()
-            .or_else(|| base.token_reduction.clone()),
-        language_detection: override_config
-            .language_detection
-            .clone()
-            .or_else(|| base.language_detection.clone()),
-        pages: override_config.pages.clone().or_else(|| base.pages.clone()),
-
-        #[cfg(any(feature = "keywords-yake", feature = "keywords-rake"))]
-        keywords: override_config.keywords.clone().or_else(|| base.keywords.clone()),
-
-        postprocessor: override_config
-            .postprocessor
-            .clone()
-            .or_else(|| base.postprocessor.clone()),
-
-        #[cfg(feature = "html")]
-        html_options: override_config
-            .html_options
-            .clone()
-            .or_else(|| base.html_options.clone()),
-
-        // Numeric option fields: override takes precedence if Some
-        max_concurrent_extractions: override_config
-            .max_concurrent_extractions
-            .or(base.max_concurrent_extractions),
-
-        // Enum fields: override takes precedence if not default
-        result_format: if override_config.result_format == ExtractionConfig::default().result_format {
-            base.result_format
-        } else {
-            override_config.result_format
-        },
-        output_format: if override_config.output_format == ExtractionConfig::default().output_format {
-            base.output_format
-        } else {
-            override_config.output_format
-        },
+    // Merge JSON value into config JSON (simple field-by-field merge)
+    // For each key in the provided JSON, override the corresponding key in config JSON
+    if let serde_json::Value::Object(json_obj) = override_json {
+        if let serde_json::Value::Object(ref mut config_obj) = config_json {
+            for (key, value) in json_obj {
+                config_obj.insert(key, value);
+            }
+        }
     }
+
+    // Deserialize merged JSON back to ExtractionConfig
+    serde_json::from_value(config_json)
+        .map_err(|e| format!("Failed to deserialize merged config: {}", e))
 }
 
 /// Build extraction config from MCP parameters.
 ///
-/// Merges the provided config JSON (if any) with the default config using field-by-field
+/// Merges the provided config JSON (if any) with the default config using JSON-level
 /// merge semantics. Unspecified fields in the JSON preserve their values from the default config.
 pub(super) fn build_config(
     default_config: &ExtractionConfig,
     config_json: Option<serde_json::Value>,
 ) -> Result<ExtractionConfig, String> {
     if let Some(json) = config_json {
-        // Attempt to deserialize the provided config JSON
-        match serde_json::from_value::<ExtractionConfig>(json) {
-            Ok(provided_config) => {
-                // Merge: provided config overrides default, but default is preserved for unspecified fields
-                Ok(merge_configs(default_config, &provided_config))
-            }
-            Err(e) => Err(format!("Invalid extraction config: {}", e)),
-        }
+        // Merge using JSON-level merge: provided JSON fields override default config
+        merge_configs(default_config, json)
     } else {
         // No config provided, use default
         Ok(default_config.clone())
@@ -274,10 +212,12 @@ mod tests {
     #[test]
     fn test_build_config_merges_with_custom_defaults() {
         // Create a default config with custom values
-        let mut default_config = ExtractionConfig::default();
-        default_config.use_cache = false;
-        default_config.enable_quality_processing = true;
-        default_config.force_ocr = false;
+        let default_config = ExtractionConfig {
+            use_cache: false,
+            enable_quality_processing: true,
+            force_ocr: false,
+            ..Default::default()
+        };
 
         // Provide partial override (only force_ocr)
         let config_json = serde_json::json!({
@@ -323,6 +263,26 @@ mod tests {
         assert!(config.force_ocr, "force_ocr should be preserved from default config (true)");
         // enable_quality_processing should be preserved
         assert!(!config.enable_quality_processing, "enable_quality_processing should be preserved (false)");
+    }
+
+    #[test]
+    fn test_build_config_boolean_override_to_default_value() {
+        // This test validates the critical bug fix: when user explicitly sets a boolean
+        // to its default value, the merge logic should correctly use the override value,
+        // not fall back to the base config.
+        let base = ExtractionConfig {
+            use_cache: false,
+            ..Default::default()
+        };
+
+        // User explicitly provides use_cache: true (which IS the default)
+        let override_json = serde_json::json!({"use_cache": true});
+
+        let merged = build_config(&base, Some(override_json)).unwrap();
+
+        // Before the fix: merged.use_cache would be false (WRONG - fell back to base)
+        // After the fix: merged.use_cache should be true (CORRECT - override applied)
+        assert!(merged.use_cache, "Should use explicit override even if it matches default");
     }
 
     #[test]
