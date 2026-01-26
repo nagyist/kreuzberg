@@ -361,7 +361,7 @@ jobs:
               echo "Checking MSVC availability..."
               which link.exe cl.exe 2>/dev/null || echo "MSVC tools not directly in PATH (normal)"
             fi
-            exit $EXIT_CODE
+            exit "$EXIT_CODE"
           }
 
           echo ""
@@ -423,7 +423,7 @@ jobs:
               echo "Checking mkmf.log if exists..."
               find packages/ruby -name "mkmf.log" -exec tail -50 {} \; 2>/dev/null || echo "mkmf.log not found"
             fi
-            exit $EXIT_CODE
+            exit "$EXIT_CODE"
           }
         env:
           RB_SYS_VERBOSE: "1"
