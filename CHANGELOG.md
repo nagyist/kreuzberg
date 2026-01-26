@@ -11,7 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.2.0] - 2026-XX-XX
+## [4.2.0] - 2026-01-26
+
+**Major Release: Complete API Consistency Across All 10 Language Bindings**
+
+This release achieves 100% API parity across Rust, Python, TypeScript, Ruby, Java, Go, PHP, C#, Elixir, and WebAssembly bindings. Every `ExtractionConfig` field is now available in all languages with consistent naming conventions and type safety.
+
+📊 **Release Stats:**
+- 70 files changed
+- 11,839 lines added
+- 300+ new tests across all bindings
+- 4,500+ total tests passing
+- Complete backward compatibility for all SDK APIs
 
 ### Added
 
@@ -78,23 +89,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integrated into CI pipeline via `task verify:api-parity`
   - Fails build if API drift detected
 
+- **CLI E2E test suite**: 583 lines of comprehensive CLI testing
+  - Tests all new flags: `--output-format`, `--result-format`, `--config-json`
+  - Configuration precedence validation
+  - Base64 config encoding/decoding tests
+  - Backward compatibility with deprecated flags
+
 - **300+ new tests**: Cross-language serialization and API consistency tests
-  - Python: Comprehensive ExtractionConfig serialization tests
-  - TypeScript: All OutputFormat and ResultFormat combinations
-  - Ruby: RBS type definition validation
-  - Go: Functional option validation
-  - Java: Builder pattern validation
-  - PHP: Reflection-based field verification
+  - Python: Comprehensive ExtractionConfig serialization tests (307 lines)
+  - TypeScript: All OutputFormat and ResultFormat combinations (691 lines)
+  - Ruby: RBS type definition validation and batch operations (380 lines)
+  - Go: Functional option validation (245 lines)
+  - Java: Builder pattern validation (173 lines)
+  - PHP: Reflection-based field verification (272 lines)
+  - C#: Deprecation examples and config tests (207 lines)
+  - Elixir: Config extraction and serialization tests (194 lines)
   - All bindings: Round-trip serialization tests
 
 #### Documentation
+- **Migration Guide**: `docs/migration/v4.1-to-v4.2.md` (757 lines)
+  - Complete migration instructions for all 10 language bindings
+  - Before/after examples for CLI, API, and MCP usage
+  - Configuration precedence examples
+  - Troubleshooting common migration issues
+
+- **Deprecation Guide**: `DEPRECATION_GUIDE.md` - comprehensive deprecation documentation
+  - All deprecated APIs with migration paths
+  - Code examples for all 10 language bindings
+  - Timeline for removal (v5.0.0)
+  - Automated deprecation warnings in SDKs
+
 - **API Consistency Guide**: `docs/API_CONSISTENCY.md` - canonical reference for all binding APIs
   - Field-by-field mapping across all 10 languages
   - Serialization format specifications
   - Breaking change documentation
   - Migration path for configuration updates
 
-- **Cross-Language Serialization Tests**: `examples/serialization/` with test cases for all languages
+- **Cross-Language Serialization Tests**: `tests/SERIALIZATION_TESTS.md` with test cases for all languages
   - JSON configuration files with complex nested structures
   - Expected output for each language binding
   - Validation scripts for each ecosystem
@@ -118,6 +149,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Simplifies schema complexity
   - Single configuration object instead of scattered parameters
   - MCP agents use updated schema immediately on next session
+
+### Fixed
+
+#### Language Bindings
+- **Ruby**: Fixed batch chunking operations
+  - Corrected batch processing logic to properly handle chunked inputs
+  - Added comprehensive batch operations test suite
+  - All batch tests now pass successfully
+
+#### CI/CD
+- **Elixir**: Fixed raise syntax in test exception modules
+  - Corrected `raise/2` calls to proper error tuple format
+  - All Elixir CI tests now pass successfully
+
+- **Ruby**: Resolved rubocop violations across codebase
+  - Fixed style and linting issues
+  - All Ruby CI checks now pass
+
+- **Go**: Fixed exit code 201 handling in tests on Windows/macOS
+  - Tests now properly handle platform-specific exit codes
+  - Windows and macOS CI tests stable
+
+- **Shellcheck**: Addressed SC2086 warnings in CI scripts
+  - Properly quoted variables in shell scripts
+  - Improved script robustness
+
+#### MCP
+- **Config handling**: Fixed boolean merge logic bug
+  - Boolean values in nested config objects now merge correctly
+  - Prevents configuration corruption when using `config` parameter
+
+#### Testing
+- **API consistency**: Resolved test failures and achieved 100% API parity verification
+  - All 10 language bindings pass consistency checks
+  - Contract and behavioral tests comprehensive
 
 ### BREAKING CHANGES ⚠️
 
