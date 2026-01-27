@@ -146,7 +146,7 @@ pub unsafe extern "C" fn kreuzberg_clone_string(s: *const c_char) -> *mut c_char
 ///
 /// # Memory Layout
 ///
-/// This function frees all 12 string fields in CExtractionResult:
+/// This function frees all 13 string fields in CExtractionResult:
 /// 1. content
 /// 2. mime_type
 /// 3. language
@@ -159,6 +159,7 @@ pub unsafe extern "C" fn kreuzberg_clone_string(s: *const c_char) -> *mut c_char
 /// 10. images_json
 /// 11. page_structure_json (FIXED: was missing before PR #3)
 /// 12. pages_json (FIXED: was missing before PR #3)
+/// 13. elements_json (ADDED: for element-based extraction support)
 ///
 /// # Example (C)
 ///
@@ -209,6 +210,9 @@ pub unsafe extern "C" fn kreuzberg_free_result(result: *mut CExtractionResult) {
         if !result_box.pages_json.is_null() {
             unsafe { drop(CString::from_raw(result_box.pages_json)) };
         }
+        if !result_box.elements_json.is_null() {
+            unsafe { drop(CString::from_raw(result_box.elements_json)) };
+        }
     }
 }
 
@@ -232,6 +236,7 @@ mod tests {
             images_json: CString::new("[]").unwrap().into_raw(),
             page_structure_json: CString::new("{}").unwrap().into_raw(),
             pages_json: CString::new("[]").unwrap().into_raw(),
+            elements_json: CString::new("[]").unwrap().into_raw(),
             success: true,
             _padding1: [0u8; 7],
         }))
@@ -252,6 +257,7 @@ mod tests {
             images_json: ptr::null_mut(),
             page_structure_json: ptr::null_mut(),
             pages_json: ptr::null_mut(),
+            elements_json: ptr::null_mut(),
             success: true,
             _padding1: [0u8; 7],
         }))
@@ -343,6 +349,34 @@ mod tests {
             images_json: ptr::null_mut(),
             page_structure_json: CString::new("{\"pages\": []}").unwrap().into_raw(),
             pages_json: CString::new("[{\"content\": \"page 1\"}]").unwrap().into_raw(),
+            elements_json: ptr::null_mut(),
+            success: true,
+            _padding1: [0u8; 7],
+        }));
+
+        unsafe { kreuzberg_free_result(result) };
+        // If we get here without crashing or leaking, the test passed
+    }
+
+    #[test]
+    fn test_free_result_elements_json() {
+        // Test: ensure elements_json is freed
+        let result = Box::into_raw(Box::new(CExtractionResult {
+            content: CString::new("test").unwrap().into_raw(),
+            mime_type: CString::new("text/plain").unwrap().into_raw(),
+            language: ptr::null_mut(),
+            date: ptr::null_mut(),
+            subject: ptr::null_mut(),
+            tables_json: ptr::null_mut(),
+            detected_languages_json: ptr::null_mut(),
+            metadata_json: ptr::null_mut(),
+            chunks_json: ptr::null_mut(),
+            images_json: ptr::null_mut(),
+            page_structure_json: ptr::null_mut(),
+            pages_json: ptr::null_mut(),
+            elements_json: CString::new(r#"[{"element_id":"abc","element_type":"title","text":"Hello"}]"#)
+                .unwrap()
+                .into_raw(),
             success: true,
             _padding1: [0u8; 7],
         }));

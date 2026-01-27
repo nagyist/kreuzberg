@@ -409,6 +409,10 @@ func convertCResult(cRes *C.CExtractionResult) (*ExtractionResult, error) {
 		return nil, newSerializationErrorWithContext("failed to decode pages", err, ErrorCodeValidation, nil)
 	}
 
+	if err := decodeJSONCString(cRes.elements_json, &result.Elements); err != nil {
+		return nil, newSerializationErrorWithContext("failed to decode elements", err, ErrorCodeValidation, nil)
+	}
+
 	return result, nil
 }
 

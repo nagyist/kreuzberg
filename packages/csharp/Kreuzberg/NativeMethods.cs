@@ -59,6 +59,8 @@ internal static partial class NativeMethods
         public IntPtr PageStructureJson;
         /// <summary>JSON array of per-page content pointer.</summary>
         public IntPtr PagesJson;
+        /// <summary>JSON array of semantic elements pointer.</summary>
+        public IntPtr ElementsJson;
 
         /// <summary>Whether extraction succeeded.</summary>
         [MarshalAs(UnmanagedType.I1)]

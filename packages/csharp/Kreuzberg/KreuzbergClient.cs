@@ -1217,6 +1217,7 @@ public static class KreuzbergClient
             result.Chunks = DeserializeField<List<Chunk>>(cRes.ChunksJson);
             result.Images = DeserializeField<List<ExtractedImage>>(cRes.ImagesJson);
             result.Pages = DeserializeField<List<PageContent>>(cRes.PagesJson);
+            result.Elements = DeserializeField<List<Element>>(cRes.ElementsJson);
 
             if (result.Metadata.Pages == null && cRes.PageStructureJson != IntPtr.Zero)
             {
