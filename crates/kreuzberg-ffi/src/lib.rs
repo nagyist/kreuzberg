@@ -134,8 +134,8 @@ mod tests {
         // Test size
         assert_eq!(
             std::mem::size_of::<CExtractionResult>(),
-            104,
-            "CExtractionResult must be exactly 104 bytes"
+            112,
+            "CExtractionResult must be exactly 112 bytes"
         );
 
         // Test alignment
@@ -197,6 +197,7 @@ mod tests {
             images_json: ptr::null_mut(),
             page_structure_json: ptr::null_mut(),
             pages_json: ptr::null_mut(),
+            elements_json: ptr::null_mut(),
             success: true,
             _padding1: [0u8; 7],
         }))
@@ -510,6 +511,7 @@ mod tests {
                 images_json: ptr::null_mut(),
                 page_structure_json: ptr::null_mut(),
                 pages_json: ptr::null_mut(),
+                elements_json: ptr::null_mut(),
                 success: true,
                 _padding1: [0u8; 7],
             }));
@@ -522,7 +524,7 @@ mod tests {
     #[test]
     fn test_extraction_result_free_all_fields_allocated() {
         unsafe {
-            // Test freeing a result where ALL 12 string fields are allocated
+            // Test freeing a result where ALL 13 string fields are allocated
             // This verifies that kreuzberg_free_result properly frees all fields
             let result = Box::into_raw(Box::new(CExtractionResult {
                 content: CString::new("test content").unwrap().into_raw(),
@@ -537,11 +539,12 @@ mod tests {
                 images_json: CString::new("[{\"data\":\"base64\"}]").unwrap().into_raw(),
                 page_structure_json: CString::new("{\"pages\":1}").unwrap().into_raw(),
                 pages_json: CString::new("[{\"page\":1,\"content\":\"test\"}]").unwrap().into_raw(),
+                elements_json: CString::new("[]").unwrap().into_raw(),
                 success: true,
                 _padding1: [0u8; 7],
             }));
 
-            // Should properly free all 12 allocated string fields without leaking memory
+            // Should properly free all 13 allocated string fields without leaking memory
             kreuzberg_free_result(result);
         }
     }
@@ -621,7 +624,7 @@ mod tests {
     /// Test CExtractionResult size exactly matches FFI contract
     #[test]
     fn test_c_extraction_result_size() {
-        assert_eq!(std::mem::size_of::<CExtractionResult>(), 104);
+        assert_eq!(std::mem::size_of::<CExtractionResult>(), 112);
         assert_eq!(std::mem::align_of::<CExtractionResult>(), 8);
     }
 

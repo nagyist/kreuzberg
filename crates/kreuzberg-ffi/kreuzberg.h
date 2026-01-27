@@ -223,7 +223,7 @@ typedef struct CErrorDetails {
  * # Memory Layout
  *
  * Must be kept in sync with the Java side's MemoryLayout definition in KreuzbergFFI.java
- * Field order: 12 pointers (8 bytes each) + 1 bool + 7 bytes padding = 104 bytes total
+ * Field order: 13 pointers (8 bytes each) + 1 bool + 7 bytes padding = 112 bytes total
  *
  * The `#[repr(C)]` attribute ensures the struct follows C's memory layout rules:
  * - Fields are laid out in order
@@ -284,6 +284,10 @@ typedef struct CExtractionResult {
    * Per-page content as JSON array (null-terminated string, or NULL if not available, must be freed with kreuzberg_free_string)
    */
   char *pages_json;
+  /**
+   * Semantic elements as JSON array (null-terminated string, or NULL if not available, must be freed with kreuzberg_free_string)
+   */
+  char *elements_json;
   /**
    * Whether extraction was successful
    */
@@ -1608,7 +1612,7 @@ char *kreuzberg_clone_string(const char *s);
  *
  * # Memory Layout
  *
- * This function frees all 12 string fields in CExtractionResult:
+ * This function frees all 13 string fields in CExtractionResult:
  * 1. content
  * 2. mime_type
  * 3. language
@@ -1621,6 +1625,7 @@ char *kreuzberg_clone_string(const char *s);
  * 10. images_json
  * 11. page_structure_json (FIXED: was missing before PR #3)
  * 12. pages_json (FIXED: was missing before PR #3)
+ * 13. elements_json (ADDED: for element-based extraction support)
  *
  * # Example (C)
  *
