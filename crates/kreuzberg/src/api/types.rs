@@ -109,19 +109,41 @@ impl ApiSizeLimits {
     }
 }
 
+/// Plugin status information in health response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
+pub struct PluginStatus {
+    /// Number of registered OCR backends
+    pub ocr_backends_count: usize,
+    /// Names of registered OCR backends
+    pub ocr_backends: Vec<String>,
+    /// Number of registered document extractors
+    pub extractors_count: usize,
+    /// Number of registered post-processors
+    pub post_processors_count: usize,
+}
+
 /// Health check response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct HealthResponse {
     /// Health status
+    #[cfg_attr(feature = "api", schema(example = "healthy"))]
     pub status: String,
     /// API version
+    #[cfg_attr(feature = "api", schema(example = "0.8.0"))]
     pub version: String,
+    /// Plugin status (optional)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub plugins: Option<PluginStatus>,
 }
 
 /// Server information response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct InfoResponse {
     /// API version
+    #[cfg_attr(feature = "api", schema(example = "0.8.0"))]
     pub version: String,
     /// Whether using Rust backend
     pub rust_backend: bool,
@@ -132,15 +154,19 @@ pub type ExtractResponse = Vec<ExtractionResult>;
 
 /// Error response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct ErrorResponse {
     /// Error type name
+    #[cfg_attr(feature = "api", schema(example = "ValidationError"))]
     pub error_type: String,
     /// Error message
+    #[cfg_attr(feature = "api", schema(example = "Invalid input provided"))]
     pub message: String,
     /// Stack trace (if available)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub traceback: Option<String>,
     /// HTTP status code
+    #[cfg_attr(feature = "api", schema(example = 400))]
     pub status_code: u16,
 }
 
@@ -156,8 +182,10 @@ pub struct ApiState {
 
 /// Cache statistics response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct CacheStatsResponse {
     /// Cache directory path
+    #[cfg_attr(feature = "api", schema(example = "/tmp/kreuzberg-cache"))]
     pub directory: String,
     /// Total number of cache files
     pub total_files: usize,
@@ -173,8 +201,10 @@ pub struct CacheStatsResponse {
 
 /// Cache clear response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct CacheClearResponse {
     /// Cache directory path
+    #[cfg_attr(feature = "api", schema(example = "/tmp/kreuzberg-cache"))]
     pub directory: String,
     /// Number of files removed
     pub removed_files: usize,
@@ -184,20 +214,24 @@ pub struct CacheClearResponse {
 
 /// Embedding request for generating embeddings from text.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct EmbedRequest {
     /// Text strings to generate embeddings for
     pub texts: Vec<String>,
     /// Optional embedding configuration (model, batch size, etc.)
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "api", schema(skip))]
     pub config: Option<crate::core::config::EmbeddingConfig>,
 }
 
 /// Embedding response containing generated embeddings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct EmbedResponse {
     /// Generated embeddings (one per input text)
     pub embeddings: Vec<Vec<f32>>,
     /// Model used for embedding generation
+    #[cfg_attr(feature = "api", schema(example = "all-MiniLM-L6-v2"))]
     pub model: String,
     /// Dimensionality of the embeddings
     pub dimensions: usize,
@@ -212,19 +246,23 @@ fn default_chunker_type() -> String {
 
 /// Chunk request with text and configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct ChunkRequest {
     /// Text to chunk
+    #[cfg_attr(feature = "api", schema(example = "This is sample text to chunk."))]
     pub text: String,
     /// Optional chunking configuration
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<ChunkingConfigRequest>,
     /// Chunker type (text or markdown)
     #[serde(default = "default_chunker_type")]
+    #[cfg_attr(feature = "api", schema(example = "text"))]
     pub chunker_type: String,
 }
 
 /// Chunking configuration request.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct ChunkingConfigRequest {
     /// Maximum characters per chunk
     pub max_characters: Option<usize>,
@@ -236,6 +274,7 @@ pub struct ChunkingConfigRequest {
 
 /// Chunk response with chunks and metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct ChunkResponse {
     /// List of chunks
     pub chunks: Vec<ChunkItem>,
@@ -246,11 +285,13 @@ pub struct ChunkResponse {
     /// Input text size in bytes
     pub input_size_bytes: usize,
     /// Chunker type used for chunking
+    #[cfg_attr(feature = "api", schema(example = "text"))]
     pub chunker_type: String,
 }
 
 /// Individual chunk item with metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct ChunkItem {
     /// Chunk content
     pub content: String,
@@ -272,6 +313,7 @@ pub struct ChunkItem {
 
 /// Chunking configuration response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "api", derive(utoipa::ToSchema))]
 pub struct ChunkingConfigResponse {
     /// Maximum characters per chunk
     pub max_characters: usize,
@@ -280,5 +322,6 @@ pub struct ChunkingConfigResponse {
     /// Whether whitespace was trimmed
     pub trim: bool,
     /// Type of chunker used
+    #[cfg_attr(feature = "api", schema(example = "text"))]
     pub chunker_type: String,
 }
