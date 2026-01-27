@@ -182,12 +182,6 @@ This release achieves 100% API parity across Rust, Python, TypeScript, Ruby, Jav
   - All bindings: Round-trip serialization tests
 
 #### Documentation
-- **Migration Guide**: `docs/migration/v4.1-to-v4.2.md` (757 lines)
-  - Complete migration instructions for all 10 language bindings
-  - Before/after examples for CLI, API, and MCP usage
-  - Configuration precedence examples
-  - Troubleshooting common migration issues
-
 - **Deprecation Guide**: `DEPRECATION_GUIDE.md` - comprehensive deprecation documentation
   - All deprecated APIs with migration paths
   - Code examples for all 10 language bindings
@@ -295,15 +289,6 @@ The following breaking changes affect **MCP tools only**. Since MCP is used excl
 - **`KREUZBERG_CONTENT_FORMAT`**: Use `KREUZBERG_OUTPUT_FORMAT` instead
   - Both environment variables work in v4.2.0
   - Removed in v5.0.0
-
-### Migration
-
-See **[Migration Guide v4.1 → v4.2](docs/migration/v4.1-to-v4.2.md)** for:
-
-- Complete migration instructions for all 10 language bindings
-- Before/after examples for CLI, API, and MCP usage
-- Configuration precedence examples
-- Troubleshooting common migration issues
 
 ---
 
