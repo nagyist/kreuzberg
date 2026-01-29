@@ -92,6 +92,19 @@ export interface NativeBinding {
 }
 
 /**
+ * Detects whether the current runtime supports NAPI native modules.
+ * Returns true for Node.js and Bun (which implements Node-API natively).
+ * Bun is checked first because it also sets process.versions.node for compatibility.
+ * @internal
+ */
+function isNapiRuntime(): boolean {
+	if (typeof process === "undefined") return false;
+	if (process.versions?.["bun"]) return true;
+	if (process.versions?.node) return true;
+	return false;
+}
+
+/**
  * Global singleton reference to the native binding.
  * Lazy-loaded on first call to getBinding().
  * @internal
@@ -223,7 +236,7 @@ export function getBinding(): NativeBinding {
 	}
 
 	try {
-		if (typeof process !== "undefined" && process.versions && process.versions.node) {
+		if (isNapiRuntime()) {
 			binding = loadNativeBinding();
 			bindingInitialized = true;
 			return binding;
