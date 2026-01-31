@@ -18,8 +18,9 @@ mod tests {
     use crate::core::config::ExtractionConfig;
     use crate::plugins::Plugin;
     use crate::types::ExtractionResult;
+    use ahash::AHashMap;
     use async_trait::async_trait;
-    use std::collections::HashMap;
+    use std::borrow::Cow;
 
     struct MockPostProcessor {
         stage: ProcessingStage,
@@ -49,7 +50,7 @@ mod tests {
             result
                 .metadata
                 .additional
-                .insert("processed_by".to_string(), serde_json::json!(self.name()));
+                .insert(Cow::Borrowed("processed_by"), serde_json::json!(self.name()));
             Ok(())
         }
 
@@ -211,8 +212,8 @@ mod tests {
             stage: ProcessingStage::Early,
         };
 
-        let mut additional = HashMap::new();
-        additional.insert("existing_key".to_string(), serde_json::json!("existing_value"));
+        let mut additional = AHashMap::new();
+        additional.insert(Cow::Borrowed("existing_key"), serde_json::json!("existing_value"));
 
         let mut result = ExtractionResult {
             content: "test".to_string(),

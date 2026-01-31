@@ -19,7 +19,9 @@ use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata};
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 use std::io::Cursor;
 use zip::ZipArchive;
 
@@ -112,8 +114,10 @@ impl DocumentExtractor for EpubExtractor {
         let extracted_content = extract_content(&mut archive, &opf_path, &manifest_dir)?;
 
         let (epub_metadata, additional_metadata) = extract_metadata(&opf_xml)?;
-        let metadata_map: std::collections::HashMap<String, serde_json::Value> =
-            additional_metadata.into_iter().collect();
+        let metadata_map: AHashMap<Cow<'static, str>, serde_json::Value> = additional_metadata
+            .into_iter()
+            .map(|(k, v)| (Cow::Owned(k), v))
+            .collect();
 
         Ok(ExtractionResult {
             content: extracted_content,

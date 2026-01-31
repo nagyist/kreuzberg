@@ -7,6 +7,8 @@ mod extraction;
 mod ocr;
 mod pages;
 
+use bytes::Bytes;
+
 use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
@@ -238,7 +240,7 @@ impl DocumentExtractor for PdfExtractor {
                         .map(|(idx, img)| {
                             let format = img.filters.first().cloned().unwrap_or_else(|| "unknown".to_string());
                             crate::types::ExtractedImage {
-                                data: img.data,
+                                data: Bytes::from(img.data),
                                 format,
                                 image_index: idx,
                                 page_number: Some(img.page_number),

@@ -45,6 +45,8 @@ mod image_handling;
 mod metadata;
 mod parser;
 
+use bytes::Bytes;
+
 use crate::error::Result;
 use crate::types::{ExtractedImage, PptxExtractionResult};
 
@@ -117,7 +119,7 @@ pub fn extract_pptx_from_path(
                 let image_index = extracted_images.len();
 
                 extracted_images.push(ExtractedImage {
-                    data,
+                    data: Bytes::from(data),
                     format,
                     image_index,
                     page_number: Some(slide.slide_number as usize),

@@ -9,7 +9,9 @@ use crate::core::config::ExtractionConfig;
 use crate::extraction::{cells_to_markdown, office_metadata};
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata, PageBoundary, PageInfo, PageStructure, PageUnitType, Table};
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 use std::io::Cursor;
 
 /// High-performance DOCX extractor using docx-lite.
@@ -181,22 +183,22 @@ impl DocumentExtractor for DocxExtractor {
                 .map_err(|e| crate::error::KreuzbergError::parsing(format!("Failed to open ZIP archive: {}", e)))?
         };
 
-        let mut metadata_map = std::collections::HashMap::new();
+        let mut metadata_map = AHashMap::new();
         let mut parsed_keywords: Option<Vec<String>> = None;
 
         if let Ok(core) = office_metadata::extract_core_properties(&mut archive) {
             if let Some(title) = core.title {
-                metadata_map.insert("title".to_string(), serde_json::Value::String(title));
+                metadata_map.insert(Cow::Borrowed("title"), serde_json::Value::String(title));
             }
             if let Some(creator) = core.creator {
                 metadata_map.insert(
-                    "authors".to_string(),
+                    Cow::Borrowed("authors"),
                     serde_json::Value::Array(vec![serde_json::Value::String(creator.clone())]),
                 );
-                metadata_map.insert("created_by".to_string(), serde_json::Value::String(creator));
+                metadata_map.insert(Cow::Borrowed("created_by"), serde_json::Value::String(creator));
             }
             if let Some(subject) = core.subject {
-                metadata_map.insert("subject".to_string(), serde_json::Value::String(subject));
+                metadata_map.insert(Cow::Borrowed("subject"), serde_json::Value::String(subject));
             }
             if let Some(keywords) = core.keywords {
                 // Parse comma-separated keywords into Vec<String>
@@ -209,70 +211,76 @@ impl DocumentExtractor for DocxExtractor {
                 );
             }
             if let Some(description) = core.description {
-                metadata_map.insert("description".to_string(), serde_json::Value::String(description));
+                metadata_map.insert(Cow::Borrowed("description"), serde_json::Value::String(description));
             }
             if let Some(modified_by) = core.last_modified_by {
-                metadata_map.insert("modified_by".to_string(), serde_json::Value::String(modified_by));
+                metadata_map.insert(Cow::Borrowed("modified_by"), serde_json::Value::String(modified_by));
             }
             if let Some(created) = core.created {
-                metadata_map.insert("created_at".to_string(), serde_json::Value::String(created));
+                metadata_map.insert(Cow::Borrowed("created_at"), serde_json::Value::String(created));
             }
             if let Some(modified) = core.modified {
-                metadata_map.insert("modified_at".to_string(), serde_json::Value::String(modified));
+                metadata_map.insert(Cow::Borrowed("modified_at"), serde_json::Value::String(modified));
             }
             if let Some(revision) = core.revision {
-                metadata_map.insert("revision".to_string(), serde_json::Value::String(revision));
+                metadata_map.insert(Cow::Borrowed("revision"), serde_json::Value::String(revision));
             }
             if let Some(category) = core.category {
-                metadata_map.insert("category".to_string(), serde_json::Value::String(category));
+                metadata_map.insert(Cow::Borrowed("category"), serde_json::Value::String(category));
             }
             if let Some(content_status) = core.content_status {
-                metadata_map.insert("content_status".to_string(), serde_json::Value::String(content_status));
+                metadata_map.insert(
+                    Cow::Borrowed("content_status"),
+                    serde_json::Value::String(content_status),
+                );
             }
             if let Some(language) = core.language {
-                metadata_map.insert("language".to_string(), serde_json::Value::String(language));
+                metadata_map.insert(Cow::Borrowed("language"), serde_json::Value::String(language));
             }
         }
 
         if let Ok(app) = office_metadata::extract_docx_app_properties(&mut archive) {
             if let Some(pages) = app.pages {
-                metadata_map.insert("page_count".to_string(), serde_json::Value::Number(pages.into()));
+                metadata_map.insert(Cow::Borrowed("page_count"), serde_json::Value::Number(pages.into()));
             }
             if let Some(words) = app.words {
-                metadata_map.insert("word_count".to_string(), serde_json::Value::Number(words.into()));
+                metadata_map.insert(Cow::Borrowed("word_count"), serde_json::Value::Number(words.into()));
             }
             if let Some(chars) = app.characters {
-                metadata_map.insert("character_count".to_string(), serde_json::Value::Number(chars.into()));
+                metadata_map.insert(
+                    Cow::Borrowed("character_count"),
+                    serde_json::Value::Number(chars.into()),
+                );
             }
             if let Some(lines) = app.lines {
-                metadata_map.insert("line_count".to_string(), serde_json::Value::Number(lines.into()));
+                metadata_map.insert(Cow::Borrowed("line_count"), serde_json::Value::Number(lines.into()));
             }
             if let Some(paragraphs) = app.paragraphs {
                 metadata_map.insert(
-                    "paragraph_count".to_string(),
+                    Cow::Borrowed("paragraph_count"),
                     serde_json::Value::Number(paragraphs.into()),
                 );
             }
             if let Some(template) = app.template {
-                metadata_map.insert("template".to_string(), serde_json::Value::String(template));
+                metadata_map.insert(Cow::Borrowed("template"), serde_json::Value::String(template));
             }
             if let Some(company) = app.company {
-                metadata_map.insert("organization".to_string(), serde_json::Value::String(company));
+                metadata_map.insert(Cow::Borrowed("company"), serde_json::Value::String(company));
             }
             if let Some(time) = app.total_time {
                 metadata_map.insert(
-                    "total_editing_time_minutes".to_string(),
+                    Cow::Borrowed("total_editing_time_minutes"),
                     serde_json::Value::Number(time.into()),
                 );
             }
             if let Some(application) = app.application {
-                metadata_map.insert("application".to_string(), serde_json::Value::String(application));
+                metadata_map.insert(Cow::Borrowed("application"), serde_json::Value::String(application));
             }
         }
 
         if let Ok(custom) = office_metadata::extract_custom_properties(&mut archive) {
             for (key, value) in custom {
-                metadata_map.insert(format!("custom_{}", key), value);
+                metadata_map.insert(Cow::Owned(format!("custom_{}", key)), value);
             }
         }
 

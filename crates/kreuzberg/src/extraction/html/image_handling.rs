@@ -1,5 +1,7 @@
 //! Image handling and conversion functionality for HTML extraction.
 
+use bytes::Bytes;
+
 use super::types::ExtractedInlineImage;
 use html_to_markdown_rs::{InlineImage, InlineImageFormat};
 
@@ -55,7 +57,7 @@ pub fn inline_image_format_to_str(format: &InlineImageFormat) -> String {
 /// converting the format enum to a string representation.
 pub fn inline_image_to_extracted(image: InlineImage) -> ExtractedInlineImage {
     ExtractedInlineImage {
-        data: image.data,
+        data: Bytes::from(image.data),
         format: inline_image_format_to_str(&image.format),
         filename: image.filename,
         description: image.description,

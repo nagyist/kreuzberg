@@ -18,6 +18,8 @@ use crate::types::ExtractionResult;
 use crate::types::LibreOfficeConversionResult;
 #[cfg(feature = "office")]
 use serde_json::json;
+#[cfg(feature = "office")]
+use std::borrow::Cow;
 use std::path::Path;
 
 #[cfg(feature = "office")]
@@ -228,7 +230,7 @@ pub(in crate::core::extractor) fn apply_libreoffice_metadata(
 ) {
     result.mime_type = pool_mime_type(legacy_mime);
     result.metadata.additional.insert(
-        "libreoffice_conversion".to_string(),
+        Cow::Borrowed("libreoffice_conversion"),
         json!({
             "converter": "libreoffice",
             "original_format": conversion.original_format,

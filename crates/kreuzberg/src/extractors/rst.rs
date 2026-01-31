@@ -21,9 +21,11 @@ use crate::plugins::{DocumentExtractor, Plugin};
 #[cfg(feature = "office")]
 use crate::types::{ExtractionResult, Metadata, Table};
 #[cfg(feature = "office")]
+use ahash::AHashMap;
+#[cfg(feature = "office")]
 use async_trait::async_trait;
 #[cfg(feature = "office")]
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 /// Native Rust reStructuredText extractor.
 ///
@@ -48,7 +50,7 @@ impl RstExtractor {
     /// Uses document tree parsing and fallback text extraction.
     fn extract_text_and_metadata(content: &str) -> (String, Metadata) {
         let mut metadata = Metadata::default();
-        let mut additional = HashMap::new();
+        let mut additional: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
 
         let text = Self::extract_text_from_rst(content, &mut additional);
 
@@ -60,7 +62,7 @@ impl RstExtractor {
     ///
     /// This is the main extraction engine that processes RST line-by-line
     /// and extracts all document content including headings, code blocks, lists, etc.
-    fn extract_text_from_rst(content: &str, metadata: &mut HashMap<String, serde_json::Value>) -> String {
+    fn extract_text_from_rst(content: &str, metadata: &mut AHashMap<Cow<'static, str>, serde_json::Value>) -> String {
         let mut output = String::new();
         let lines: Vec<&str> = content.lines().collect();
         let mut i = 0;
@@ -228,24 +230,24 @@ impl RstExtractor {
     }
 
     /// Add a metadata field from RST field list.
-    fn add_metadata_field(key: &str, value: &str, metadata: &mut HashMap<String, serde_json::Value>) {
+    fn add_metadata_field(key: &str, value: &str, metadata: &mut AHashMap<Cow<'static, str>, serde_json::Value>) {
         let key_lower = key.to_lowercase();
         match key_lower.as_str() {
             "author" | "authors" => {
-                metadata.insert("author".to_string(), serde_json::Value::String(value.to_string()));
+                metadata.insert(Cow::Borrowed("author"), serde_json::Value::String(value.to_string()));
             }
             "date" => {
-                metadata.insert("date".to_string(), serde_json::Value::String(value.to_string()));
+                metadata.insert(Cow::Borrowed("date"), serde_json::Value::String(value.to_string()));
             }
             "version" | "revision" => {
-                metadata.insert("version".to_string(), serde_json::Value::String(value.to_string()));
+                metadata.insert(Cow::Borrowed("version"), serde_json::Value::String(value.to_string()));
             }
             "title" => {
-                metadata.insert("title".to_string(), serde_json::Value::String(value.to_string()));
+                metadata.insert(Cow::Borrowed("title"), serde_json::Value::String(value.to_string()));
             }
             _ => {
                 metadata.insert(
-                    format!("field_{}", key_lower),
+                    Cow::Owned(format!("field_{}", key_lower)),
                     serde_json::Value::String(value.to_string()),
                 );
             }
@@ -504,7 +506,7 @@ This is a paragraph.
 Another paragraph.
 "#;
 
-        let mut metadata = HashMap::new();
+        let mut metadata = AHashMap::new();
         let output = RstExtractor::extract_text_from_rst(content, &mut metadata);
         assert!(output.contains("Title"));
         assert!(output.contains("This is a paragraph"));
@@ -522,7 +524,7 @@ Another paragraph.
 Some text after.
 "#;
 
-        let mut metadata = HashMap::new();
+        let mut metadata = AHashMap::new();
         let output = RstExtractor::extract_text_from_rst(content, &mut metadata);
         assert!(output.contains("code-block"));
         assert!(output.contains("def hello"));
@@ -540,7 +542,7 @@ First paragraph.
 Second paragraph.
 "#;
 
-        let mut metadata = HashMap::new();
+        let mut metadata = AHashMap::new();
         let output = RstExtractor::extract_text_from_rst(content, &mut metadata);
         assert!(output.contains("First paragraph"));
         assert!(output.contains("Second paragraph"));

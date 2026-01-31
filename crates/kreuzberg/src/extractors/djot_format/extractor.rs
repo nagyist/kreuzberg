@@ -9,6 +9,7 @@ use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata};
 use async_trait::async_trait;
 use jotdown::{Event, Parser};
+use std::borrow::Cow;
 
 /// Djot markup extractor with metadata and table support.
 ///
@@ -90,7 +91,7 @@ impl DocumentExtractor for DjotExtractor {
         if !metadata.additional.contains_key("title")
             && let Some(title) = crate::extractors::frontmatter_utils::extract_title_from_content(&remaining_content)
         {
-            metadata.additional.insert("title".to_string(), title.into());
+            metadata.additional.insert(Cow::Borrowed("title"), title.into());
         }
 
         // Parse with jotdown and collect events once for extraction

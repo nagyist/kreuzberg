@@ -14,8 +14,6 @@ use super::text_extraction::extract_text_from_events;
 use crate::extractors::djot_format::attributes::parse_jotdown_attributes;
 use crate::types::{Attributes, DjotContent, DjotImage, DjotLink, FormattedBlock};
 use jotdown::{Container, Event};
-use std::collections::HashMap;
-
 /// Extract complete djot content with 100% feature extraction.
 ///
 /// Processes ALL djot events to build a rich DjotContent structure including:
@@ -42,7 +40,7 @@ pub fn extract_complete_djot_content(
     let mut images = Vec::new();
     let mut links = Vec::new();
     let mut footnotes = Vec::new();
-    let attributes_map: HashMap<String, Attributes> = HashMap::new();
+    let attributes_map: Vec<(String, Attributes)> = Vec::new();
 
     let mut state = ExtractionState::new();
 

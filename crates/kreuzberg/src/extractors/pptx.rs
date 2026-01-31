@@ -6,7 +6,9 @@ use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata};
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 use std::path::Path;
 
 #[cfg(feature = "ocr")]
@@ -137,10 +139,10 @@ impl DocumentExtractor for PptxExtractor {
             crate::extraction::pptx::extract_pptx_from_bytes(content, extract_images, config.pages.as_ref())?
         };
 
-        let mut additional = std::collections::HashMap::new();
-        additional.insert("slide_count".to_string(), serde_json::json!(pptx_result.slide_count));
-        additional.insert("image_count".to_string(), serde_json::json!(pptx_result.image_count));
-        additional.insert("table_count".to_string(), serde_json::json!(pptx_result.table_count));
+        let mut additional: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
+        additional.insert(Cow::Borrowed("slide_count"), serde_json::json!(pptx_result.slide_count));
+        additional.insert(Cow::Borrowed("image_count"), serde_json::json!(pptx_result.image_count));
+        additional.insert(Cow::Borrowed("table_count"), serde_json::json!(pptx_result.table_count));
 
         let images = if extract_images {
             // Image extraction is enabled, return images or empty vector
@@ -202,10 +204,10 @@ impl DocumentExtractor for PptxExtractor {
         let pptx_result =
             crate::extraction::pptx::extract_pptx_from_path(path_str, extract_images, config.pages.as_ref())?;
 
-        let mut additional = std::collections::HashMap::new();
-        additional.insert("slide_count".to_string(), serde_json::json!(pptx_result.slide_count));
-        additional.insert("image_count".to_string(), serde_json::json!(pptx_result.image_count));
-        additional.insert("table_count".to_string(), serde_json::json!(pptx_result.table_count));
+        let mut additional: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
+        additional.insert(Cow::Borrowed("slide_count"), serde_json::json!(pptx_result.slide_count));
+        additional.insert(Cow::Borrowed("image_count"), serde_json::json!(pptx_result.image_count));
+        additional.insert(Cow::Borrowed("table_count"), serde_json::json!(pptx_result.table_count));
 
         let images = if extract_images {
             // Image extraction is enabled, return images or empty vector

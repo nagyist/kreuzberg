@@ -135,7 +135,7 @@ pub(super) fn handle_block_start(
         }
         Container::TaskListItem { checked } => {
             let mut attrs = parsed_attrs.unwrap_or_default();
-            attrs.key_values.insert("checked".to_string(), checked.to_string());
+            attrs.key_values.push(("checked".to_string(), checked.to_string()));
             push_block(
                 state,
                 FormattedBlock {

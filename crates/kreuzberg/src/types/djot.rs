@@ -44,8 +44,8 @@ pub struct DjotContent {
     pub footnotes: Vec<Footnote>,
 
     /// Attributes mapped by element identifier (if present)
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub attributes: HashMap<String, Attributes>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub attributes: Vec<(String, Attributes)>,
 }
 
 /// Block-level element in a Djot document.
@@ -158,8 +158,8 @@ pub struct Attributes {
     pub classes: Vec<String>,
 
     /// Key-value pairs (key="value")
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub key_values: HashMap<String, String>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub key_values: Vec<(String, String)>,
 }
 
 /// Image element in Djot.

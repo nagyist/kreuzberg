@@ -4,6 +4,7 @@ use super::*;
 use crate::core::config::OutputFormat;
 use crate::types::Metadata;
 use lazy_static::lazy_static;
+use std::borrow::Cow;
 
 const VALIDATION_MARKER_KEY: &str = "registry_validation_marker";
 #[cfg(feature = "quality")]
@@ -30,7 +31,7 @@ async fn test_run_pipeline_basic() {
         elements: None,
     };
     result.metadata.additional.insert(
-        VALIDATION_MARKER_KEY.to_string(),
+        Cow::Borrowed(VALIDATION_MARKER_KEY),
         serde_json::json!(ORDER_VALIDATION_MARKER),
     );
     let config = ExtractionConfig::default();
@@ -142,10 +143,10 @@ async fn test_pipeline_without_chunking() {
 
 #[tokio::test]
 async fn test_pipeline_preserves_metadata() {
-    use std::collections::HashMap;
-    let mut additional = HashMap::new();
-    additional.insert("source".to_string(), serde_json::json!("test"));
-    additional.insert("page".to_string(), serde_json::json!(1));
+    use ahash::AHashMap;
+    let mut additional = AHashMap::new();
+    additional.insert(Cow::Borrowed("source"), serde_json::json!("test"));
+    additional.insert(Cow::Borrowed("page"), serde_json::json!(1));
 
     let result = ExtractionResult {
         content: "test".to_string(),
@@ -437,7 +438,7 @@ async fn test_postprocessor_runs_before_validator() {
             result
                 .metadata
                 .additional
-                .insert("processed".to_string(), serde_json::json!(true));
+                .insert(Cow::Borrowed("processed"), serde_json::json!(true));
             Ok(())
         }
 
@@ -528,7 +529,7 @@ async fn test_postprocessor_runs_before_validator() {
         elements: None,
     };
     result.metadata.additional.insert(
-        VALIDATION_MARKER_KEY.to_string(),
+        Cow::Borrowed(VALIDATION_MARKER_KEY),
         serde_json::json!(POSTPROCESSOR_VALIDATION_MARKER),
     );
 
@@ -625,7 +626,7 @@ async fn test_quality_processing_runs_before_validator() {
         elements: None,
     };
     result.metadata.additional.insert(
-        VALIDATION_MARKER_KEY.to_string(),
+        Cow::Borrowed(VALIDATION_MARKER_KEY),
         serde_json::json!(QUALITY_VALIDATION_MARKER),
     );
 
@@ -682,7 +683,7 @@ async fn test_multiple_postprocessors_run_before_validator() {
             result
                 .metadata
                 .additional
-                .insert("execution_order".to_string(), serde_json::json!(order));
+                .insert(Cow::Borrowed("execution_order"), serde_json::json!(order));
             Ok(())
         }
 
@@ -721,7 +722,7 @@ async fn test_multiple_postprocessors_run_before_validator() {
             result
                 .metadata
                 .additional
-                .insert("execution_order".to_string(), serde_json::json!(order));
+                .insert(Cow::Borrowed("execution_order"), serde_json::json!(order));
             Ok(())
         }
 
@@ -894,7 +895,7 @@ async fn test_run_pipeline_with_output_format_djot() {
             images: vec![],
             links: vec![],
             footnotes: vec![],
-            attributes: std::collections::HashMap::new(),
+            attributes: Vec::new(),
         }),
     };
 
@@ -958,7 +959,7 @@ async fn test_run_pipeline_applies_output_format_last() {
             images: vec![],
             links: vec![],
             footnotes: vec![],
-            attributes: std::collections::HashMap::new(),
+            attributes: Vec::new(),
         }),
     };
 

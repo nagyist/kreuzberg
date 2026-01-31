@@ -120,6 +120,7 @@ async-trait = { workspace = true }
 base64 = { workspace = true }
 base64-simd = "0.8"
 bitvec = "1.0"
+bytes = { workspace = true }
 dashmap = "6.1"
 dirs = "6.0"
 simdutf8 = { version = "0.1", optional = true }

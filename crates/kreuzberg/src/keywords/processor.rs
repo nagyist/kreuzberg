@@ -6,6 +6,7 @@
 use crate::plugins::{Plugin, PostProcessor, ProcessingStage};
 use crate::{ExtractionConfig, ExtractionResult, KreuzbergError, Result};
 use async_trait::async_trait;
+use std::borrow::Cow;
 
 /// Post-processor that extracts keywords from document content.
 ///
@@ -65,7 +66,7 @@ impl PostProcessor for KeywordExtractor {
         result
             .metadata
             .additional
-            .insert("keywords".to_string(), serde_json::to_value(&keywords)?);
+            .insert(Cow::Borrowed("keywords"), serde_json::to_value(&keywords)?);
 
         Ok(())
     }

@@ -166,7 +166,7 @@ impl TryFrom<RustExtractionResult> for JsExtractionResult {
                 };
 
                 js_images.push(JsExtractedImage {
-                    data: img.data.into(),
+                    data: img.data.to_vec().into(),
                     format: img.format,
                     image_index: img.image_index as u32,
                     page_number: img.page_number.map(|p| p as u32),
@@ -217,7 +217,7 @@ impl TryFrom<RustExtractionResult> for JsExtractionResult {
                         };
 
                         JsExtractedImage {
-                            data: img.data.clone().into(),
+                            data: img.data.to_vec().into(),
                             format: img.format.clone(),
                             image_index: img.image_index as u32,
                             page_number: img.page_number.map(|p| p as u32),
@@ -389,7 +389,10 @@ impl TryFrom<JsExtractionResult> for RustExtractionResult {
                 None
             };
 
-            let additional = metadata_map;
+            let additional = metadata_map
+                .into_iter()
+                .map(|(k, v)| (std::borrow::Cow::Owned(k), v))
+                .collect();
 
             kreuzberg::Metadata {
                 language,
@@ -422,7 +425,7 @@ impl TryFrom<JsExtractionResult> for RustExtractionResult {
                 };
 
                 rust_images.push(kreuzberg::ExtractedImage {
-                    data: img.data.to_vec(),
+                    data: bytes::Bytes::from(img.data.to_vec()),
                     format: img.format,
                     image_index: img.image_index as usize,
                     page_number: img.page_number.map(|p| p as usize),

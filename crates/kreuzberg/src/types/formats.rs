@@ -1,5 +1,6 @@
 //! Format-specific extraction results and OCR configuration types.
 
+use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -153,8 +154,9 @@ pub struct EmailAttachment {
     pub size: Option<usize>,
     /// Whether this attachment is an image
     pub is_image: bool,
-    /// Attachment data (if extracted)
-    pub data: Option<Vec<u8>>,
+    /// Attachment data (if extracted).
+    /// Uses `bytes::Bytes` for cheap cloning of large buffers.
+    pub data: Option<Bytes>,
 }
 
 /// OCR extraction result.

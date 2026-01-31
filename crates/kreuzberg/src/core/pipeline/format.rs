@@ -5,6 +5,7 @@
 
 use crate::core::config::OutputFormat;
 use crate::types::ExtractionResult;
+use std::borrow::Cow;
 
 /// Apply output format conversion to the extraction result.
 ///
@@ -46,7 +47,7 @@ pub fn apply_output_format(result: &mut ExtractionResult, output_format: OutputF
                 Err(e) => {
                     // Keep original content on error, record error in metadata
                     result.metadata.additional.insert(
-                        "output_format_error".to_string(),
+                        Cow::Borrowed("output_format_error"),
                         serde_json::Value::String(format!("Failed to convert to djot: {}", e)),
                     );
                 }
@@ -66,7 +67,7 @@ pub fn apply_output_format(result: &mut ExtractionResult, output_format: OutputF
                     Err(e) => {
                         // Keep original content on error, record error in metadata
                         result.metadata.additional.insert(
-                            "output_format_error".to_string(),
+                            Cow::Borrowed("output_format_error"),
                             serde_json::Value::String(format!("Failed to convert to markdown: {}", e)),
                         );
                     }
@@ -87,7 +88,7 @@ pub fn apply_output_format(result: &mut ExtractionResult, output_format: OutputF
                             Err(e) => {
                                 // Keep original content on error, record error in metadata
                                 result.metadata.additional.insert(
-                                    "output_format_error".to_string(),
+                                    Cow::Borrowed("output_format_error"),
                                     serde_json::Value::String(format!("Failed to convert djot to HTML: {}", e)),
                                 );
                             }
@@ -96,7 +97,7 @@ pub fn apply_output_format(result: &mut ExtractionResult, output_format: OutputF
                     Err(e) => {
                         // Keep original content on error, record error in metadata
                         result.metadata.additional.insert(
-                            "output_format_error".to_string(),
+                            Cow::Borrowed("output_format_error"),
                             serde_json::Value::String(format!("Failed to generate djot for HTML conversion: {}", e)),
                         );
                     }
@@ -180,7 +181,7 @@ mod tests {
                 images: vec![],
                 links: vec![],
                 footnotes: vec![],
-                attributes: std::collections::HashMap::new(),
+                attributes: Vec::new(),
             }),
         };
 
@@ -281,8 +282,9 @@ mod tests {
 
     #[test]
     fn test_apply_output_format_preserves_metadata() {
-        let mut additional = std::collections::HashMap::new();
-        additional.insert("custom_key".to_string(), serde_json::json!("custom_value"));
+        use ahash::AHashMap;
+        let mut additional = AHashMap::new();
+        additional.insert(Cow::Borrowed("custom_key"), serde_json::json!("custom_value"));
         let metadata = Metadata {
             title: Some("Test Title".to_string()),
             additional,
@@ -367,7 +369,7 @@ mod tests {
             images: vec![],
             links: vec![],
             footnotes: vec![],
-            attributes: std::collections::HashMap::new(),
+            attributes: Vec::new(),
         };
 
         let mut result = ExtractionResult {

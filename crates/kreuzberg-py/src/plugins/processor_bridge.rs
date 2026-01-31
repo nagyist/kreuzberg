@@ -263,7 +263,10 @@ fn merge_dict_to_extraction_result(
             })?;
 
             let json_value = python_to_json(&value)?;
-            result.metadata.additional.insert(key_str, json_value);
+            result
+                .metadata
+                .additional
+                .insert(std::borrow::Cow::Owned(key_str), json_value);
         }
     }
 

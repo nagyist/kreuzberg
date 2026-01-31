@@ -6,7 +6,6 @@
 use async_trait::async_trait;
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyString};
-use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -364,8 +363,8 @@ fn dict_to_extraction_result(_py: Python<'_>, dict: &Bound<'_, PyAny>) -> Result
     };
 
     let additional = match dict.get_item("metadata") {
-        Ok(m) if !m.is_none() => extract_metadata(&m).unwrap_or_default(),
-        _ => HashMap::new(),
+        Ok(m) if !m.is_none() => extract_metadata(&m)?,
+        _ => ahash::AHashMap::new(),
     };
 
     let tables = match dict.get_item("tables") {
@@ -391,7 +390,9 @@ fn dict_to_extraction_result(_py: Python<'_>, dict: &Bound<'_, PyAny>) -> Result
 }
 
 /// Extract metadata dict from Python object.
-fn extract_metadata(obj: &Bound<'_, PyAny>) -> Result<HashMap<String, serde_json::Value>> {
+fn extract_metadata(
+    obj: &Bound<'_, PyAny>,
+) -> Result<ahash::AHashMap<std::borrow::Cow<'static, str>, serde_json::Value>> {
     use super::common::python_to_json;
     use pyo3::types::PyDict;
 
@@ -400,7 +401,7 @@ fn extract_metadata(obj: &Bound<'_, PyAny>) -> Result<HashMap<String, serde_json
         source: None,
     })?;
 
-    let mut metadata = HashMap::new();
+    let mut metadata = ahash::AHashMap::new();
     for (key, value) in dict.iter() {
         let key_str: String = key.extract().map_err(|_| KreuzbergError::Validation {
             message: "Metadata keys must be strings".to_string(),
@@ -408,7 +409,7 @@ fn extract_metadata(obj: &Bound<'_, PyAny>) -> Result<HashMap<String, serde_json
         })?;
 
         let json_value = python_to_json(&value)?;
-        metadata.insert(key_str, json_value);
+        metadata.insert(std::borrow::Cow::Owned(key_str), json_value);
     }
 
     Ok(metadata)

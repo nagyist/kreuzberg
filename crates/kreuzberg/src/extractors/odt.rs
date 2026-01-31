@@ -9,8 +9,10 @@ use crate::core::config::ExtractionConfig;
 use crate::extraction::{cells_to_markdown, office_metadata};
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata, Table};
+use ahash::AHashMap;
 use async_trait::async_trait;
 use roxmltree::Document;
+use std::borrow::Cow;
 use std::io::Cursor;
 
 /// High-performance ODT extractor using native Rust XML parsing.
@@ -475,7 +477,7 @@ impl DocumentExtractor for OdtExtractor {
             (combined_text, tables)
         };
 
-        let mut metadata_map = std::collections::HashMap::new();
+        let mut metadata_map = AHashMap::new();
 
         let cursor = Cursor::new(content_owned.clone());
         let mut archive = zip::ZipArchive::new(cursor).map_err(|e| {
@@ -484,74 +486,89 @@ impl DocumentExtractor for OdtExtractor {
 
         if let Ok(odt_props) = office_metadata::extract_odt_properties(&mut archive) {
             if let Some(title) = odt_props.title {
-                metadata_map.insert("title".to_string(), serde_json::Value::String(title));
+                metadata_map.insert(Cow::Borrowed("title"), serde_json::Value::String(title));
             }
             if let Some(creator) = odt_props.creator {
                 metadata_map.insert(
-                    "authors".to_string(),
+                    Cow::Borrowed("authors"),
                     serde_json::Value::Array(vec![serde_json::Value::String(creator.clone())]),
                 );
-                metadata_map.insert("created_by".to_string(), serde_json::Value::String(creator));
+                metadata_map.insert(Cow::Borrowed("created_by"), serde_json::Value::String(creator));
             }
             if let Some(initial_creator) = odt_props.initial_creator {
                 metadata_map.insert(
-                    "initial_creator".to_string(),
+                    Cow::Borrowed("initial_creator"),
                     serde_json::Value::String(initial_creator),
                 );
             }
             if let Some(subject) = odt_props.subject {
-                metadata_map.insert("subject".to_string(), serde_json::Value::String(subject));
+                metadata_map.insert(Cow::Borrowed("subject"), serde_json::Value::String(subject));
             }
             if let Some(keywords) = odt_props.keywords {
-                metadata_map.insert("keywords".to_string(), serde_json::Value::String(keywords));
+                metadata_map.insert(Cow::Borrowed("keywords"), serde_json::Value::String(keywords));
             }
             if let Some(description) = odt_props.description {
-                metadata_map.insert("description".to_string(), serde_json::Value::String(description));
+                metadata_map.insert(Cow::Borrowed("description"), serde_json::Value::String(description));
             }
             if let Some(creation_date) = odt_props.creation_date {
-                metadata_map.insert("created_at".to_string(), serde_json::Value::String(creation_date));
+                metadata_map.insert(Cow::Borrowed("created_at"), serde_json::Value::String(creation_date));
             }
             if let Some(date) = odt_props.date {
-                metadata_map.insert("modified_at".to_string(), serde_json::Value::String(date));
+                metadata_map.insert(Cow::Borrowed("modified_at"), serde_json::Value::String(date));
             }
             if let Some(language) = odt_props.language {
-                metadata_map.insert("language".to_string(), serde_json::Value::String(language));
+                metadata_map.insert(Cow::Borrowed("language"), serde_json::Value::String(language));
             }
             if let Some(generator) = odt_props.generator {
-                metadata_map.insert("generator".to_string(), serde_json::Value::String(generator));
+                metadata_map.insert(Cow::Borrowed("generator"), serde_json::Value::String(generator));
             }
             if let Some(editing_duration) = odt_props.editing_duration {
                 metadata_map.insert(
-                    "editing_duration".to_string(),
+                    Cow::Borrowed("editing_duration"),
                     serde_json::Value::String(editing_duration),
                 );
             }
             if let Some(editing_cycles) = odt_props.editing_cycles {
-                metadata_map.insert("editing_cycles".to_string(), serde_json::Value::String(editing_cycles));
+                metadata_map.insert(
+                    Cow::Borrowed("editing_cycles"),
+                    serde_json::Value::String(editing_cycles),
+                );
             }
             if let Some(page_count) = odt_props.page_count {
-                metadata_map.insert("page_count".to_string(), serde_json::Value::Number(page_count.into()));
+                metadata_map.insert(
+                    Cow::Borrowed("page_count"),
+                    serde_json::Value::Number(page_count.into()),
+                );
             }
             if let Some(word_count) = odt_props.word_count {
-                metadata_map.insert("word_count".to_string(), serde_json::Value::Number(word_count.into()));
+                metadata_map.insert(
+                    Cow::Borrowed("word_count"),
+                    serde_json::Value::Number(word_count.into()),
+                );
             }
             if let Some(character_count) = odt_props.character_count {
                 metadata_map.insert(
-                    "character_count".to_string(),
+                    Cow::Borrowed("character_count"),
                     serde_json::Value::Number(character_count.into()),
                 );
             }
             if let Some(paragraph_count) = odt_props.paragraph_count {
                 metadata_map.insert(
-                    "paragraph_count".to_string(),
+                    Cow::Borrowed("paragraph_count"),
                     serde_json::Value::Number(paragraph_count.into()),
                 );
             }
             if let Some(table_count) = odt_props.table_count {
-                metadata_map.insert("table_count".to_string(), serde_json::Value::Number(table_count.into()));
+                metadata_map.insert(
+                    Cow::Borrowed("table_count"),
+                    serde_json::Value::Number(table_count.into()),
+                );
             }
             if let Some(image_count) = odt_props.image_count {
-                metadata_map.insert("image_count".to_string(), serde_json::Value::Number(image_count.into()));
+                metadata_map.insert(
+                    Cow::Borrowed("image_count"),
+                    serde_json::Value::Number(image_count.into()),
+                );
             }
         }
 

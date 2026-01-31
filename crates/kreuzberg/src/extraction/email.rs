@@ -24,6 +24,8 @@
 //! # Ok(())
 //! # }
 //! ```
+use bytes::Bytes;
+
 use crate::error::{KreuzbergError, Result};
 use crate::types::{EmailAttachment, EmailExtractionResult};
 use mail_parser::MimeHeaders;
@@ -132,7 +134,7 @@ pub fn parse_eml_content(data: &[u8]) -> Result<EmailExtractionResult> {
             mime_type: Some(mime_type),
             size: Some(size),
             is_image,
-            data: Some(data.to_vec()),
+            data: Some(Bytes::copy_from_slice(data)),
         });
     }
 
@@ -241,7 +243,7 @@ pub fn parse_msg_content(data: &[u8]) -> Result<EmailExtractionResult> {
             };
 
             let data = if !att.payload.is_empty() {
-                hex::decode(&att.payload).ok()
+                hex::decode(&att.payload).ok().map(Bytes::from)
             } else {
                 None
             };

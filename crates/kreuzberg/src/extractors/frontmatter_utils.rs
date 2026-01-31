@@ -9,6 +9,7 @@
 use crate::types::Metadata;
 
 use serde_yaml_ng::Value as YamlValue;
+use std::borrow::Cow;
 
 /// Extract YAML frontmatter from document content.
 ///
@@ -126,12 +127,12 @@ pub fn extract_metadata_from_yaml(yaml: &YamlValue) -> Metadata {
 
     // Title
     if let Some(title) = yaml.get("title").and_then(|v| v.as_str()) {
-        metadata.additional.insert("title".to_string(), title.into());
+        metadata.additional.insert(Cow::Borrowed("title"), title.into());
     }
 
     // Author
     if let Some(author) = yaml.get("author").and_then(|v| v.as_str()) {
-        metadata.additional.insert("author".to_string(), author.into());
+        metadata.additional.insert(Cow::Borrowed("author"), author.into());
     }
 
     // Date (map to created_at)
@@ -143,11 +144,13 @@ pub fn extract_metadata_from_yaml(yaml: &YamlValue) -> Metadata {
     if let Some(keywords) = yaml.get("keywords") {
         match keywords {
             YamlValue::String(s) => {
-                metadata.additional.insert("keywords".to_string(), s.clone().into());
+                metadata.additional.insert(Cow::Borrowed("keywords"), s.clone().into());
             }
             YamlValue::Sequence(seq) => {
                 let keywords_str = seq.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(", ");
-                metadata.additional.insert("keywords".to_string(), keywords_str.into());
+                metadata
+                    .additional
+                    .insert(Cow::Borrowed("keywords"), keywords_str.into());
             }
             _ => {}
         }
@@ -160,7 +163,9 @@ pub fn extract_metadata_from_yaml(yaml: &YamlValue) -> Metadata {
 
     // Abstract
     if let Some(abstract_text) = yaml.get("abstract").and_then(|v| v.as_str()) {
-        metadata.additional.insert("abstract".to_string(), abstract_text.into());
+        metadata
+            .additional
+            .insert(Cow::Borrowed("abstract"), abstract_text.into());
     }
 
     // Subject (overrides description if both present)
@@ -170,18 +175,18 @@ pub fn extract_metadata_from_yaml(yaml: &YamlValue) -> Metadata {
 
     // Category
     if let Some(category) = yaml.get("category").and_then(|v| v.as_str()) {
-        metadata.additional.insert("category".to_string(), category.into());
+        metadata.additional.insert(Cow::Borrowed("category"), category.into());
     }
 
     // Tags (support both string and array)
     if let Some(tags) = yaml.get("tags") {
         match tags {
             YamlValue::String(s) => {
-                metadata.additional.insert("tags".to_string(), s.clone().into());
+                metadata.additional.insert(Cow::Borrowed("tags"), s.clone().into());
             }
             YamlValue::Sequence(seq) => {
                 let tags_str = seq.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(", ");
-                metadata.additional.insert("tags".to_string(), tags_str.into());
+                metadata.additional.insert(Cow::Borrowed("tags"), tags_str.into());
             }
             _ => {}
         }
@@ -189,12 +194,12 @@ pub fn extract_metadata_from_yaml(yaml: &YamlValue) -> Metadata {
 
     // Language
     if let Some(language) = yaml.get("language").and_then(|v| v.as_str()) {
-        metadata.additional.insert("language".to_string(), language.into());
+        metadata.additional.insert(Cow::Borrowed("language"), language.into());
     }
 
     // Version
     if let Some(version) = yaml.get("version").and_then(|v| v.as_str()) {
-        metadata.additional.insert("version".to_string(), version.into());
+        metadata.additional.insert(Cow::Borrowed("version"), version.into());
     }
 
     metadata

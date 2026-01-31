@@ -8,7 +8,9 @@ use crate::core::config::OcrConfig;
 use crate::ocr::processor::OcrProcessor;
 use crate::plugins::{OcrBackend, OcrBackendType, Plugin};
 use crate::types::ExtractionResult;
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 use std::path::Path;
 use std::sync::{Arc, OnceLock};
 
@@ -204,6 +206,12 @@ impl OcrBackend for TesseractBackend {
             .unwrap_or(&tess_config.language)
             .to_string();
 
+        // Convert HashMap<String, Value> to AHashMap<Cow<'static, str>, Value>
+        let mut additional = AHashMap::new();
+        for (key, value) in ocr_result.metadata {
+            additional.insert(Cow::Owned(key), value);
+        }
+
         let metadata = crate::types::Metadata {
             format: Some(crate::types::FormatMetadata::Ocr(crate::types::OcrMetadata {
                 language: resolved_language,
@@ -216,7 +224,7 @@ impl OcrBackend for TesseractBackend {
                     .first()
                     .and_then(|t| t.cells.first().map(|row| row.len())),
             })),
-            additional: ocr_result.metadata,
+            additional,
             ..Default::default()
         };
 
@@ -272,6 +280,12 @@ impl OcrBackend for TesseractBackend {
             .unwrap_or(&tess_config.language)
             .to_string();
 
+        // Convert HashMap<String, Value> to AHashMap<Cow<'static, str>, Value>
+        let mut additional = AHashMap::new();
+        for (key, value) in ocr_result.metadata {
+            additional.insert(Cow::Owned(key), value);
+        }
+
         let metadata = crate::types::Metadata {
             format: Some(crate::types::FormatMetadata::Ocr(crate::types::OcrMetadata {
                 language: resolved_language,
@@ -284,7 +298,7 @@ impl OcrBackend for TesseractBackend {
                     .first()
                     .and_then(|t| t.cells.first().map(|row| row.len())),
             })),
-            additional: ocr_result.metadata,
+            additional,
             ..Default::default()
         };
 

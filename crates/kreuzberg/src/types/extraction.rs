@@ -1,5 +1,6 @@
 //! Core extraction types and results.
 
+use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -131,8 +132,9 @@ pub struct ChunkMetadata {
 /// PIL.Image (Python), Sharp (Node.js), or other formats as needed.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtractedImage {
-    /// Raw image data (PNG, JPEG, WebP, etc. bytes)
-    pub data: Vec<u8>,
+    /// Raw image data (PNG, JPEG, WebP, etc. bytes).
+    /// Uses `bytes::Bytes` for cheap cloning of large buffers.
+    pub data: Bytes,
 
     /// Image format (e.g., "jpeg", "png", "webp")
     pub format: String,

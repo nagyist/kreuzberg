@@ -4,7 +4,9 @@ use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExcelMetadata, ExtractionResult, Metadata, Table};
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 use std::path::Path;
 
 /// Excel spreadsheet extractor using calamine.
@@ -120,10 +122,10 @@ impl DocumentExtractor for ExcelExtractor {
             sheet_names,
         };
 
-        let mut additional = std::collections::HashMap::new();
+        let mut additional = AHashMap::new();
         for (key, value) in &workbook.metadata {
             if key != "sheet_count" && key != "sheet_names" {
-                additional.insert(key.clone(), serde_json::json!(value));
+                additional.insert(Cow::Owned(key.clone()), serde_json::json!(value));
             }
         }
 
@@ -166,10 +168,10 @@ impl DocumentExtractor for ExcelExtractor {
             sheet_names,
         };
 
-        let mut additional = std::collections::HashMap::new();
+        let mut additional = AHashMap::new();
         for (key, value) in &workbook.metadata {
             if key != "sheet_count" && key != "sheet_names" {
-                additional.insert(key.clone(), serde_json::json!(value));
+                additional.insert(Cow::Owned(key.clone()), serde_json::json!(value));
             }
         }
 

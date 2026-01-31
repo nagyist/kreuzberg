@@ -18,11 +18,13 @@ use crate::plugins::{DocumentExtractor, Plugin};
 #[cfg(feature = "office")]
 use crate::types::{ExtractionResult, Metadata};
 #[cfg(feature = "office")]
+use ahash::AHashMap;
+#[cfg(feature = "office")]
 use async_trait::async_trait;
 #[cfg(feature = "office")]
 use serde_json::{Value, json};
 #[cfg(feature = "office")]
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 /// Jupyter Notebook extractor.
 ///
@@ -42,32 +44,32 @@ impl JupyterExtractor {
     }
 
     /// Extract content from a Jupyter notebook.
-    fn extract_notebook(content: &[u8]) -> Result<(String, HashMap<String, Value>)> {
+    fn extract_notebook(content: &[u8]) -> Result<(String, AHashMap<Cow<'static, str>, Value>)> {
         let notebook: Value = serde_json::from_slice(content)
             .map_err(|e| crate::KreuzbergError::parsing(format!("Failed to parse JSON: {}", e)))?;
 
         let mut extracted_content = String::new();
-        let mut metadata = HashMap::new();
+        let mut metadata = AHashMap::new();
 
         if let Some(notebook_metadata) = notebook.get("metadata").and_then(|m| m.as_object()) {
             if let Some(kernelspec) = notebook_metadata.get("kernelspec")
                 && let Some(name) = kernelspec.get("name").and_then(|n| n.as_str())
             {
                 extracted_content.push_str(&format!("Kernelspec: {}\n", name));
-                metadata.insert("kernelspec".to_string(), kernelspec.clone());
+                metadata.insert(Cow::Borrowed("kernelspec"), kernelspec.clone());
             }
 
             if let Some(language_info) = notebook_metadata.get("language_info")
                 && let Some(name) = language_info.get("name").and_then(|n| n.as_str())
             {
                 extracted_content.push_str(&format!("Language: {}\n", name));
-                metadata.insert("language_info".to_string(), language_info.clone());
+                metadata.insert(Cow::Borrowed("language_info"), language_info.clone());
             }
         }
 
         if let Some(nbformat) = notebook.get("nbformat") {
             extracted_content.push_str(&format!("NBFormat: {}\n", nbformat));
-            metadata.insert("nbformat".to_string(), nbformat.clone());
+            metadata.insert(Cow::Borrowed("nbformat"), nbformat.clone());
         }
 
         extracted_content.push('\n');
@@ -86,7 +88,7 @@ impl JupyterExtractor {
         cell: &Value,
         cell_idx: usize,
         content: &mut String,
-        _metadata: &mut HashMap<String, Value>,
+        _metadata: &mut AHashMap<Cow<'static, str>, Value>,
     ) -> Result<()> {
         let cell_type = cell.get("cell_type").and_then(|t| t.as_str()).unwrap_or("unknown");
 
@@ -324,7 +326,7 @@ impl DocumentExtractor for JupyterExtractor {
     ) -> Result<ExtractionResult> {
         let (extracted_content, additional_metadata) = Self::extract_notebook(content)?;
 
-        let mut metadata_additional = HashMap::new();
+        let mut metadata_additional = AHashMap::new();
         for (key, value) in additional_metadata {
             metadata_additional.insert(key, json!(value));
         }

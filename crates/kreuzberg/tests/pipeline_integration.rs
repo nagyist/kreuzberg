@@ -13,6 +13,7 @@ use kreuzberg::plugins::{Plugin, PostProcessor, ProcessingStage};
 use kreuzberg::types::{ExtractionResult, Metadata};
 use kreuzberg::{KreuzbergError, Result};
 use serial_test::serial;
+use std::borrow::Cow;
 use std::sync::Arc;
 
 struct OrderTrackingProcessor {
@@ -74,7 +75,7 @@ impl PostProcessor for MetadataAddingProcessor {
         result
             .metadata
             .additional
-            .insert(self.key.clone(), serde_json::json!(self.value));
+            .insert(Cow::Owned(self.key.clone()), serde_json::json!(self.value));
         Ok(())
     }
 
@@ -522,7 +523,7 @@ async fn test_pipeline_cross_stage_data_flow() {
         #[async_trait]
         impl PostProcessor for MiddleProcessor {
             async fn process(&self, result: &mut ExtractionResult, _: &ExtractionConfig) -> Result<()> {
-                if let Some(stage) = result.metadata.additional.get("stage") {
+                if let Some(stage) = result.metadata.additional.get(&Cow::Borrowed("stage")) {
                     result.content.push_str(&format!(
                         "[saw:{}]",
                         stage.as_str().expect("Failed to extract string from value")
@@ -991,8 +992,11 @@ async fn test_pipeline_metadata_added_in_early_visible_in_middle() {
         #[async_trait]
         impl PostProcessor for MiddleReadingProcessor {
             async fn process(&self, result: &mut ExtractionResult, _: &ExtractionConfig) -> Result<()> {
-                if let Some(val) = result.metadata.additional.get("early_key") {
-                    result.metadata.additional.insert("middle_saw".to_string(), val.clone());
+                if let Some(val) = result.metadata.additional.get(&Cow::Borrowed("early_key")) {
+                    result
+                        .metadata
+                        .additional
+                        .insert(Cow::Borrowed("middle_saw"), val.clone());
                 }
                 Ok(())
             }
@@ -1135,7 +1139,7 @@ async fn test_pipeline_multiple_processors_modifying_same_metadata() {
                     result
                         .metadata
                         .additional
-                        .insert("shared_key".to_string(), serde_json::json!(self.value));
+                        .insert(Cow::Borrowed("shared_key"), serde_json::json!(self.value));
                     Ok(())
                 }
                 fn processing_stage(&self) -> ProcessingStage {
@@ -1213,13 +1217,13 @@ async fn test_pipeline_processors_reading_previous_output() {
                 let current_count = result
                     .metadata
                     .additional
-                    .get("count")
+                    .get(&Cow::Borrowed("count"))
                     .and_then(|v| v.as_i64())
                     .unwrap_or(0);
                 result
                     .metadata
                     .additional
-                    .insert("count".to_string(), serde_json::json!(current_count + 1));
+                    .insert(Cow::Borrowed("count"), serde_json::json!(current_count + 1));
                 Ok(())
             }
             fn processing_stage(&self) -> ProcessingStage {

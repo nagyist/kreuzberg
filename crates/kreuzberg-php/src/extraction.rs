@@ -2,8 +2,10 @@
 //!
 //! Provides extraction functions for PHP.
 
+use ahash::AHashMap;
 use ext_php_rs::binary_slice::BinarySlice;
 use ext_php_rs::prelude::*;
+use std::borrow::Cow;
 
 use crate::config::parse_config_from_json;
 use crate::error::to_php_exception;
@@ -133,11 +135,11 @@ pub fn kreuzberg_extract_bytes(
 
                     let metadata = if let Some(meta_val) = result_array.get("metadata") {
                         if let Some(meta_arr) = meta_val.array() {
-                            let mut additional = std::collections::HashMap::new();
+                            let mut additional = ahash::AHashMap::new();
                             for (key, val) in meta_arr.iter() {
                                 let key_str = format!("{}", key);
                                 if let Ok(json_val) = crate::types::php_zval_to_json_value(val) {
-                                    additional.insert(key_str, json_val);
+                                    additional.insert(std::borrow::Cow::Owned(key_str), json_val);
                                 }
                             }
                             kreuzberg::types::Metadata {

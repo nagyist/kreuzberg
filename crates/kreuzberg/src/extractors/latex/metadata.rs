@@ -5,6 +5,7 @@
 
 use super::utilities::extract_braced;
 use crate::types::Metadata;
+use std::borrow::Cow;
 
 /// Extracts metadata from a LaTeX line.
 ///
@@ -13,15 +14,15 @@ use crate::types::Metadata;
 pub fn extract_metadata_from_line(line: &str, metadata: &mut Metadata) {
     if line.starts_with("\\title{") {
         if let Some(title) = extract_braced(line, "title") {
-            metadata.additional.insert("title".to_string(), title.into());
+            metadata.additional.insert(Cow::Borrowed("title"), title.into());
         }
     } else if line.starts_with("\\author{") {
         if let Some(author) = extract_braced(line, "author") {
-            metadata.additional.insert("author".to_string(), author.into());
+            metadata.additional.insert(Cow::Borrowed("author"), author.into());
         }
     } else if line.starts_with("\\date{")
         && let Some(date) = extract_braced(line, "date")
     {
-        metadata.additional.insert("date".to_string(), date.into());
+        metadata.additional.insert(Cow::Borrowed("date"), date.into());
     }
 }

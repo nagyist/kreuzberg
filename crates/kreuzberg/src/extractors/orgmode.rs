@@ -23,9 +23,11 @@ use crate::plugins::{DocumentExtractor, Plugin};
 #[cfg(feature = "office")]
 use crate::types::{ExtractionResult, Metadata, Table};
 #[cfg(feature = "office")]
+use ahash::AHashMap;
+#[cfg(feature = "office")]
 use async_trait::async_trait;
 #[cfg(feature = "office")]
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 #[cfg(feature = "office")]
 use org::Org;
@@ -57,33 +59,33 @@ impl OrgModeExtractor {
     /// Also extracts document structure and content in parallel.
     fn extract_metadata_and_content(org_text: &str, org: &Org) -> (Metadata, String) {
         let mut metadata = Metadata::default();
-        let mut additional = HashMap::new();
+        let mut additional: AHashMap<Cow<'static, str>, serde_json::Value> = Default::default();
 
         for line in org_text.lines().take(100) {
             let trimmed = line.trim();
 
             if let Some(rest) = trimmed.strip_prefix("#+TITLE:") {
                 let value = rest.trim().to_string();
-                additional.insert("title".to_string(), serde_json::json!(value));
+                additional.insert(Cow::Borrowed("title"), serde_json::json!(value));
             } else if let Some(rest) = trimmed.strip_prefix("#+AUTHOR:") {
                 let value = rest.trim().to_string();
-                additional.insert("author".to_string(), serde_json::json!(&value));
-                additional.insert("authors".to_string(), serde_json::json!(vec![value]));
+                additional.insert(Cow::Borrowed("author"), serde_json::json!(&value));
+                additional.insert(Cow::Borrowed("authors"), serde_json::json!(vec![value]));
             } else if let Some(rest) = trimmed.strip_prefix("#+DATE:") {
                 let value = rest.trim().to_string();
                 metadata.created_at = Some(value.clone());
-                additional.insert("date".to_string(), serde_json::json!(value));
+                additional.insert(Cow::Borrowed("date"), serde_json::json!(value));
             } else if let Some(rest) = trimmed.strip_prefix("#+KEYWORDS:") {
                 let value = rest.trim();
                 let keywords: Vec<&str> = value.split(',').map(|s| s.trim()).collect();
-                additional.insert("keywords".to_string(), serde_json::json!(keywords));
+                additional.insert(Cow::Borrowed("keywords"), serde_json::json!(keywords));
             } else if let Some(rest) = trimmed.strip_prefix("#+")
                 && let Some((key, val)) = rest.split_once(':')
             {
                 let key_lower = key.trim().to_lowercase();
                 let value = val.trim();
                 if !key_lower.is_empty() && !value.is_empty() {
-                    additional.insert(format!("directive_{}", key_lower), serde_json::json!(value));
+                    additional.insert(Cow::Owned(format!("directive_{}", key_lower)), serde_json::json!(value));
                 }
             }
         }

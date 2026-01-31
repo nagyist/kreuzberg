@@ -9,7 +9,7 @@ use std::collections::HashMap;
 pub(super) fn handle_footnote_reference(state: &mut ExtractionState, label: &str) {
     state.flush_text();
 
-    let mut meta = HashMap::new();
+    let mut meta: HashMap<String, String> = HashMap::new();
     meta.insert("label".to_string(), label.to_string());
 
     state.current_inline_elements.push(InlineElement {

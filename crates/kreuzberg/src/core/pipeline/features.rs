@@ -6,6 +6,7 @@
 use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::types::ExtractionResult;
+use std::borrow::Cow;
 
 /// Execute chunking if configured.
 pub(super) fn execute_chunking(result: &mut ExtractionResult, config: &ExtractionConfig) -> Result<()> {
@@ -26,7 +27,7 @@ pub(super) fn execute_chunking(result: &mut ExtractionResult, config: &Extractio
 
                 if let Some(ref chunks) = result.chunks {
                     result.metadata.additional.insert(
-                        "chunk_count".to_string(),
+                        Cow::Borrowed("chunk_count"),
                         serde_json::Value::Number(serde_json::Number::from(chunks.len())),
                     );
                 }
@@ -40,13 +41,13 @@ pub(super) fn execute_chunking(result: &mut ExtractionResult, config: &Extractio
                             result
                                 .metadata
                                 .additional
-                                .insert("embeddings_generated".to_string(), serde_json::Value::Bool(true));
+                                .insert(Cow::Borrowed("embeddings_generated"), serde_json::Value::Bool(true));
                         }
                         Err(e) => {
-                            result
-                                .metadata
-                                .additional
-                                .insert("embedding_error".to_string(), serde_json::Value::String(e.to_string()));
+                            result.metadata.additional.insert(
+                                Cow::Borrowed("embedding_error"),
+                                serde_json::Value::String(e.to_string()),
+                            );
                         }
                     }
                 }
@@ -54,16 +55,16 @@ pub(super) fn execute_chunking(result: &mut ExtractionResult, config: &Extractio
                 #[cfg(not(feature = "embeddings"))]
                 if chunking_config.embedding.is_some() {
                     result.metadata.additional.insert(
-                        "embedding_error".to_string(),
+                        Cow::Borrowed("embedding_error"),
                         serde_json::Value::String("Embeddings feature not enabled".to_string()),
                     );
                 }
             }
             Err(e) => {
-                result
-                    .metadata
-                    .additional
-                    .insert("chunking_error".to_string(), serde_json::Value::String(e.to_string()));
+                result.metadata.additional.insert(
+                    Cow::Borrowed("chunking_error"),
+                    serde_json::Value::String(e.to_string()),
+                );
             }
         }
     }
@@ -71,7 +72,7 @@ pub(super) fn execute_chunking(result: &mut ExtractionResult, config: &Extractio
     #[cfg(not(feature = "chunking"))]
     if config.chunking.is_some() {
         result.metadata.additional.insert(
-            "chunking_error".to_string(),
+            Cow::Borrowed("chunking_error"),
             serde_json::Value::String("Chunking feature not enabled".to_string()),
         );
     }
@@ -89,7 +90,7 @@ pub(super) fn execute_language_detection(result: &mut ExtractionResult, config: 
             }
             Err(e) => {
                 result.metadata.additional.insert(
-                    "language_detection_error".to_string(),
+                    Cow::Borrowed("language_detection_error"),
                     serde_json::Value::String(e.to_string()),
                 );
             }
@@ -99,7 +100,7 @@ pub(super) fn execute_language_detection(result: &mut ExtractionResult, config: 
     #[cfg(not(feature = "language-detection"))]
     if config.language_detection.is_some() {
         result.metadata.additional.insert(
-            "language_detection_error".to_string(),
+            Cow::Borrowed("language_detection_error"),
             serde_json::Value::String("Language detection feature not enabled".to_string()),
         );
     }

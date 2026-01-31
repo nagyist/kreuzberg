@@ -2,7 +2,10 @@
 //!
 //! This module defines metadata structures for various document formats.
 
-use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+
+use ahash::AHashMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::{BTreeMap, HashMap};
 
 #[cfg(feature = "pdf")]
@@ -10,6 +13,35 @@ use crate::pdf::metadata::PdfMetadata;
 
 use super::formats::ImagePreprocessingMetadata;
 use super::page::PageStructure;
+
+/// Custom serialization and deserialization for AHashMap<Cow<'static, str>, Value>.
+///
+/// serde doesn't natively support serializing Cow keys, so we convert to/from
+/// a HashMap<String, Value> for the wire format, while keeping the in-memory
+/// representation optimized with Cow keys (avoiding allocations for static strings).
+mod additional_serde {
+    use super::*;
+
+    pub fn serialize<S>(map: &AHashMap<Cow<'static, str>, serde_json::Value>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // Convert to HashMap for serialization
+        let converted: HashMap<String, serde_json::Value> =
+            map.iter().map(|(k, v)| (k.to_string(), v.clone())).collect();
+        converted.serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<AHashMap<Cow<'static, str>, serde_json::Value>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // Deserialize from HashMap
+        let map = HashMap::<String, serde_json::Value>::deserialize(deserializer)?;
+        let result = map.into_iter().map(|(k, v)| (Cow::Owned(k), v)).collect();
+        Ok(result)
+    }
+}
 
 /// Format-specific metadata (discriminated union).
 ///
@@ -98,11 +130,16 @@ pub struct Metadata {
 
     /// Additional custom fields from postprocessors.
     ///
-    /// This flattened HashMap allows Python/TypeScript postprocessors to add
+    /// This flattened map allows Python/TypeScript postprocessors to add
     /// arbitrary fields (entity extraction, keyword extraction, etc.).
     /// Fields are merged at the root level during serialization.
-    #[serde(flatten)]
-    pub additional: HashMap<String, serde_json::Value>,
+    /// Uses `Cow<'static, str>` keys so static string keys avoid allocation.
+    #[serde(
+        flatten,
+        serialize_with = "additional_serde::serialize",
+        deserialize_with = "additional_serde::deserialize"
+    )]
+    pub additional: AHashMap<Cow<'static, str>, serde_json::Value>,
 }
 
 /// Excel/spreadsheet metadata.
@@ -262,7 +299,7 @@ pub struct LinkMetadata {
     /// Rel attribute values
     pub rel: Vec<String>,
     /// Additional attributes as key-value pairs
-    pub attributes: HashMap<String, String>,
+    pub attributes: Vec<(String, String)>,
 }
 
 /// Link type classification.
@@ -299,7 +336,7 @@ pub struct ImageMetadataType {
     /// Image type classification
     pub image_type: ImageType,
     /// Additional attributes as key-value pairs
-    pub attributes: HashMap<String, String>,
+    pub attributes: Vec<(String, String)>,
 }
 
 /// Image type classification.

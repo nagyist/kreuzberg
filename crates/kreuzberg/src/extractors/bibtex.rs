@@ -7,8 +7,10 @@ use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata};
+use ahash::AHashMap;
 use async_trait::async_trait;
-use std::collections::{HashMap, HashSet};
+use std::borrow::Cow;
+use std::collections::HashSet;
 
 #[cfg(feature = "office")]
 use biblatex::{Bibliography, ChunksExt};
@@ -79,7 +81,7 @@ impl DocumentExtractor for BibtexExtractor {
         let mut entries_vec = Vec::new();
         let mut authors_set = HashSet::new();
         let mut years_set = HashSet::new();
-        let mut entry_types_map = HashMap::new();
+        let mut entry_types_map: AHashMap<String, i32> = AHashMap::new();
         let mut formatted_entries = String::new();
 
         match Bibliography::parse(&bibtex_str) {
@@ -129,19 +131,19 @@ impl DocumentExtractor for BibtexExtractor {
             }
         }
 
-        let mut additional = HashMap::new();
+        let mut additional: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
 
-        additional.insert("entry_count".to_string(), serde_json::json!(entries_vec.len()));
+        additional.insert(Cow::Borrowed("entry_count"), serde_json::json!(entries_vec.len()));
 
         let mut authors_list: Vec<String> = authors_set.into_iter().collect();
         authors_list.sort();
-        additional.insert("authors".to_string(), serde_json::json!(authors_list));
+        additional.insert(Cow::Borrowed("authors"), serde_json::json!(authors_list));
 
         if !years_set.is_empty() {
             let min_year = years_set.iter().min().copied().unwrap_or(0);
             let max_year = years_set.iter().max().copied().unwrap_or(0);
             additional.insert(
-                "year_range".to_string(),
+                Cow::Borrowed("year_range"),
                 serde_json::json!({
                     "min": min_year,
                     "max": max_year,
@@ -155,10 +157,10 @@ impl DocumentExtractor for BibtexExtractor {
             for (entry_type, count) in entry_types_map {
                 entry_types_json[entry_type] = serde_json::json!(count);
             }
-            additional.insert("entry_types".to_string(), entry_types_json);
+            additional.insert(Cow::Borrowed("entry_types"), entry_types_json);
         }
 
-        additional.insert("citation_keys".to_string(), serde_json::json!(entries_vec));
+        additional.insert(Cow::Borrowed("citation_keys"), serde_json::json!(entries_vec));
 
         Ok(ExtractionResult {
             content: formatted_entries,
@@ -222,7 +224,10 @@ mod tests {
         assert!(result.content.contains("Sample Title"));
 
         let metadata = &result.metadata;
-        assert_eq!(metadata.additional.get("entry_count"), Some(&serde_json::json!(1)));
+        assert_eq!(
+            metadata.additional.get(&Cow::Borrowed("entry_count")),
+            Some(&serde_json::json!(1))
+        );
     }
 
     #[tokio::test]
@@ -258,15 +263,18 @@ mod tests {
 
         let metadata = &result.metadata;
 
-        assert_eq!(metadata.additional.get("entry_count"), Some(&serde_json::json!(3)));
+        assert_eq!(
+            metadata.additional.get(&Cow::Borrowed("entry_count")),
+            Some(&serde_json::json!(3))
+        );
 
-        if let Some(keys) = metadata.additional.get("citation_keys")
+        if let Some(keys) = metadata.additional.get(&Cow::Borrowed("citation_keys"))
             && let Some(keys_array) = keys.as_array()
         {
             assert_eq!(keys_array.len(), 3);
         }
 
-        if let Some(types) = metadata.additional.get("entry_types") {
+        if let Some(types) = metadata.additional.get(&Cow::Borrowed("entry_types")) {
             assert!(types.get("article").is_some());
             assert!(types.get("book").is_some());
             assert!(types.get("inproceedings").is_some());
@@ -330,7 +338,10 @@ mod tests {
         assert!(result.content.contains("The TeXbook"));
 
         let metadata = &result.metadata;
-        assert_eq!(metadata.additional.get("entry_count"), Some(&serde_json::json!(1)));
+        assert_eq!(
+            metadata.additional.get(&Cow::Borrowed("entry_count")),
+            Some(&serde_json::json!(1))
+        );
 
         if let Some(year_range) = metadata.additional.get("year_range") {
             assert_eq!(year_range.get("min"), Some(&serde_json::json!(1984)));
@@ -368,7 +379,10 @@ mod tests {
         let result = result.expect("Should extract valid metadata");
         let metadata = &result.metadata;
 
-        assert_eq!(metadata.additional.get("entry_count"), Some(&serde_json::json!(3)));
+        assert_eq!(
+            metadata.additional.get(&Cow::Borrowed("entry_count")),
+            Some(&serde_json::json!(3))
+        );
 
         if let Some(authors) = metadata.additional.get("authors")
             && let Some(authors_array) = authors.as_array()
@@ -381,7 +395,7 @@ mod tests {
             assert_eq!(year_range.get("max"), Some(&serde_json::json!(2021)));
         }
 
-        if let Some(types) = metadata.additional.get("entry_types") {
+        if let Some(types) = metadata.additional.get(&Cow::Borrowed("entry_types")) {
             assert_eq!(types.get("article"), Some(&serde_json::json!(2)));
             assert_eq!(types.get("book"), Some(&serde_json::json!(1)));
         }
@@ -401,7 +415,10 @@ mod tests {
         let result = result.expect("Should extract empty bibliography");
         let metadata = &result.metadata;
 
-        assert_eq!(metadata.additional.get("entry_count"), Some(&serde_json::json!(0)));
+        assert_eq!(
+            metadata.additional.get(&Cow::Borrowed("entry_count")),
+            Some(&serde_json::json!(0))
+        );
     }
 
     #[tokio::test]

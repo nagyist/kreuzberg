@@ -7,6 +7,7 @@ use crate::core::config::ExtractionConfig;
 use crate::plugins::ProcessingStage;
 use crate::types::ExtractionResult;
 use crate::{KreuzbergError, Result};
+use std::borrow::Cow;
 
 /// Execute all registered post-processors by stage.
 pub(super) async fn execute_processors(
@@ -37,7 +38,7 @@ pub(super) async fn execute_processors(
                     }
                     Err(err) => {
                         result.metadata.additional.insert(
-                            format!("processing_error_{processor_name}"),
+                            Cow::Owned(format!("processing_error_{processor_name}")),
                             serde_json::Value::String(err.to_string()),
                         );
                     }

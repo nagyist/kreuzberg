@@ -4,7 +4,9 @@ use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ExtractionResult, Metadata};
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 #[cfg(feature = "tokio-runtime")]
 use std::path::Path;
 
@@ -63,15 +65,18 @@ impl DocumentExtractor for StructuredExtractor {
             _ => return Err(crate::KreuzbergError::UnsupportedFormat(mime_type.to_string())),
         };
 
-        let mut additional = std::collections::HashMap::new();
+        let mut additional = AHashMap::new();
         additional.insert(
-            "field_count".to_string(),
+            Cow::Borrowed("field_count"),
             serde_json::json!(structured_result.text_fields.len()),
         );
-        additional.insert("data_format".to_string(), serde_json::json!(structured_result.format));
+        additional.insert(
+            Cow::Borrowed("data_format"),
+            serde_json::json!(structured_result.format),
+        );
 
         for (key, value) in structured_result.metadata {
-            additional.insert(key, serde_json::json!(value));
+            additional.insert(Cow::Owned(key), serde_json::json!(value));
         }
 
         Ok(ExtractionResult {

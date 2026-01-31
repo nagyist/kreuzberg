@@ -1,7 +1,7 @@
+use ahash::AHashMap;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::borrow::Cow;
-use std::collections::HashMap;
 
 use crate::utils::quality::{collapse_scattered_ascii, normalize_whitespace_ascii};
 
@@ -123,7 +123,7 @@ where
     }
 }
 
-pub fn calculate_quality_score(text: &str, metadata: Option<&HashMap<String, serde_json::Value>>) -> f64 {
+pub fn calculate_quality_score(text: &str, metadata: Option<&AHashMap<Cow<'static, str>, serde_json::Value>>) -> f64 {
     if text.is_empty() || text.trim().is_empty() {
         return 0.0;
     }
@@ -266,7 +266,7 @@ fn calculate_structure_bonus(text: &str) -> f64 {
 }
 
 #[inline]
-fn calculate_metadata_bonus(metadata: &HashMap<String, serde_json::Value>) -> f64 {
+fn calculate_metadata_bonus(metadata: &AHashMap<Cow<'static, str>, serde_json::Value>) -> f64 {
     const IMPORTANT_FIELDS: &[&str] = &["title", "author", "subject", "description", "keywords"];
 
     let present_fields = IMPORTANT_FIELDS
@@ -491,9 +491,9 @@ mod tests {
     #[test]
     fn test_calculate_quality_score_with_metadata() {
         let text = "This is a normal text with proper structure.";
-        let mut metadata = HashMap::new();
-        metadata.insert("title".to_string(), serde_json::json!("Test Title"));
-        metadata.insert("author".to_string(), serde_json::json!("Test Author"));
+        let mut metadata: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
+        metadata.insert(Cow::Borrowed("title"), serde_json::json!("Test Title"));
+        metadata.insert(Cow::Borrowed("author"), serde_json::json!("Test Author"));
 
         let score = calculate_quality_score(text, Some(&metadata));
         assert!(score > 0.0);
@@ -558,19 +558,19 @@ mod tests {
 
     #[test]
     fn test_calculate_metadata_bonus_empty() {
-        let metadata = HashMap::new();
+        let metadata: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
         let bonus = calculate_metadata_bonus(&metadata);
         assert_eq!(bonus, 0.0);
     }
 
     #[test]
     fn test_calculate_metadata_bonus_full() {
-        let mut metadata = HashMap::new();
-        metadata.insert("title".to_string(), serde_json::json!("Title"));
-        metadata.insert("author".to_string(), serde_json::json!("Author"));
-        metadata.insert("subject".to_string(), serde_json::json!("Subject"));
-        metadata.insert("description".to_string(), serde_json::json!("Description"));
-        metadata.insert("keywords".to_string(), serde_json::json!("Keywords"));
+        let mut metadata: AHashMap<Cow<'static, str>, serde_json::Value> = AHashMap::new();
+        metadata.insert(Cow::Borrowed("title"), serde_json::json!("Title"));
+        metadata.insert(Cow::Borrowed("author"), serde_json::json!("Author"));
+        metadata.insert(Cow::Borrowed("subject"), serde_json::json!("Subject"));
+        metadata.insert(Cow::Borrowed("description"), serde_json::json!("Description"));
+        metadata.insert(Cow::Borrowed("keywords"), serde_json::json!("Keywords"));
 
         let bonus = calculate_metadata_bonus(&metadata);
         assert_eq!(bonus, 1.0);

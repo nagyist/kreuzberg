@@ -1,7 +1,7 @@
 //! Type definitions for HTML extraction.
 
+use bytes::Bytes;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub use html_to_markdown_rs::{
     CodeBlockStyle, HeadingStyle, HighlightStyle, ListIndentType, NewlineStyle, PreprocessingOptions,
@@ -19,10 +19,11 @@ pub struct HtmlExtractionResult {
 /// Extracted inline image with metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtractedInlineImage {
-    pub data: Vec<u8>,
+    /// Uses `bytes::Bytes` for cheap cloning of large buffers.
+    pub data: Bytes,
     pub format: String,
     pub filename: Option<String>,
     pub description: Option<String>,
     pub dimensions: Option<(u32, u32)>,
-    pub attributes: HashMap<String, String>,
+    pub attributes: Vec<(String, String)>,
 }

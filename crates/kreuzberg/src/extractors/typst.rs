@@ -29,6 +29,8 @@ use crate::types::{ExtractionResult, Metadata};
 use async_trait::async_trait;
 #[cfg(feature = "office")]
 use regex::Regex;
+#[cfg(feature = "office")]
+use std::borrow::Cow;
 
 /// Typst document extractor
 #[cfg(feature = "office")]
@@ -151,11 +153,11 @@ impl TypstParser {
 
     fn extract_metadata(&mut self) {
         if let Some(title) = self.extract_quoted_value("title") {
-            self.metadata.additional.insert("title".to_string(), title.into());
+            self.metadata.additional.insert(Cow::Borrowed("title"), title.into());
         }
 
         if let Some(author) = self.extract_quoted_value("author") {
-            self.metadata.additional.insert("author".to_string(), author.into());
+            self.metadata.additional.insert(Cow::Borrowed("author"), author.into());
         }
 
         if let Some(date) = self.extract_quoted_value("date") {
@@ -163,11 +165,15 @@ impl TypstParser {
         }
 
         if let Some(subject) = self.extract_quoted_value("subject") {
-            self.metadata.additional.insert("subject".to_string(), subject.into());
+            self.metadata
+                .additional
+                .insert(Cow::Borrowed("subject"), subject.into());
         }
 
         if let Some(keywords) = self.extract_keywords() {
-            self.metadata.additional.insert("keywords".to_string(), keywords.into());
+            self.metadata
+                .additional
+                .insert(Cow::Borrowed("keywords"), keywords.into());
         }
     }
 

@@ -15,6 +15,7 @@
 use crate::plugins::{Plugin, PostProcessor, ProcessingStage};
 use crate::{ExtractionConfig, ExtractionResult, Result};
 use async_trait::async_trait;
+use std::borrow::Cow;
 
 /// Post-processor that calculates quality score and cleans text.
 ///
@@ -65,7 +66,7 @@ impl PostProcessor for QualityProcessor {
         };
 
         result.metadata.additional.insert(
-            "quality_score".to_string(),
+            Cow::Borrowed("quality_score"),
             serde_json::Value::Number(
                 serde_json::Number::from_f64(quality_score).unwrap_or(serde_json::Number::from(0)),
             ),

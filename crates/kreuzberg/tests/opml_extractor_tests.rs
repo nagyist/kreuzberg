@@ -576,7 +576,7 @@ async fn test_opml_extraction_statistics() {
                     println!("  Metadata fields: {}", result.metadata.additional.len());
 
                     if !result.metadata.additional.is_empty() {
-                        let keys: Vec<String> = result.metadata.additional.keys().cloned().collect();
+                        let keys: Vec<String> = result.metadata.additional.keys().map(|k| k.to_string()).collect();
                         println!("  Keys: {}", keys.join(", "));
                     }
 

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub use crate::types::ImagePreprocessingConfig;
 
@@ -154,7 +153,7 @@ impl From<&crate::types::TesseractConfig> for TesseractConfig {
 pub struct ExtractionResult {
     pub content: String,
     pub mime_type: String,
-    pub metadata: HashMap<String, serde_json::Value>,
+    pub metadata: std::collections::HashMap<String, serde_json::Value>,
     pub tables: Vec<Table>,
 }
 
@@ -260,7 +259,7 @@ mod tests {
 
     #[test]
     fn test_extraction_result_creation() {
-        let mut metadata = HashMap::new();
+        let mut metadata = std::collections::HashMap::new();
         metadata.insert("key".to_string(), serde_json::json!("value"));
 
         let table = Table {
@@ -308,7 +307,7 @@ mod tests {
         let result = crate::types::OcrExtractionResult {
             content: "content".to_string(),
             mime_type: "text/plain".to_string(),
-            metadata: HashMap::new(),
+            metadata: std::collections::HashMap::new(),
             tables: vec![],
         };
 

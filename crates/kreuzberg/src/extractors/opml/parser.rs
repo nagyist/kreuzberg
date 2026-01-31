@@ -4,10 +4,12 @@
 //! and recursive processing of `<outline>` elements in the `<body>` section.
 
 use crate::Result;
-use std::collections::HashMap;
+use ahash::AHashMap;
+use std::borrow::Cow;
 
 #[cfg(feature = "office")]
 use roxmltree::Node;
+use serde_json;
 
 /// Extract OPML content and metadata from raw bytes.
 ///
@@ -20,7 +22,9 @@ use roxmltree::Node;
 /// - Extracted content as a String (outline hierarchy with indentation)
 /// - Metadata HashMap with key-value pairs from the head section
 #[cfg(feature = "office")]
-pub(crate) fn extract_content_and_metadata(content: &[u8]) -> Result<(String, HashMap<String, serde_json::Value>)> {
+pub(crate) fn extract_content_and_metadata(
+    content: &[u8],
+) -> Result<(String, AHashMap<Cow<'static, str>, serde_json::Value>)> {
     let doc = roxmltree::Document::parse(
         std::str::from_utf8(content)
             .map_err(|e| crate::KreuzbergError::Other(format!("Invalid UTF-8 in OPML: {}", e)))?,
@@ -28,7 +32,7 @@ pub(crate) fn extract_content_and_metadata(content: &[u8]) -> Result<(String, Ha
     .map_err(|e| crate::KreuzbergError::Other(format!("Failed to parse OPML: {}", e)))?;
 
     let mut extracted_content = String::new();
-    let mut metadata = HashMap::new();
+    let mut metadata = AHashMap::new();
 
     if let Some(opml) = doc.root().children().find(|n| n.tag_name().name() == "opml") {
         if let Some(head) = opml.children().find(|n| n.tag_name().name() == "head") {
@@ -60,7 +64,7 @@ pub(crate) fn extract_content_and_metadata(content: &[u8]) -> Result<(String, Ha
 /// - ownerName: Document owner's name
 /// - ownerEmail: Document owner's email
 #[cfg(feature = "office")]
-fn extract_metadata_from_head(head: Node, metadata: &mut HashMap<String, serde_json::Value>) {
+fn extract_metadata_from_head(head: Node, metadata: &mut AHashMap<Cow<'static, str>, serde_json::Value>) {
     for child in head.children().filter(|n| n.is_element()) {
         let tag = child.tag_name().name();
         let text = child.text().unwrap_or("").trim();
@@ -71,19 +75,19 @@ fn extract_metadata_from_head(head: Node, metadata: &mut HashMap<String, serde_j
 
         match tag {
             "title" => {
-                metadata.insert("title".to_string(), serde_json::json!(text));
+                metadata.insert(Cow::Borrowed("title"), serde_json::json!(text));
             }
             "dateCreated" => {
-                metadata.insert("dateCreated".to_string(), serde_json::json!(text));
+                metadata.insert(Cow::Borrowed("dateCreated"), serde_json::json!(text));
             }
             "dateModified" => {
-                metadata.insert("dateModified".to_string(), serde_json::json!(text));
+                metadata.insert(Cow::Borrowed("dateModified"), serde_json::json!(text));
             }
             "ownerName" => {
-                metadata.insert("ownerName".to_string(), serde_json::json!(text));
+                metadata.insert(Cow::Borrowed("ownerName"), serde_json::json!(text));
             }
             "ownerEmail" => {
-                metadata.insert("ownerEmail".to_string(), serde_json::json!(text));
+                metadata.insert(Cow::Borrowed("ownerEmail"), serde_json::json!(text));
             }
             _ => {}
         }

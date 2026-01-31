@@ -8,7 +8,9 @@ use crate::extraction::archive::{
 };
 use crate::plugins::{DocumentExtractor, Plugin};
 use crate::types::{ArchiveMetadata, ExtractionResult, Metadata};
+use ahash::AHashMap;
 use async_trait::async_trait;
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 /// Build an ExtractionResult from archive metadata and text contents.
@@ -35,7 +37,7 @@ fn build_archive_result(
         compressed_size: None,
     };
 
-    let mut additional = HashMap::new();
+    let mut additional = AHashMap::new();
     let file_details: Vec<serde_json::Value> = extraction_metadata
         .file_list
         .iter()
@@ -47,7 +49,7 @@ fn build_archive_result(
             })
         })
         .collect();
-    additional.insert("files".to_string(), serde_json::json!(file_details));
+    additional.insert(Cow::Borrowed("files"), serde_json::json!(file_details));
 
     let mut output = format!(
         "{} Archive ({} files, {} bytes)\n\n",

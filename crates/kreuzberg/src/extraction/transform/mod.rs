@@ -138,6 +138,7 @@ pub fn transform_extraction_result_to_elements(result: &ExtractionResult) -> Vec
 #[cfg(test)]
 mod tests {
     use super::*;
+    use bytes::Bytes;
 
     #[test]
     fn test_detect_bullet_items() {
@@ -358,7 +359,7 @@ mod tests {
         };
 
         let image = ExtractedImage {
-            data: vec![1, 2, 3, 4],
+            data: Bytes::from_static(&[1, 2, 3, 4]),
             format: "jpeg".to_string(),
             image_index: 0,
             page_number: Some(1),

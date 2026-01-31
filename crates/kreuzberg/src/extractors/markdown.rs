@@ -28,6 +28,8 @@ use crate::types::{ExtractionResult, Metadata, Table};
 use async_trait::async_trait;
 #[cfg(feature = "office")]
 use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd};
+#[cfg(feature = "office")]
+use std::borrow::Cow;
 
 /// Enhanced Markdown extractor with metadata and table support.
 ///
@@ -211,7 +213,7 @@ impl DocumentExtractor for MarkdownExtractor {
         if !metadata.additional.contains_key("title")
             && let Some(title) = extract_title_from_content(&remaining_content)
         {
-            metadata.additional.insert("title".to_string(), title.into());
+            metadata.additional.insert(Cow::Borrowed("title"), title.into());
         }
 
         let parser = Parser::new_ext(&remaining_content, Options::ENABLE_TABLES);

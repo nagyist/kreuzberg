@@ -58,6 +58,7 @@ tracing = "0.1"
 
 ahash = "0.8.12"
 base64 = "0.22.1"
+bytes = { version = "1", features = ["serde"] }
 hex = "0.4.3"
 num_cpus = "1.17.0"
 once_cell = "1.21.3"

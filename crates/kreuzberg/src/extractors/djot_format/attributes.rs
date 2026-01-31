@@ -2,8 +2,6 @@
 //!
 //! Handles parsing of Djot attributes from jotdown events and string syntax.
 
-use std::collections::HashMap;
-
 /// Parse jotdown attributes into our Attributes representation.
 ///
 /// Converts jotdown's internal attribute representation to Kreuzberg's
@@ -14,7 +12,7 @@ pub fn parse_jotdown_attributes(attrs: &jotdown::Attributes) -> crate::types::At
 
     let mut id = None;
     let mut classes = Vec::new();
-    let mut key_values = HashMap::new();
+    let mut key_values = Vec::new();
 
     for (kind, value) in attrs.iter() {
         match kind {
@@ -26,7 +24,7 @@ pub fn parse_jotdown_attributes(attrs: &jotdown::Attributes) -> crate::types::At
                 classes.push(value.to_string());
             }
             AttributeKind::Pair { key } => {
-                key_values.insert(key.to_string(), value.to_string());
+                key_values.push((key.to_string(), value.to_string()));
             }
             AttributeKind::Comment => {
                 // Comments are ignored in our representation
@@ -49,7 +47,7 @@ pub fn parse_djot_attributes(attr_str: &str) -> crate::types::Attributes {
     let mut attrs = Attributes {
         id: None,
         classes: Vec::new(),
-        key_values: HashMap::new(),
+        key_values: Vec::new(),
     };
 
     // Simple parser for attribute syntax
@@ -66,7 +64,7 @@ pub fn parse_djot_attributes(attr_str: &str) -> crate::types::Attributes {
             // Key-value pair
             if let Some((key, value)) = token.split_once('=') {
                 let clean_value = value.trim_matches('"').trim_matches('\'');
-                attrs.key_values.insert(key.to_string(), clean_value.to_string());
+                attrs.key_values.push((key.to_string(), clean_value.to_string()));
             }
         }
     }
@@ -106,12 +104,11 @@ mod tests {
 
     #[test]
     fn test_render_attributes_with_all_parts() {
-        let mut attrs = crate::types::Attributes {
+        let attrs = crate::types::Attributes {
             id: Some("my-id".to_string()),
             classes: vec!["class1".to_string(), "class2".to_string()],
-            key_values: HashMap::new(),
+            key_values: vec![("data-test".to_string(), "value".to_string())],
         };
-        attrs.key_values.insert("data-test".to_string(), "value".to_string());
 
         let rendered = render_attributes(&attrs);
         assert!(rendered.contains("#my-id"));
@@ -125,7 +122,7 @@ mod tests {
         let attrs = crate::types::Attributes {
             id: None,
             classes: vec![],
-            key_values: HashMap::new(),
+            key_values: Vec::new(),
         };
 
         let rendered = render_attributes(&attrs);

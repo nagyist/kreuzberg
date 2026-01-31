@@ -11,6 +11,7 @@ use kreuzberg::plugins::{Plugin, PostProcessor, ProcessingStage};
 use kreuzberg::types::ExtractionResult;
 use kreuzberg::{KreuzbergError, Result, extract_file_sync};
 use serial_test::serial;
+use std::borrow::Cow;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
@@ -82,9 +83,9 @@ impl PostProcessor for MetadataAddingProcessor {
         result
             .metadata
             .additional
-            .insert("processed_by".to_string(), serde_json::json!(self.name()));
+            .insert(Cow::Borrowed("processed_by"), serde_json::json!(self.name()));
         result.metadata.additional.insert(
-            "word_count".to_string(),
+            Cow::Borrowed("word_count"),
             serde_json::json!(result.content.split_whitespace().count()),
         );
         Ok(())

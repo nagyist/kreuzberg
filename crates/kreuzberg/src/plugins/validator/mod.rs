@@ -19,8 +19,9 @@ mod tests {
     use crate::core::config::ExtractionConfig;
     use crate::plugins::Plugin;
     use crate::types::ExtractionResult;
+    use ahash::AHashMap;
     use async_trait::async_trait;
-    use std::collections::HashMap;
+    use std::borrow::Cow;
 
     struct MockValidator {
         should_fail: bool,
@@ -318,8 +319,8 @@ mod tests {
     async fn test_validator_with_metadata() {
         let validator = MockValidator { should_fail: false };
 
-        let mut additional = HashMap::new();
-        additional.insert("quality_score".to_string(), serde_json::json!(0.95));
+        let mut additional = AHashMap::new();
+        additional.insert(Cow::Borrowed("quality_score"), serde_json::json!(0.95));
 
         let result = ExtractionResult {
             content: "test".to_string(),

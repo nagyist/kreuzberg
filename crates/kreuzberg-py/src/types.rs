@@ -585,7 +585,7 @@ mod tests {
             rust_result
                 .metadata
                 .additional
-                .insert("source".to_string(), serde_json::json!("original"));
+                .insert(std::borrow::Cow::Borrowed("source"), serde_json::json!("original"));
 
             let mut py_result =
                 ExtractionResult::from_rust(rust_result, py, None, None).expect("conversion should succeed");
