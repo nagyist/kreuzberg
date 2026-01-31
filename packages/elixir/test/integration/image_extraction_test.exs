@@ -35,38 +35,38 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
     end
 
     @tag :integration
-    test "creates Image struct with DPI" do
-      image = Kreuzberg.Image.new("png", dpi: 300)
+    test "creates Image struct with color space" do
+      image = Kreuzberg.Image.new("png", colorspace: "RGB")
 
       assert image.format == "png"
-      assert image.dpi == 300
+      assert image.colorspace == "RGB"
     end
 
     @tag :integration
-    test "creates Image struct with OCR text" do
+    test "creates Image struct with OCR result" do
       image =
         Kreuzberg.Image.new(
           "png",
           width: 640,
           height: 480,
-          ocr_text: "Extracted text from image"
+          ocr_result: %Kreuzberg.ExtractionResult{content: "Extracted text from image"}
         )
 
-      assert image.ocr_text == "Extracted text from image"
+      assert image.ocr_result.content == "Extracted text from image"
       assert image.width == 640
       assert image.height == 480
     end
 
     @tag :integration
-    test "creates Image struct with MIME type" do
+    test "creates Image struct with image index" do
       image =
         Kreuzberg.Image.new(
           "png",
-          mime_type: "image/png"
+          image_index: 0
         )
 
       assert image.format == "png"
-      assert image.mime_type == "image/png"
+      assert image.image_index == 0
     end
 
     @tag :integration
@@ -86,7 +86,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         "format" => "png",
         "width" => 800,
         "height" => 600,
-        "dpi" => 150
+        "image_index" => 0
       }
 
       image = Kreuzberg.Image.from_map(image_map)
@@ -95,7 +95,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       assert image.format == "png"
       assert image.width == 800
       assert image.height == 600
-      assert image.dpi == 150
+      assert image.image_index == 0
     end
   end
 
@@ -123,7 +123,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         height: 1080
       }
 
-      aspect = Kreuzberg.Image.aspect_ratio(image)
+      aspect = image.width / image.height
 
       assert is_float(aspect) or is_integer(aspect)
       # 16:9 aspect ratio
@@ -138,7 +138,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         height: 512
       }
 
-      aspect = Kreuzberg.Image.aspect_ratio(image)
+      aspect = image.width / image.height
 
       assert aspect == 1.0
     end
@@ -149,7 +149,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         format: "png"
       }
 
-      aspect = Kreuzberg.Image.aspect_ratio(image)
+      aspect = if image.width && image.height, do: image.width / image.height, else: nil
 
       assert aspect == nil
     end
@@ -169,61 +169,55 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
     end
 
     @tag :integration
-    test "tracks file size" do
+    test "stores binary data correctly" do
       png_binary = Base.decode64!(@sample_png_base64)
 
       image =
         Kreuzberg.Image.new(
           "png",
-          data: png_binary,
-          file_size: byte_size(png_binary)
+          data: png_binary
         )
 
-      assert image.file_size == byte_size(png_binary)
+      assert byte_size(image.data) == byte_size(png_binary)
     end
   end
 
   describe "Image format handling" do
     @tag :integration
     test "supports PNG format" do
-      image = Kreuzberg.Image.new("png", dpi: 96)
+      image = Kreuzberg.Image.new("png")
 
       assert image.format == "png"
     end
 
     @tag :integration
     test "supports JPEG format" do
-      image = Kreuzberg.Image.new("jpeg", dpi: 72)
+      image = Kreuzberg.Image.new("jpeg")
 
       assert image.format == "jpeg"
     end
 
     @tag :integration
     test "supports WebP format" do
-      image = Kreuzberg.Image.new("webp", dpi: 150)
+      image = Kreuzberg.Image.new("webp")
 
       assert image.format == "webp"
     end
 
     @tag :integration
     test "supports TIFF format" do
-      image = Kreuzberg.Image.new("tiff", dpi: 300)
+      image = Kreuzberg.Image.new("tiff")
 
       assert image.format == "tiff"
     end
 
     @tag :integration
-    test "MIME type corresponds to format" do
-      formats_and_mimes = [
-        {"png", "image/png"},
-        {"jpeg", "image/jpeg"},
-        {"webp", "image/webp"},
-        {"gif", "image/gif"}
-      ]
+    test "format field is set correctly" do
+      formats = ["png", "jpeg", "webp", "gif"]
 
-      Enum.each(formats_and_mimes, fn {format, mime} ->
-        image = Kreuzberg.Image.new(format, mime_type: mime)
-        assert image.mime_type == mime
+      Enum.each(formats, fn format ->
+        image = Kreuzberg.Image.new(format)
+        assert image.format == format
       end)
     end
   end
@@ -240,11 +234,11 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       image =
         Kreuzberg.Image.new(
           "png",
-          ocr_text: ocr_text
+          ocr_result: %Kreuzberg.ExtractionResult{content: ocr_text}
         )
 
-      assert image.ocr_text == ocr_text
-      assert String.length(image.ocr_text) > 0
+      assert image.ocr_result.content == ocr_text
+      assert String.length(image.ocr_result.content) > 0
     end
 
     @tag :integration
@@ -252,10 +246,10 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       image =
         Kreuzberg.Image.new(
           "png",
-          ocr_text: ""
+          ocr_result: %Kreuzberg.ExtractionResult{content: ""}
         )
 
-      assert image.ocr_text == ""
+      assert image.ocr_result.content == ""
     end
 
     @tag :integration
@@ -265,10 +259,10 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       image =
         Kreuzberg.Image.new(
           "jpeg",
-          ocr_text: unicode_text
+          ocr_result: %Kreuzberg.ExtractionResult{content: unicode_text}
         )
 
-      assert image.ocr_text == unicode_text
+      assert image.ocr_result.content == unicode_text
     end
 
     @tag :integration
@@ -278,10 +272,10 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       image =
         Kreuzberg.Image.new(
           "png",
-          ocr_text: special_text
+          ocr_result: %Kreuzberg.ExtractionResult{content: special_text}
         )
 
-      assert image.ocr_text == special_text
+      assert image.ocr_result.content == special_text
     end
   end
 
@@ -293,7 +287,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
           "png",
           width: 640,
           height: 480,
-          dpi: 150
+          image_index: 0
         )
 
       image_map = Kreuzberg.Image.to_map(image)
@@ -302,7 +296,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       assert image_map["format"] == "png"
       assert image_map["width"] == 640
       assert image_map["height"] == 480
-      assert image_map["dpi"] == 150
+      assert image_map["image_index"] == 0
     end
 
     @tag :integration
@@ -312,9 +306,8 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
           "jpeg",
           width: 1024,
           height: 768,
-          dpi: 200,
-          mime_type: "image/jpeg",
-          ocr_text: "Sample OCR text"
+          image_index: 0,
+          ocr_result: %Kreuzberg.ExtractionResult{content: "Sample OCR text"}
         )
 
       image_map = Kreuzberg.Image.to_map(original)
@@ -323,8 +316,8 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       assert restored.format == original.format
       assert restored.width == original.width
       assert restored.height == original.height
-      assert restored.dpi == original.dpi
-      assert restored.ocr_text == original.ocr_text
+      assert restored.image_index == original.image_index
+      assert restored.ocr_result.content == original.ocr_result.content
     end
 
     @tag :integration
@@ -334,9 +327,8 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
           "png",
           width: 800,
           height: 600,
-          dpi: 96,
-          mime_type: "image/png",
-          ocr_text: "Text in image"
+          image_index: 0,
+          ocr_result: %Kreuzberg.ExtractionResult{content: "Text in image"}
         )
 
       image_map = Kreuzberg.Image.to_map(image)
@@ -346,7 +338,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       {:ok, decoded} = Jason.decode(json)
       assert decoded["format"] == "png"
       assert decoded["width"] == 800
-      assert decoded["ocr_text"] == "Text in image"
+      assert decoded["ocr_result"]["content"] == "Text in image"
     end
 
     @tag :integration
@@ -356,7 +348,6 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
           "tiff",
           width: 2048,
           height: 1536,
-          dpi: 300,
           page_number: 3
         )
 
@@ -366,7 +357,6 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
 
       assert decoded["width"] == 2048
       assert decoded["height"] == 1536
-      assert decoded["dpi"] == 300
       assert decoded["page_number"] == 3
     end
   end
@@ -404,36 +394,36 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
     end
 
     @tag :integration
-    test "matches on Image with OCR text" do
+    test "matches on Image with OCR result" do
       image =
         Kreuzberg.Image.new(
           "png",
-          ocr_text: "Some extracted text"
+          ocr_result: %Kreuzberg.ExtractionResult{content: "Some extracted text"}
         )
 
       case image do
-        %Kreuzberg.Image{ocr_text: text} when is_binary(text) ->
+        %Kreuzberg.Image{ocr_result: result} when result != nil ->
           assert true
 
         _ ->
-          flunk("OCR text pattern match failed")
+          flunk("OCR result pattern match failed")
       end
     end
 
     @tag :integration
-    test "matches on Image with high DPI" do
+    test "matches on Image with high bits per component" do
       image =
         Kreuzberg.Image.new(
           "png",
-          dpi: 300
+          bits_per_component: 8
         )
 
       case image do
-        %Kreuzberg.Image{dpi: dpi} when dpi >= 300 ->
+        %Kreuzberg.Image{bits_per_component: bits} when bits >= 8 ->
           assert true
 
         _ ->
-          flunk("DPI pattern match failed")
+          flunk("bits per component pattern match failed")
       end
     end
   end
@@ -462,12 +452,12 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
     end
 
     @tag :integration
-    test "handles various DPI values" do
-      test_dpis = [72, 96, 150, 200, 300, 600]
+    test "handles various colorspace values" do
+      test_colorspaces = ["RGB", "CMYK", "Grayscale", "Lab"]
 
-      Enum.each(test_dpis, fn dpi ->
-        image = Kreuzberg.Image.new("png", dpi: dpi)
-        assert image.dpi == dpi
+      Enum.each(test_colorspaces, fn colorspace ->
+        image = Kreuzberg.Image.new("png", colorspace: colorspace)
+        assert image.colorspace == colorspace
       end)
     end
 
@@ -490,8 +480,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         Kreuzberg.Image.new(
           "tiff",
           width: 10_000,
-          height: 10_000,
-          dpi: 600
+          height: 10_000
         )
 
       assert image.width == 10_000
@@ -509,20 +498,20 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
 
       assert image.width == 1
       assert image.height == 1
-      aspect = Kreuzberg.Image.aspect_ratio(image)
+      aspect = image.width / image.height
       assert aspect == 1.0
     end
 
     @tag :integration
-    test "handles empty OCR text gracefully" do
+    test "handles empty OCR result gracefully" do
       image =
         Kreuzberg.Image.new(
           "jpeg",
-          ocr_text: ""
+          ocr_result: %Kreuzberg.ExtractionResult{content: ""}
         )
 
-      assert image.ocr_text == ""
-      refute String.length(image.ocr_text) > 0
+      assert image.ocr_result.content == ""
+      refute String.length(image.ocr_result.content) > 0
     end
 
     @tag :integration
@@ -532,19 +521,19 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       image =
         Kreuzberg.Image.new(
           "png",
-          ocr_text: long_text
+          ocr_result: %Kreuzberg.ExtractionResult{content: long_text}
         )
 
-      assert String.length(image.ocr_text) == 100_000
+      assert String.length(image.ocr_result.content) == 100_000
     end
 
     @tag :integration
-    test "handles mixed case file sizes" do
-      file_sizes = [0, 1, 1_000, 1_000_000, 10_000_000]
+    test "handles various bits per component values" do
+      bits_values = [1, 4, 8, 16, 32]
 
-      Enum.each(file_sizes, fn size ->
-        image = Kreuzberg.Image.new("jpeg", file_size: size)
-        assert image.file_size == size
+      Enum.each(bits_values, fn bits ->
+        image = Kreuzberg.Image.new("jpeg", bits_per_component: bits)
+        assert image.bits_per_component == bits
       end)
     end
 
@@ -555,7 +544,7 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         data: nil,
         width: nil,
         height: nil,
-        ocr_text: nil
+        ocr_result: nil
       }
 
       assert image.format == "png"
@@ -573,11 +562,11 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
           "png",
           width: 640,
           height: 480,
-          dpi: 150,
-          mime_type: "image/png",
-          ocr_text: "test",
+          image_index: 0,
+          colorspace: "RGB",
+          ocr_result: %Kreuzberg.ExtractionResult{content: "test"},
           page_number: 1,
-          file_size: 5000
+          bits_per_component: 8
         )
 
       image_map = Kreuzberg.Image.to_map(image)
@@ -585,11 +574,11 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       assert Map.has_key?(image_map, "format")
       assert Map.has_key?(image_map, "width")
       assert Map.has_key?(image_map, "height")
-      assert Map.has_key?(image_map, "dpi")
-      assert Map.has_key?(image_map, "mime_type")
-      assert Map.has_key?(image_map, "ocr_text")
+      assert Map.has_key?(image_map, "image_index")
+      assert Map.has_key?(image_map, "colorspace")
+      assert Map.has_key?(image_map, "ocr_result")
       assert Map.has_key?(image_map, "page_number")
-      assert Map.has_key?(image_map, "file_size")
+      assert Map.has_key?(image_map, "bits_per_component")
     end
 
     @tag :integration
@@ -598,11 +587,11 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
         "format" => "jpeg",
         "width" => 1024,
         "height" => 768,
-        "dpi" => 200,
-        "mime_type" => "image/jpeg",
-        "ocr_text" => "restored text",
+        "image_index" => 0,
+        "colorspace" => "RGB",
+        "ocr_result" => %{"content" => "restored text", "mime_type" => ""},
         "page_number" => 2,
-        "file_size" => 100_000
+        "bits_per_component" => 8
       }
 
       image = Kreuzberg.Image.from_map(original_map)
@@ -610,11 +599,11 @@ defmodule KreuzbergTest.Integration.ImageExtractionTest do
       assert image.format == "jpeg"
       assert image.width == 1024
       assert image.height == 768
-      assert image.dpi == 200
-      assert image.mime_type == "image/jpeg"
-      assert image.ocr_text == "restored text"
+      assert image.image_index == 0
+      assert image.colorspace == "RGB"
+      assert image.ocr_result.content == "restored text"
       assert image.page_number == 2
-      assert image.file_size == 100_000
+      assert image.bits_per_component == 8
     end
   end
 end

@@ -12,32 +12,28 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
     test "creates metadata struct from map" do
       map = %{
         "title" => "Report 2024",
-        "author" => "John Doe",
-        "page_count" => 10,
-        "created_date" => "2024-01-15T10:30:00Z"
+        "authors" => ["John Doe"],
+        "created_at" => "2024-01-15T10:30:00Z"
       }
 
       metadata = Kreuzberg.Metadata.from_map(map)
 
       assert metadata.title == "Report 2024"
-      assert metadata.author == "John Doe"
-      assert metadata.page_count == 10
-      assert metadata.created_date == "2024-01-15T10:30:00Z"
+      assert metadata.authors == ["John Doe"]
+      assert metadata.created_at == "2024-01-15T10:30:00Z"
       assert is_struct(metadata, Kreuzberg.Metadata)
     end
 
     test "converts metadata struct to map" do
       metadata = %Kreuzberg.Metadata{
         title: "Report",
-        page_count: 5,
-        author: "Jane"
+        authors: ["Jane"]
       }
 
       map = Kreuzberg.Metadata.to_map(metadata)
 
       assert map["title"] == "Report"
-      assert map["page_count"] == 5
-      assert map["author"] == "Jane"
+      assert map["authors"] == ["Jane"]
       assert is_map(map)
     end
 
@@ -45,7 +41,7 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
       metadata = %Kreuzberg.Metadata{}
 
       assert metadata.title == nil
-      assert metadata.page_count == nil
+      assert metadata.authors == nil
       assert is_struct(metadata, Kreuzberg.Metadata)
     end
   end
@@ -54,28 +50,24 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
     test "creates table struct from map" do
       map = %{
         "cells" => [["A", "B"], ["1", "2"]],
-        "headers" => ["A", "B"],
         "markdown" => "| A | B |\n|---|---|\n| 1 | 2 |"
       }
 
       table = Kreuzberg.Table.from_map(map)
 
       assert table.cells == [["A", "B"], ["1", "2"]]
-      assert table.headers == ["A", "B"]
       assert table.markdown =~ "|"
       assert is_struct(table, Kreuzberg.Table)
     end
 
     test "converts table struct to map" do
       table = %Kreuzberg.Table{
-        cells: [["X", "Y"]],
-        headers: ["X", "Y"]
+        cells: [["X", "Y"]]
       }
 
       map = Kreuzberg.Table.to_map(table)
 
       assert map["cells"] == [["X", "Y"]]
-      assert map["headers"] == ["X", "Y"]
     end
 
     test "calculates row and column counts" do
@@ -109,14 +101,14 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
       map = %{
         "content" => "content",
         "embedding" => [0.3, 0.4, 0.5],
-        "token_count" => 15
+        "metadata" => %{"token_count" => 15}
       }
 
       chunk = Kreuzberg.Chunk.from_map(map)
 
       assert chunk.content == "content"
       assert chunk.embedding == [0.3, 0.4, 0.5]
-      assert chunk.token_count == 15
+      assert chunk.metadata.token_count == 15
     end
 
     test "converts chunk to map" do
@@ -134,12 +126,11 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
 
   describe "Image struct" do
     test "creates image struct with new/2" do
-      image = Kreuzberg.Image.new("png", width: 1024, height: 768, dpi: 150)
+      image = Kreuzberg.Image.new("png", width: 1024, height: 768)
 
       assert image.format == "png"
       assert image.width == 1024
       assert image.height == 768
-      assert image.dpi == 150
       assert is_struct(image, Kreuzberg.Image)
     end
 
@@ -148,14 +139,14 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
         "format" => "jpeg",
         "width" => 1920,
         "height" => 1080,
-        "ocr_text" => "extracted text"
+        "ocr_result" => %{"content" => "extracted text", "mime_type" => "text/plain"}
       }
 
       image = Kreuzberg.Image.from_map(map)
 
       assert image.format == "jpeg"
       assert image.width == 1920
-      assert image.ocr_text == "extracted text"
+      assert image.ocr_result.content == "extracted text"
     end
 
     test "converts image to map" do
@@ -185,7 +176,7 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
     test "calculates aspect ratio" do
       image = %Kreuzberg.Image{width: 1920, height: 1080}
 
-      ratio = Kreuzberg.Image.aspect_ratio(image)
+      ratio = image.width / image.height
 
       assert is_float(ratio)
       assert abs(ratio - 1.777) < 0.01
@@ -194,66 +185,50 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
     test "returns nil for aspect ratio without dimensions" do
       image = %Kreuzberg.Image{format: "png"}
 
-      assert Kreuzberg.Image.aspect_ratio(image) == nil
+      ratio = if image.width && image.height, do: image.width / image.height, else: nil
+
+      assert ratio == nil
     end
   end
 
   describe "Page struct" do
-    test "creates page struct with new/3" do
-      page = Kreuzberg.Page.new(1, "Page content", width: 8.5, height: 11.0)
+    test "creates page struct with from_map" do
+      page = Kreuzberg.Page.from_map(%{"page_number" => 1, "content" => "Page content"})
 
-      assert page.number == 1
+      assert page.page_number == 1
       assert page.content == "Page content"
-      assert page.width == 8.5
-      assert page.height == 11.0
       assert is_struct(page, Kreuzberg.Page)
     end
 
     test "creates page from map" do
       map = %{
-        "number" => 2,
-        "content" => "page text",
-        "width" => 8.5,
-        "height" => 11.0
+        "page_number" => 2,
+        "content" => "page text"
       }
 
       page = Kreuzberg.Page.from_map(map)
 
-      assert page.number == 2
+      assert page.page_number == 2
       assert page.content == "page text"
     end
 
     test "converts page to map" do
       page = %Kreuzberg.Page{
-        number: 3,
+        page_number: 3,
         content: "content"
       }
 
       map = Kreuzberg.Page.to_map(page)
 
-      assert map["number"] == 3
+      assert map["page_number"] == 3
       assert map["content"] == "content"
-    end
-
-    test "returns page size as tuple" do
-      page = %Kreuzberg.Page{width: 8.5, height: 11.0}
-
-      size = Kreuzberg.Page.size(page)
-
-      assert size == {8.5, 11.0}
-    end
-
-    test "returns nil for size without dimensions" do
-      page = %Kreuzberg.Page{number: 1}
-
-      assert Kreuzberg.Page.size(page) == nil
     end
   end
 
   describe "ExtractionResult struct with nested structs" do
     test "creates result with struct fields" do
       metadata = %Kreuzberg.Metadata{title: "Report"}
-      table = %Kreuzberg.Table{headers: ["Col1", "Col2"]}
+      table = %Kreuzberg.Table{cells: [["Col1", "Col2"]]}
 
       result =
         Kreuzberg.ExtractionResult.new(
@@ -272,7 +247,7 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
     end
 
     test "converts maps to structs automatically" do
-      metadata_map = %{"title" => "Report", "page_count" => 5}
+      metadata_map = %{"title" => "Report"}
       table_map = %{"cells" => [["A", "B"]]}
 
       result =
@@ -325,7 +300,7 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
     end
 
     test "normalizes pages to structs" do
-      page_map = %{"number" => 1, "content" => "page text"}
+      page_map = %{"page_number" => 1, "content" => "page text"}
 
       result =
         Kreuzberg.ExtractionResult.new(
@@ -339,7 +314,7 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
       assert result.pages != nil
       page = Enum.at(result.pages, 0)
       assert is_struct(page, Kreuzberg.Page)
-      assert page.number == 1
+      assert page.page_number == 1
     end
 
     test "handles empty metadata default" do
@@ -409,7 +384,7 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
         detected_languages: ["en"],
         chunks: [%Kreuzberg.Chunk{content: "chunk"}],
         images: [%Kreuzberg.Image{format: "png"}],
-        pages: [%Kreuzberg.Page{number: 1, content: "page"}]
+        pages: [%Kreuzberg.Page{page_number: 1, content: "page"}]
       }
 
       assert is_struct(result.metadata, Kreuzberg.Metadata)
@@ -454,8 +429,8 @@ defmodule KreuzbergTest.Unit.StructRefactoringTest do
       image = Kreuzberg.Image.new("png")
       assert is_struct(image)
 
-      page = Kreuzberg.Page.new(1, "content")
-      assert is_struct(page)
+      page = Kreuzberg.Page.from_map(%{"page_number" => 1, "content" => "content"})
+      assert is_struct(page, Kreuzberg.Page)
     end
   end
 end

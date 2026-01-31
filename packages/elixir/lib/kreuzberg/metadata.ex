@@ -2,164 +2,186 @@ defmodule Kreuzberg.Metadata do
   @moduledoc """
   Structure representing document metadata extracted from files.
 
-  Contains document-specific information such as title, author, creation date,
-  page count, and other metadata fields commonly found in document formats
-  like PDF, Word, and Excel.
+  Matches the Rust `Metadata` struct. Note that `format` and `additional`
+  use `#[serde(flatten)]` in Rust, so their fields appear at the root level
+  of the serialized JSON.
 
   ## Fields
 
-    * `:language` - Primary language of the document (ISO 639-1 code, e.g., "en")
-    * `:author` - Author of the document
-    * `:created_date` - Document creation date (ISO 8601 format)
-    * `:page_count` - Total number of pages in the document
-    * `:title` - Document title or subject
+    * `:title` - Document title
     * `:subject` - Document subject or description
-    * `:keywords` - Comma-separated keywords associated with the document
-    * `:producer` - Software that produced the document
-    * `:creator` - Application that originally created the document
-    * `:modified_date` - Last modification date (ISO 8601 format)
-    * `:creation_date` - Alternative field for creation date
-    * `:trapped` - Whether document is marked as trapped (for PDFs)
-    * `:file_size` - Size of the document file in bytes
-    * `:version` - Format version (e.g., "1.4" for PDF)
-    * `:encryption` - Whether the document is encrypted
-
-  ## Examples
-
-      iex> metadata = %Kreuzberg.Metadata{
-      ...>   language: "en",
-      ...>   author: "John Doe",
-      ...>   created_date: "2024-01-15T10:30:00Z",
-      ...>   page_count: 10,
-      ...>   title: "Sales Report 2024"
-      ...> }
-      iex> metadata.title
-      "Sales Report 2024"
-      iex> metadata.page_count
-      10
+    * `:authors` - List of author names
+    * `:keywords` - List of keywords
+    * `:language` - Primary language (ISO 639-1 code)
+    * `:created_at` - Creation date (ISO 8601)
+    * `:modified_at` - Last modification date (ISO 8601)
+    * `:created_by` - Application that created the document
+    * `:modified_by` - Application that last modified the document
+    * `:pages` - Page structure information
+    * `:format` - Format-specific metadata (flattened from Rust)
+    * `:image_preprocessing` - Image preprocessing metadata
+    * `:json_schema` - JSON schema if applicable
+    * `:error` - Error metadata if extraction partially failed
+    * `:additional` - Additional metadata fields (flattened from Rust)
   """
 
+  # Known top-level metadata keys (non-format, non-additional)
+  @known_keys MapSet.new([
+    "title", "subject", "authors", "keywords", "language",
+    "created_at", "modified_at", "created_by", "modified_by",
+    "pages", "image_preprocessing", "json_schema", "error"
+  ])
+
   @type t :: %__MODULE__{
-          language: String.t() | nil,
-          author: String.t() | nil,
-          created_date: String.t() | nil,
-          page_count: integer() | nil,
           title: String.t() | nil,
           subject: String.t() | nil,
-          keywords: String.t() | nil,
-          producer: String.t() | nil,
-          creator: String.t() | nil,
-          modified_date: String.t() | nil,
-          creation_date: String.t() | nil,
-          trapped: boolean() | nil,
-          file_size: integer() | nil,
-          version: String.t() | nil,
-          encryption: boolean() | nil
+          authors: list(String.t()) | nil,
+          keywords: list(String.t()) | nil,
+          language: String.t() | nil,
+          created_at: String.t() | nil,
+          modified_at: String.t() | nil,
+          created_by: String.t() | nil,
+          modified_by: String.t() | nil,
+          pages: Kreuzberg.PageStructure.t() | nil,
+          format: map() | nil,
+          image_preprocessing: Kreuzberg.ImagePreprocessingMetadata.t() | nil,
+          json_schema: map() | nil,
+          error: Kreuzberg.ErrorMetadata.t() | nil,
+          additional: map()
         }
 
   defstruct [
-    :language,
-    :author,
-    :created_date,
-    :page_count,
     :title,
     :subject,
+    :authors,
     :keywords,
-    :producer,
-    :creator,
-    :modified_date,
-    :creation_date,
-    :trapped,
-    :file_size,
-    :version,
-    :encryption
+    :language,
+    :created_at,
+    :modified_at,
+    :created_by,
+    :modified_by,
+    :pages,
+    :format,
+    :image_preprocessing,
+    :json_schema,
+    :error,
+    additional: %{}
   ]
 
   @doc """
-  Creates a new Metadata struct from a map.
+  Creates a Metadata struct from a map.
 
-  Converts a plain map (typically from NIF/Rust) into a proper struct,
-  allowing pattern matching and type safety.
-
-  ## Parameters
-
-    * `data` - A map containing metadata fields
-
-  ## Returns
-
-  A `Metadata` struct with matching fields populated.
+  Handles Rust's `#[serde(flatten)]` by classifying keys into format fields,
+  known metadata fields, and additional (catch-all) fields.
 
   ## Examples
 
-      iex> Kreuzberg.Metadata.from_map(%{"title" => "Report", "page_count" => 5})
-      %Kreuzberg.Metadata{title: "Report", page_count: 5}
-
-      iex> Kreuzberg.Metadata.from_map(%{})
-      %Kreuzberg.Metadata{}
+      iex> Kreuzberg.Metadata.from_map(%{"title" => "Report", "authors" => ["Alice"]})
+      %Kreuzberg.Metadata{title: "Report", authors: ["Alice"]}
   """
   @spec from_map(map()) :: t()
   def from_map(data) when is_map(data) do
+    # Collect all keys that aren't known top-level metadata fields.
+    # If "format_type" is present, these are flattened FormatMetadata fields → format.
+    # If "format_type" is absent, they are additional catch-all fields → additional.
+    has_format = Map.has_key?(data, "format_type")
+
+    extra =
+      Enum.reduce(data, %{}, fn {key, value}, acc ->
+        if MapSet.member?(@known_keys, key), do: acc, else: Map.put(acc, key, value)
+      end)
+
+    {format, additional_map} =
+      if has_format and map_size(extra) > 0 do
+        {extra, %{}}
+      else
+        {nil, extra}
+      end
+
     %__MODULE__{
-      language: data["language"],
-      author: data["author"],
-      created_date: data["created_date"],
-      page_count: data["page_count"],
       title: data["title"],
       subject: data["subject"],
+      authors: data["authors"],
       keywords: data["keywords"],
-      producer: data["producer"],
-      creator: data["creator"],
-      modified_date: data["modified_date"],
-      creation_date: data["creation_date"],
-      trapped: data["trapped"],
-      file_size: data["file_size"],
-      version: data["version"],
-      encryption: data["encryption"]
+      language: data["language"],
+      created_at: data["created_at"],
+      modified_at: data["modified_at"],
+      created_by: data["created_by"],
+      modified_by: data["modified_by"],
+      pages: normalize_pages(data["pages"]),
+      format: format,
+      image_preprocessing: normalize_image_preprocessing(data["image_preprocessing"]),
+      json_schema: data["json_schema"],
+      error: normalize_error(data["error"]),
+      additional: additional_map
     }
   end
 
   @doc """
   Converts a Metadata struct to a map.
 
-  Useful for serialization and passing to external systems.
-
-  ## Parameters
-
-    * `metadata` - A `Metadata` struct
-
-  ## Returns
-
-  A map with string keys representing all fields.
+  Re-flattens `format` and `additional` back into the root map to match
+  the Rust serialization format.
 
   ## Examples
 
-      iex> metadata = %Kreuzberg.Metadata{title: "Report", page_count: 5}
-      iex> Kreuzberg.Metadata.to_map(metadata)
-      %{
-        "title" => "Report",
-        "page_count" => 5,
-        "language" => nil,
-        "author" => nil
-      }
+      iex> meta = %Kreuzberg.Metadata{title: "Report", format: %{"format_type" => "pdf"}}
+      iex> map = Kreuzberg.Metadata.to_map(meta)
+      iex> map["title"]
+      "Report"
+      iex> map["format_type"]
+      "pdf"
   """
   @spec to_map(t()) :: map()
   def to_map(%__MODULE__{} = metadata) do
-    %{
-      "language" => metadata.language,
-      "author" => metadata.author,
-      "created_date" => metadata.created_date,
-      "page_count" => metadata.page_count,
+    base = %{
       "title" => metadata.title,
       "subject" => metadata.subject,
+      "authors" => metadata.authors,
       "keywords" => metadata.keywords,
-      "producer" => metadata.producer,
-      "creator" => metadata.creator,
-      "modified_date" => metadata.modified_date,
-      "creation_date" => metadata.creation_date,
-      "trapped" => metadata.trapped,
-      "file_size" => metadata.file_size,
-      "version" => metadata.version,
-      "encryption" => metadata.encryption
+      "language" => metadata.language,
+      "created_at" => metadata.created_at,
+      "modified_at" => metadata.modified_at,
+      "created_by" => metadata.created_by,
+      "modified_by" => metadata.modified_by,
+      "pages" => serialize_pages(metadata.pages),
+      "image_preprocessing" => serialize_image_preprocessing(metadata.image_preprocessing),
+      "json_schema" => metadata.json_schema,
+      "error" => serialize_error(metadata.error)
     }
+
+    # Re-flatten format and additional into root
+    base
+    |> maybe_merge(metadata.format)
+    |> maybe_merge(metadata.additional)
   end
+
+  defp maybe_merge(map, nil), do: map
+  defp maybe_merge(map, other) when map_size(other) == 0, do: map
+  defp maybe_merge(map, other), do: Map.merge(map, other)
+
+  defp normalize_pages(nil), do: nil
+  defp normalize_pages(%Kreuzberg.PageStructure{} = ps), do: ps
+  defp normalize_pages(map) when is_map(map), do: Kreuzberg.PageStructure.from_map(map)
+  defp normalize_pages(_other), do: nil
+
+  defp normalize_image_preprocessing(nil), do: nil
+  defp normalize_image_preprocessing(%Kreuzberg.ImagePreprocessingMetadata{} = m), do: m
+  defp normalize_image_preprocessing(map) when is_map(map), do: Kreuzberg.ImagePreprocessingMetadata.from_map(map)
+
+  defp normalize_error(nil), do: nil
+  defp normalize_error(%Kreuzberg.ErrorMetadata{} = e), do: e
+  defp normalize_error(map) when is_map(map), do: Kreuzberg.ErrorMetadata.from_map(map)
+
+  defp serialize_pages(nil), do: nil
+  defp serialize_pages(%Kreuzberg.PageStructure{} = ps), do: Kreuzberg.PageStructure.to_map(ps)
+  defp serialize_pages(other), do: other
+
+  defp serialize_image_preprocessing(nil), do: nil
+  defp serialize_image_preprocessing(%Kreuzberg.ImagePreprocessingMetadata{} = m), do: Kreuzberg.ImagePreprocessingMetadata.to_map(m)
+  defp serialize_image_preprocessing(other), do: other
+
+  defp serialize_error(nil), do: nil
+  defp serialize_error(%Kreuzberg.ErrorMetadata{} = e), do: Kreuzberg.ErrorMetadata.to_map(e)
+  defp serialize_error(other), do: other
 end

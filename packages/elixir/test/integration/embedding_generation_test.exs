@@ -58,10 +58,10 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       chunk =
         Kreuzberg.Chunk.new(
           "This is a text chunk",
-          token_count: 5
+          metadata: %{"token_count" => 5}
         )
 
-      assert chunk.token_count == 5
+      assert chunk.metadata["token_count"] == 5
     end
 
     @tag :integration
@@ -69,22 +69,22 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       chunk =
         Kreuzberg.Chunk.new(
           "Middle of document",
-          start_position: 1000
+          metadata: %{"byte_start" => 1000}
         )
 
-      assert chunk.start_position == 1000
+      assert chunk.metadata["byte_start"] == 1000
     end
 
     @tag :integration
-    test "creates Chunk with confidence score" do
+    test "creates Chunk with custom metadata" do
       chunk =
         Kreuzberg.Chunk.new(
           "High confidence text",
-          confidence: 0.95
+          metadata: %Kreuzberg.ChunkMetadata{byte_start: 0, byte_end: 20}
         )
 
-      assert chunk.confidence == 0.95
-      assert chunk.confidence >= 0.0 and chunk.confidence <= 1.0
+      assert chunk.metadata != nil
+      assert chunk.metadata.byte_end == 20
     end
 
     @tag :integration
@@ -92,9 +92,7 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       chunk_map = %{
         "content" => "Chunk from map",
         "embedding" => [0.1, 0.2, 0.3],
-        "metadata" => %{"source" => "pdf"},
-        "token_count" => 3,
-        "confidence" => 0.9
+        "metadata" => %{"source" => "pdf", "token_count" => 3}
       }
 
       chunk = Kreuzberg.Chunk.from_map(chunk_map)
@@ -102,8 +100,7 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       assert %Kreuzberg.Chunk{} = chunk
       assert chunk.content == "Chunk from map"
       assert chunk.embedding == [0.1, 0.2, 0.3]
-      assert chunk.token_count == 3
-      assert chunk.confidence == 0.9
+      assert chunk.metadata.token_count == 3
     end
   end
 
@@ -114,9 +111,7 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
         Kreuzberg.Chunk.new(
           "Sample chunk",
           embedding: [0.1, 0.2],
-          metadata: %{"page" => 1},
-          token_count: 2,
-          confidence: 0.85
+          metadata: %{"page" => 1, "token_count" => 2}
         )
 
       chunk_map = Kreuzberg.Chunk.to_map(chunk)
@@ -124,7 +119,6 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       assert is_map(chunk_map)
       assert chunk_map["content"] == "Sample chunk"
       assert chunk_map["embedding"] == [0.1, 0.2]
-      assert chunk_map["token_count"] == 2
     end
 
     @tag :integration
@@ -133,10 +127,7 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
         Kreuzberg.Chunk.new(
           "Original chunk",
           embedding: [0.2, 0.4, 0.6, 0.8],
-          metadata: %{"chapter" => 3},
-          token_count: 3,
-          start_position: 500,
-          confidence: 0.92
+          metadata: %{"chapter" => 3, "token_count" => 3, "byte_start" => 500}
         )
 
       chunk_map = Kreuzberg.Chunk.to_map(original)
@@ -144,8 +135,8 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
 
       assert restored.content == original.content
       assert restored.embedding == original.embedding
-      assert restored.token_count == original.token_count
-      assert restored.confidence == original.confidence
+      assert restored.metadata.token_count == 3
+      assert restored.metadata.byte_start == 500
     end
 
     @tag :integration
@@ -154,7 +145,7 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
         Kreuzberg.Chunk.new(
           "JSON serializable chunk",
           embedding: [0.1, 0.2, 0.3],
-          token_count: 4
+          metadata: %{"token_count" => 4}
         )
 
       chunk_map = Kreuzberg.Chunk.to_map(chunk)
@@ -346,18 +337,14 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
         Kreuzberg.Chunk.new(
           "Complete chunk",
           embedding: [0.1, 0.2, 0.3],
-          metadata: %{"page" => 1},
-          token_count: 3,
-          start_position: 100,
-          confidence: 0.95
+          metadata: %{"page" => 1, "token_count" => 3, "byte_start" => 100}
         )
 
       assert chunk.content == "Complete chunk"
       assert chunk.embedding != nil
       assert chunk.metadata != nil
-      assert chunk.token_count == 3
-      assert chunk.start_position == 100
-      assert chunk.confidence == 0.95
+      assert chunk.metadata["token_count"] == 3
+      assert chunk.metadata["byte_start"] == 100
     end
   end
 
@@ -388,12 +375,12 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
     @tag :integration
     test "chunks maintain sequential order" do
       chunks = [
-        Kreuzberg.Chunk.new("First chunk", start_position: 0),
-        Kreuzberg.Chunk.new("Second chunk", start_position: 100),
-        Kreuzberg.Chunk.new("Third chunk", start_position: 200)
+        Kreuzberg.Chunk.new("First chunk", metadata: %{"byte_start" => 0}),
+        Kreuzberg.Chunk.new("Second chunk", metadata: %{"byte_start" => 100}),
+        Kreuzberg.Chunk.new("Third chunk", metadata: %{"byte_start" => 200})
       ]
 
-      positions = Enum.map(chunks, fn c -> c.start_position end)
+      positions = Enum.map(chunks, fn c -> c.metadata["byte_start"] end)
       assert positions == [0, 100, 200]
     end
 
@@ -422,15 +409,15 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
     end
 
     @tag :integration
-    test "applies different confidence scores to batch" do
+    test "applies different metadata to batch" do
       chunks = [
-        Kreuzberg.Chunk.new("High confidence", confidence: 0.95),
-        Kreuzberg.Chunk.new("Medium confidence", confidence: 0.75),
-        Kreuzberg.Chunk.new("Low confidence", confidence: 0.55)
+        Kreuzberg.Chunk.new("High quality", metadata: %{"quality" => 0.95}),
+        Kreuzberg.Chunk.new("Medium quality", metadata: %{"quality" => 0.75}),
+        Kreuzberg.Chunk.new("Low quality", metadata: %{"quality" => 0.55})
       ]
 
-      confidences = Enum.map(chunks, fn c -> c.confidence end)
-      assert confidences == [0.95, 0.75, 0.55]
+      qualities = Enum.map(chunks, fn c -> c.metadata["quality"] end)
+      assert qualities == [0.95, 0.75, 0.55]
     end
   end
 
@@ -497,13 +484,11 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       chunks = [
         Kreuzberg.Chunk.new(
           "Chunk 1",
-          embedding: [0.1, 0.2],
-          token_count: 2
+          embedding: [0.1, 0.2]
         ),
         Kreuzberg.Chunk.new(
           "Chunk 2",
-          embedding: [0.3, 0.4],
-          token_count: 2
+          embedding: [0.3, 0.4]
         )
       ]
 
@@ -518,16 +503,16 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
     @tag :integration
     test "chunks with consistent structure across batch" do
       chunks = [
-        Kreuzberg.Chunk.new("Text 1", embedding: [0.1], token_count: 1),
-        Kreuzberg.Chunk.new("Text 2", embedding: [0.2], token_count: 1),
-        Kreuzberg.Chunk.new("Text 3", embedding: [0.3], token_count: 1)
+        Kreuzberg.Chunk.new("Text 1", embedding: [0.1], metadata: %{"token_count" => 1}),
+        Kreuzberg.Chunk.new("Text 2", embedding: [0.2], metadata: %{"token_count" => 1}),
+        Kreuzberg.Chunk.new("Text 3", embedding: [0.3], metadata: %{"token_count" => 1})
       ]
 
       # All chunks should have same structure
       Enum.each(chunks, fn chunk ->
         assert is_binary(chunk.content)
         assert is_list(chunk.embedding)
-        assert is_integer(chunk.token_count)
+        assert is_integer(chunk.metadata["token_count"])
       end)
     end
   end
@@ -592,39 +577,23 @@ defmodule KreuzbergTest.Integration.EmbeddingGenerationTest do
       chunk = Kreuzberg.Chunk.from_map(rust_chunk_data)
 
       assert chunk.content == "Complete chunk"
-      assert chunk.metadata["byte_start"] == 100
-      assert chunk.metadata["byte_end"] == 114
-      assert chunk.metadata["chunk_index"] == 5
-      assert chunk.metadata["total_chunks"] == 10
+      assert chunk.metadata.byte_start == 100
+      assert chunk.metadata.byte_end == 114
+      assert chunk.metadata.chunk_index == 5
+      assert chunk.metadata.total_chunks == 10
     end
 
     @tag :integration
-    test "maintains backward compatibility with 'text' field" do
-      # Manually created chunks in tests might still use "text"
-      elixir_chunk_data = %{
-        "text" => "Manually created chunk",
+    test "from_map uses 'content' field" do
+      chunk_data = %{
+        "content" => "Chunk text from Rust",
         "embedding" => nil,
         "metadata" => %{}
       }
 
-      chunk = Kreuzberg.Chunk.from_map(elixir_chunk_data)
+      chunk = Kreuzberg.Chunk.from_map(chunk_data)
 
-      assert chunk.content == "Manually created chunk"
-    end
-
-    @tag :integration
-    test "prefers 'content' over 'text' when both present" do
-      # If both fields exist (edge case), prefer Rust's "content"
-      mixed_data = %{
-        "content" => "From Rust backend",
-        "text" => "Old field value",
-        "embedding" => nil,
-        "metadata" => %{}
-      }
-
-      chunk = Kreuzberg.Chunk.from_map(mixed_data)
-
-      assert chunk.content == "From Rust backend"
+      assert chunk.content == "Chunk text from Rust"
     end
 
     @tag :integration

@@ -136,7 +136,7 @@ defmodule Kreuzberg.BoundingBox do
   end
 
   defp to_float(value) when is_float(value), do: value
-  defp to_float(value) when is_integer(value), do: value / 1
+  defp to_float(value) when is_integer(value), do: value * 1.0
   defp to_float(nil), do: 0.0
   defp to_float(value) when is_binary(value) do
     case Float.parse(value) do

@@ -144,11 +144,11 @@ defmodule Kreuzberg.Helpers do
       iex> Kreuzberg.Helpers.validate_config(%Kreuzberg.ExtractionConfig{})
       {:ok, %Kreuzberg.ExtractionConfig{...}}
 
-      iex> Kreuzberg.Helpers.validate_config(%{"extract_images" => true})
-      {:ok, %{"extract_images" => true}}
+      iex> Kreuzberg.Helpers.validate_config(%{"force_ocr" => true})
+      {:ok, %{"force_ocr" => true}}
 
-      iex> Kreuzberg.Helpers.validate_config(extract_images: true)
-      {:ok, [extract_images: true]}
+      iex> Kreuzberg.Helpers.validate_config(force_ocr: true)
+      {:ok, [force_ocr: true]}
   """
   @spec validate_config(nil | ExtractionConfig.t() | map() | keyword()) ::
           {:ok, nil | ExtractionConfig.t() | map() | keyword()} | {:error, String.t()}
@@ -212,23 +212,18 @@ defmodule Kreuzberg.Helpers do
         {:error, "Missing required field 'mime_type' in extraction result"}
 
       true ->
-        # Extract keywords from metadata if present
-        # Note: The Rust side uses #[serde(flatten)] on metadata.additional,
-        # so keywords appear directly in metadata, not under metadata.additional
-        metadata = normalized["metadata"] || %{}
-        keywords = metadata["keywords"]
-
         # Use ExtractionResult.new to properly normalize nested structures
         result = ExtractionResult.new(
           normalized["content"],
           normalized["mime_type"],
-          metadata,
+          normalized["metadata"] || %{},
           normalized["tables"] || [],
           detected_languages: normalized["detected_languages"],
           chunks: normalized["chunks"],
           images: normalized["images"],
           pages: normalized["pages"],
-          keywords: keywords
+          elements: normalized["elements"],
+          djot_content: normalized["djot_content"]
         )
 
         {:ok, result}

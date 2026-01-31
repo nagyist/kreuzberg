@@ -86,13 +86,12 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     end
 
     @tag :integration
-    test "creates Table struct with headers" do
+    test "creates Table struct with multiple rows" do
       table = %Kreuzberg.Table{
-        cells: [["Name", "Age"], ["Alice", "30"]],
-        headers: ["Name", "Age"]
+        cells: [["Name", "Age"], ["Alice", "30"]]
       }
 
-      assert table.headers == ["Name", "Age"]
+      assert Kreuzberg.Table.row_count(table) == 2
       assert table.cells != nil
     end
 
@@ -108,28 +107,26 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     end
 
     @tag :integration
-    test "creates Table struct with HTML representation" do
+    test "creates Table struct with page number" do
       table = %Kreuzberg.Table{
         cells: [["A", "B"]],
-        html: "<table><tr><td>A</td><td>B</td></tr></table>"
+        page_number: 1
       }
 
-      assert table.html != nil
-      assert String.contains?(table.html, "<table>")
+      assert table.page_number == 1
+      assert table.cells != nil
     end
 
     @tag :integration
     test "creates Table struct from map" do
       table_map = %{
-        "cells" => [["X", "Y"], ["1", "2"]],
-        "headers" => ["X", "Y"]
+        "cells" => [["X", "Y"], ["1", "2"]]
       }
 
       table = Kreuzberg.Table.from_map(table_map)
 
       assert %Kreuzberg.Table{} = table
       assert table.cells == [["X", "Y"], ["1", "2"]]
-      assert table.headers == ["X", "Y"]
     end
   end
 
@@ -138,29 +135,29 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     test "converts Table struct to map" do
       table = %Kreuzberg.Table{
         cells: [["A", "B"], ["1", "2"]],
-        headers: ["A", "B"]
+        markdown: "| A | B |\n|---|---|\n| 1 | 2 |"
       }
 
       table_map = Kreuzberg.Table.to_map(table)
 
       assert is_map(table_map)
       assert table_map["cells"] == [["A", "B"], ["1", "2"]]
-      assert table_map["headers"] == ["A", "B"]
+      assert table_map["markdown"] != nil
     end
 
     @tag :integration
     test "round-trips through serialization" do
       original = %Kreuzberg.Table{
         cells: [["Col1", "Col2"], ["Val1", "Val2"]],
-        headers: ["Col1", "Col2"],
-        markdown: "| Col1 | Col2 |\n|------|------|"
+        markdown: "| Col1 | Col2 |\n|------|------|",
+        page_number: 1
       }
 
       table_map = Kreuzberg.Table.to_map(original)
       restored = Kreuzberg.Table.from_map(table_map)
 
       assert restored.cells == original.cells
-      assert restored.headers == original.headers
+      assert restored.page_number == original.page_number
     end
   end
 
@@ -214,9 +211,9 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     end
 
     @tag :integration
-    test "handles nil cells" do
+    test "handles empty cells list" do
       table = %Kreuzberg.Table{
-        cells: nil
+        cells: []
       }
 
       assert Kreuzberg.Table.row_count(table) == 0
@@ -243,7 +240,8 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
       if result.tables != [] do
         Enum.each(result.tables, fn table ->
           if is_map(table) do
-            assert Map.has_key?(table, "headers") or Map.has_key?(table, :headers) or true
+            assert Map.has_key?(table, "cells") or Map.has_key?(table, :cells) or
+                   Map.has_key?(table, "markdown") or Map.has_key?(table, :markdown)
           end
         end)
       end
@@ -288,18 +286,17 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     end
 
     @tag :integration
-    test "matches on table with headers" do
+    test "matches on table with multiple cells" do
       table = %Kreuzberg.Table{
-        cells: [["Name", "Age"]],
-        headers: ["Name", "Age"]
+        cells: [["Name", "Age"], ["Alice", "30"]]
       }
 
       case table do
-        %Kreuzberg.Table{headers: headers} when headers != nil ->
+        %Kreuzberg.Table{cells: cells} when cells != nil and length(cells) > 1 ->
           assert true
 
         _ ->
-          flunk("Headers pattern match failed")
+          flunk("Cells pattern match failed")
       end
     end
 
@@ -307,11 +304,11 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     test "matches on table structure" do
       table = %Kreuzberg.Table{
         cells: [["A"], ["B"]],
-        rows: [[%{"cell" => "A"}], [%{"cell" => "B"}]]
+        markdown: "| A |\n|---|\n| B |"
       }
 
       case table do
-        %Kreuzberg.Table{cells: cells, rows: rows} when cells != nil and rows != nil ->
+        %Kreuzberg.Table{cells: cells, markdown: markdown} when cells != nil and markdown != nil ->
           assert true
 
         _ ->
@@ -348,39 +345,35 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     end
 
     @tag :integration
-    test "includes bounds in table" do
+    test "includes markdown in table" do
       table = %Kreuzberg.Table{
         cells: [["A", "B"]],
-        bounds: [10, 20, 100, 50]
+        markdown: "| A | B |\n|---|---|"
       }
 
-      assert table.bounds == [10, 20, 100, 50]
-      assert length(table.bounds) == 4
+      assert table.markdown == "| A | B |\n|---|---|"
+      assert is_binary(table.markdown)
     end
 
     @tag :integration
-    test "includes columns metadata" do
+    test "counts columns using helper function" do
       table = %Kreuzberg.Table{
-        cells: [["A", "B"]],
-        columns: [
-          %{"name" => "A", "index" => 0},
-          %{"name" => "B", "index" => 1}
-        ]
+        cells: [["A", "B"]]
       }
 
-      assert table.columns != nil
-      assert length(table.columns) == 2
+      assert Kreuzberg.Table.column_count(table) == 2
+      assert Kreuzberg.Table.column_count(table) > 0
     end
 
     @tag :integration
-    test "includes rows as structured data" do
+    test "cells are structured as list of lists" do
       table = %Kreuzberg.Table{
-        cells: [["A", "B"]],
-        rows: [%{"A" => "value1", "B" => "value2"}]
+        cells: [["A", "B"], ["value1", "value2"]]
       }
 
-      assert table.rows != nil
-      assert is_list(table.rows)
+      assert table.cells != nil
+      assert is_list(table.cells)
+      assert length(table.cells) == 2
     end
   end
 
@@ -389,7 +382,7 @@ defmodule KreuzbergTest.Integration.TableExtractionTest do
     test "serializes table to JSON" do
       table = %Kreuzberg.Table{
         cells: [["Name", "Age"], ["Alice", "30"]],
-        headers: ["Name", "Age"]
+        markdown: "| Name | Age |\n|------|-----|\n| Alice | 30 |"
       }
 
       table_map = Kreuzberg.Table.to_map(table)

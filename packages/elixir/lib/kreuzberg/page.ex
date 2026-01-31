@@ -2,210 +2,104 @@ defmodule Kreuzberg.Page do
   @moduledoc """
   Structure representing a single page extracted from a multi-page document.
 
-  Contains page-specific content, dimensions, and metadata when page-level
-  extraction is enabled.
+  Matches the Rust `PageContent` struct.
 
   ## Fields
 
-    * `:number` - Page number (1-indexed)
+    * `:page_number` - Page number (0-indexed in Rust)
     * `:content` - Text content extracted from this page
-    * `:width` - Page width in inches or centimeters
-    * `:height` - Page height in inches or centimeters
-    * `:index` - Zero-indexed page index (alternative to number)
     * `:tables` - Tables found on this page
     * `:images` - Images found on this page
-    * `:hierarchy` - Hierarchy information (heading levels and blocks)
+    * `:hierarchy` - Optional hierarchy information (heading levels and blocks)
 
   ## Examples
 
       iex> page = %Kreuzberg.Page{
-      ...>   number: 1,
-      ...>   content: "Page 1 content here",
-      ...>   width: 8.5,
-      ...>   height: 11.0
+      ...>   page_number: 0,
+      ...>   content: "Page 1 content here"
       ...> }
-      iex> page.number
-      1
-      iex> page.content
-      "Page 1 content here"
+      iex> page.page_number
+      0
   """
 
   @type t :: %__MODULE__{
-          number: integer() | nil,
-          content: String.t() | nil,
-          width: float() | nil,
-          height: float() | nil,
-          index: integer() | nil,
-          tables: list(map()) | nil,
-          images: list(map()) | nil,
-          hierarchy: map() | nil
+          page_number: non_neg_integer(),
+          content: String.t(),
+          tables: list(Kreuzberg.Table.t()),
+          images: list(Kreuzberg.Image.t()),
+          hierarchy: Kreuzberg.PageHierarchy.t() | nil
         }
 
   defstruct [
-    :number,
-    :content,
-    :width,
-    :height,
-    :index,
+    :hierarchy,
+    page_number: 0,
+    content: "",
     tables: [],
-    images: [],
-    hierarchy: nil
+    images: []
   ]
-
-  @doc """
-  Creates a new Page struct with required number and content.
-
-  ## Parameters
-
-    * `number` - The page number (1-indexed)
-    * `content` - The text content of the page
-    * `opts` - Optional keyword list with:
-      * `:width` - Page width
-      * `:height` - Page height
-      * `:index` - Zero-indexed page index
-
-  ## Returns
-
-  A `Page` struct with the provided number, content, and options.
-
-  ## Examples
-
-      iex> Kreuzberg.Page.new(1, "Page content")
-      %Kreuzberg.Page{number: 1, content: "Page content"}
-
-      iex> Kreuzberg.Page.new(
-      ...>   2,
-      ...>   "More content",
-      ...>   width: 8.5,
-      ...>   height: 11.0
-      ...> )
-      %Kreuzberg.Page{
-        number: 2,
-        content: "More content",
-        width: 8.5,
-        height: 11.0
-      }
-  """
-  @spec new(integer(), String.t(), keyword()) :: t()
-  def new(number, content, opts \\ []) when is_integer(number) and is_binary(content) do
-    %__MODULE__{
-      number: number,
-      content: content,
-      width: Keyword.get(opts, :width),
-      height: Keyword.get(opts, :height),
-      index: Keyword.get(opts, :index)
-    }
-  end
 
   @doc """
   Creates a Page struct from a map.
 
-  Converts a plain map (typically from NIF/Rust) into a proper struct.
-
-  ## Parameters
-
-    * `data` - A map containing page fields
-
-  ## Returns
-
-  A `Page` struct with matching fields populated.
+  Converts nested table and image maps to their proper struct types.
 
   ## Examples
 
-      iex> page_map = %{
-      ...>   "number" => 1,
-      ...>   "content" => "Page text",
-      ...>   "width" => 8.5
-      ...> }
-      iex> Kreuzberg.Page.from_map(page_map)
-      %Kreuzberg.Page{
-        number: 1,
-        content: "Page text",
-        width: 8.5
-      }
+      iex> Kreuzberg.Page.from_map(%{"page_number" => 0, "content" => "text"})
+      %Kreuzberg.Page{page_number: 0, content: "text"}
   """
   @spec from_map(map()) :: t()
   def from_map(data) when is_map(data) do
-    # Handle both "number" and "page_number" fields from Rust side
-    page_number = data["page_number"] || data["number"]
-
     %__MODULE__{
-      number: page_number,
-      content: data["content"],
-      width: data["width"],
-      height: data["height"],
-      index: data["index"],
-      tables: data["tables"] || [],
-      images: data["images"] || [],
-      hierarchy: data["hierarchy"]
+      page_number: data["page_number"] || 0,
+      content: data["content"] || "",
+      tables: normalize_tables(data["tables"]),
+      images: normalize_images(data["images"]),
+      hierarchy: normalize_hierarchy(data["hierarchy"])
     }
   end
 
   @doc """
   Converts a Page struct to a map.
-
-  Useful for serialization and passing to external systems.
-
-  ## Parameters
-
-    * `page` - A `Page` struct
-
-  ## Returns
-
-  A map with string keys representing all fields.
-
-  ## Examples
-
-      iex> page = %Kreuzberg.Page{number: 1, content: "text", width: 8.5}
-      iex> Kreuzberg.Page.to_map(page)
-      %{
-        "number" => 1,
-        "content" => "text",
-        "width" => 8.5,
-        ...
-      }
   """
   @spec to_map(t()) :: map()
   def to_map(%__MODULE__{} = page) do
     %{
-      "number" => page.number,
+      "page_number" => page.page_number,
       "content" => page.content,
-      "width" => page.width,
-      "height" => page.height,
-      "index" => page.index,
-      "tables" => page.tables,
-      "images" => page.images,
-      "hierarchy" => page.hierarchy
+      "tables" => Enum.map(page.tables, &Kreuzberg.Table.to_map/1),
+      "images" => Enum.map(page.images, &Kreuzberg.Image.to_map/1),
+      "hierarchy" =>
+        case page.hierarchy do
+          nil -> nil
+          h -> Kreuzberg.PageHierarchy.to_map(h)
+        end
     }
   end
 
-  @doc """
-  Returns the page size as a {width, height} tuple.
+  defp normalize_tables(nil), do: []
+  defp normalize_tables([]), do: []
 
-  Useful for layout calculations and image sizing.
-
-  ## Parameters
-
-    * `page` - A `Page` struct
-
-  ## Returns
-
-  A tuple `{width, height}` or nil if dimensions not available.
-
-  ## Examples
-
-      iex> page = %Kreuzberg.Page{width: 8.5, height: 11.0}
-      iex> Kreuzberg.Page.size(page)
-      {8.5, 11.0}
-
-      iex> page = %Kreuzberg.Page{number: 1}
-      iex> Kreuzberg.Page.size(page)
-      nil
-  """
-  @spec size(t()) :: {float(), float()} | nil
-  def size(%__MODULE__{width: w, height: h}) when is_number(w) and is_number(h) do
-    {w, h}
+  defp normalize_tables(tables) when is_list(tables) do
+    Enum.map(tables, fn
+      %Kreuzberg.Table{} = t -> t
+      map when is_map(map) -> Kreuzberg.Table.from_map(map)
+      other -> other
+    end)
   end
 
-  def size(_), do: nil
+  defp normalize_images(nil), do: []
+  defp normalize_images([]), do: []
+
+  defp normalize_images(images) when is_list(images) do
+    Enum.map(images, fn
+      %Kreuzberg.Image{} = i -> i
+      map when is_map(map) -> Kreuzberg.Image.from_map(map)
+      other -> other
+    end)
+  end
+
+  defp normalize_hierarchy(nil), do: nil
+  defp normalize_hierarchy(%Kreuzberg.PageHierarchy{} = h), do: h
+  defp normalize_hierarchy(map) when is_map(map), do: Kreuzberg.PageHierarchy.from_map(map)
 end

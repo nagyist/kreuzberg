@@ -246,8 +246,11 @@ defmodule KreuzbergTest.Unit.HelpersTest do
       native_response = %{
         "content" => "text",
         "mime_type" => "application/pdf",
-        "metadata" => %{"pages" => 10},
-        "tables" => [%{"headers" => ["A", "B"]}],
+        "metadata" => %{
+          "title" => "Test",
+          "pages" => %{"total_count" => 10, "unit_type" => "page"}
+        },
+        "tables" => [%{"cells" => [["A", "B"]]}],
         "detected_languages" => ["en"],
         "chunks" => [%{"text" => "chunk"}],
         "images" => [%{"path" => "img.png"}],
@@ -258,7 +261,6 @@ defmodule KreuzbergTest.Unit.HelpersTest do
 
       assert result.content == "text"
       assert result.mime_type == "application/pdf"
-      assert result.metadata.page_count == nil
       assert length(result.tables) == 1
       assert result.detected_languages == ["en"]
       assert length(result.chunks) == 1
@@ -300,14 +302,14 @@ defmodule KreuzbergTest.Unit.HelpersTest do
       native_response = %{
         "content" => "text",
         "mime_type" => "text/plain",
-        "metadata" => %{author: "John"}
+        "metadata" => %{authors: ["John"]}
       }
 
       {:ok, result} = Helpers.into_result(native_response)
 
       assert result.content == "text"
       assert result.mime_type == "text/plain"
-      assert result.metadata.author == "John"
+      assert result.metadata.authors == ["John"]
     end
 
     test "defaults optional fields to nil or empty" do
@@ -358,16 +360,14 @@ defmodule KreuzbergTest.Unit.HelpersTest do
         "mime_type" => "text/plain",
         "metadata" => %{
           "title" => "Test",
-          "author" => "John Doe",
-          "page_count" => 5
+          "authors" => ["John Doe"]
         }
       }
 
       {:ok, result} = Helpers.into_result(native_response)
 
       assert result.metadata.title == "Test"
-      assert result.metadata.author == "John Doe"
-      assert result.metadata.page_count == 5
+      assert result.metadata.authors == ["John Doe"]
     end
 
     test "preserves complex nested structures" do
@@ -376,8 +376,8 @@ defmodule KreuzbergTest.Unit.HelpersTest do
         "mime_type" => "text/plain",
         "tables" => [
           %{
-            "headers" => ["A", "B"],
-            "rows" => [
+            "cells" => [
+              ["A", "B"],
               ["1", "2"],
               [%{"nested" => "data"}, [1, 2, 3]]
             ]
@@ -389,8 +389,8 @@ defmodule KreuzbergTest.Unit.HelpersTest do
 
       assert length(result.tables) == 1
       table = List.first(result.tables)
-      assert table.headers == ["A", "B"]
-      assert length(table.rows) == 2
+      assert hd(table.cells) == ["A", "B"]
+      assert length(table.cells) == 3
     end
   end
 
@@ -482,7 +482,7 @@ defmodule KreuzbergTest.Unit.HelpersTest do
       native_response = %{
         content: "extracted text",
         mime_type: "application/pdf",
-        metadata: %{page_count: 10}
+        metadata: %{title: "Test"}
       }
 
       # Normalize the response
@@ -493,7 +493,7 @@ defmodule KreuzbergTest.Unit.HelpersTest do
 
       assert result.content == "extracted text"
       assert result.mime_type == "application/pdf"
-      assert result.metadata.page_count == 10
+      assert result.metadata.title == "Test"
     end
 
     test "handles complex extraction response with all field types" do
@@ -501,10 +501,10 @@ defmodule KreuzbergTest.Unit.HelpersTest do
         "content" => "document text",
         "mime_type" => "application/pdf",
         "metadata" => %{
-          "author" => "John",
-          "page_count" => 100
+          "authors" => ["John"],
+          "title" => "Document"
         },
-        "tables" => [%{"headers" => ["Col1", "Col2"]}],
+        "tables" => [%{"cells" => [["Col1", "Col2"]]}],
         "detected_languages" => ["en", "de"],
         "chunks" => [%{"text" => "chunk1"}],
         "images" => [%{"path" => "img.png"}],
@@ -514,8 +514,8 @@ defmodule KreuzbergTest.Unit.HelpersTest do
       {:ok, result} = Helpers.into_result(native_response)
 
       assert result.content == "document text"
-      assert result.metadata.author == "John"
-      assert result.metadata.page_count == 100
+      assert result.metadata.authors == ["John"]
+      assert result.metadata.title == "Document"
       assert length(result.tables) == 1
       assert result.detected_languages == ["en", "de"]
     end

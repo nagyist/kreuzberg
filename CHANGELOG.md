@@ -16,6 +16,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+#### Elixir Bindings
+- **Overhauled all struct types from audit against Rust source**: Exhaustive audit of every Elixir struct against the Rust core types to ensure field-level correctness
+  - `Metadata`: Replaced phantom fields (`author`, `page_count`, `created_date`, `creator`, `producer`, `trapped`, `file_size`, `version`, `encryption`) with correct Rust fields (`authors`, `pages`, `created_at`, `modified_at`, `created_by`, `modified_by`, `format`, `image_preprocessing`, `error`, `additional`); handles `#[serde(flatten)]` for `format` and `additional`
+  - `Table`: Stripped to Rust's 3 fields (`cells`, `markdown`, `page_number`); removed phantom `rows`, `columns`, `headers`, `html`, `bounds`
+  - `Image`: Replaced phantom fields (`mime_type`, `ocr_text`, `file_size`, `dpi`) with Rust `ExtractedImage` fields (`image_index`, `colorspace`, `bits_per_component`, `is_mask`, `description`, `ocr_result`); `ocr_result` recursively converts to `ExtractionResult` struct; handles `bytes::Bytes` u8 array → binary conversion
+  - `Chunk`: Removed phantom `token_count`, `start_position`, `confidence`; `metadata` now typed as `ChunkMetadata` struct
+  - `Page`: Renamed `number` → `page_number`; removed phantom `width`, `height`, `index`; added typed `hierarchy` field
+  - `ExtractionResult`: Added `to_map/1` with recursive serialization; added `elements` and `djot_content` fields; removed nonexistent `keywords` field
+- **Added new struct modules matching Rust types**:
+  - `ChunkMetadata` — byte_start, byte_end, token_count, chunk_index, total_chunks, first_page, last_page
+  - `Keyword` — text, score, algorithm, positions
+  - `PageHierarchy` + `HierarchicalBlock` — page hierarchy with heading-level blocks and bounding boxes
+  - `DjotContent`, `DjotFormattedBlock`, `DjotInlineElement`, `DjotAttributes`, `DjotImage`, `DjotLink`, `DjotFootnote` — full Djot document structure (8 modules)
+  - `PageStructure`, `PageBoundary`, `PageInfo` — page structure metadata
+  - `ErrorMetadata` — error_type, message
+  - `ImagePreprocessingMetadata` — 12 fields matching Rust (original_dimensions, target_dpi, scale_factor, etc.)
+- **Fixed all test files**: Updated 11 test files to match new struct field names (55 failures → 0)
+
+#### TypeScript Bindings
+- **Overhauled type definitions from audit against NAPI-RS Rust source**:
+  - Added proper `EmbeddingConfig` and `EmbeddingModelType` interfaces (replacing opaque `Record<string, unknown>`)
+  - Replaced deprecated `chunkSize`/`chunkOverlap` with `maxChars`/`maxOverlap` in `ChunkingConfig`
+  - Replaced phantom `FontConfig` with correct `HierarchyConfig` (kClusters, includeBbox, ocrCoverageThreshold)
+  - Removed phantom fields from `ExtractionResult` (embeddings, processingTime, outputFormat, resultFormat)
+  - Removed phantom fields from `ExtractionConfig` (quality, verbose, debug, timeout, retries)
+  - Fixed `FormattedBlock.children` from nullable to required array
+  - Fixed validation utilities to match actual config structure
+
+#### PHP Bindings
+- **Overhauled type definitions from audit against ext-php-rs Rust source**:
+  - `Keyword`: Added missing `algorithm` and `positions` fields
+  - `Metadata`: Removed phantom `producer`/`date` fields; added missing `modifiedBy`, `sheetCount`, `format`; fixed `pageCount` key mismatch (Rust sends camelCase)
+  - `ExtractionResult`: Removed phantom `embeddings`/`tesseract` fields not in Rust struct
+  - `FormattedBlock`: Changed `children` from nullable to required array (matches Rust `Vec`)
+  - Fixed mock data to match corrected types
+
 #### Ruby Bindings
 - **Overhauled RBS type stubs** (`sig/kreuzberg.rbs`): Exhaustive audit against Ruby source and Rust Magnus bindings to ensure all types match exactly
   - Added missing `Config::Hierarchy` class and `PDF.hierarchy` attribute

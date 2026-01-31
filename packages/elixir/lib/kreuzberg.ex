@@ -8,7 +8,7 @@ defmodule Kreuzberg do
       {:ok, result} = Kreuzberg.extract(pdf_binary, "application/pdf")
 
       # With configuration
-      config = %Kreuzberg.ExtractionConfig{extract_images: true}
+      config = %Kreuzberg.ExtractionConfig{force_ocr: true}
       {:ok, result} = Kreuzberg.extract(pdf_binary, "application/pdf", config)
 
       # Bang variant
@@ -152,7 +152,7 @@ defmodule Kreuzberg do
       {:ok, result} = Kreuzberg.extract_file("document.pdf")
 
       # With configuration
-      config = %Kreuzberg.ExtractionConfig{extract_images: true}
+      config = %Kreuzberg.ExtractionConfig{force_ocr: true}
       {:ok, result} = Kreuzberg.extract_file("document.pdf", "application/pdf", config)
 
       # With keyword list configuration

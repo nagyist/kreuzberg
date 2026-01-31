@@ -50,7 +50,7 @@ defmodule KreuzbergTest.E2E.HTMLExtractionTest do
       assert is_atom(key), "Metadata key should be atom"
 
       assert is_binary(value) or is_atom(value) or is_number(value) or is_nil(value) or
-               is_list(value),
+               is_list(value) or is_map(value) or is_struct(value),
              "Metadata value should be serializable or nil"
     end)
   end

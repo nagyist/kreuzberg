@@ -22,7 +22,6 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
       assert result.chunks == nil
       assert result.images == nil
       assert result.pages == nil
-      assert result.keywords == nil
     end
 
     test "handles empty content string" do
@@ -65,12 +64,11 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
 
   describe "new/3 - constructor with metadata" do
     test "adds metadata to result" do
-      metadata = %{"page_count" => 10, "author" => "John Doe"}
+      metadata = %{"authors" => ["John Doe"]}
       result = ExtractionResult.new("content", "application/pdf", metadata)
 
       assert result.content == "content"
-      assert result.metadata.author == "John Doe"
-      assert result.metadata.page_count == 10
+      assert result.metadata.authors == ["John Doe"]
       assert result.tables == []
     end
 
@@ -83,45 +81,43 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
     test "handles nested metadata structures" do
       metadata = %{
         "title" => "Test Doc",
-        "author" => "Jane Doe"
+        "authors" => ["Jane Doe"]
       }
 
       result = ExtractionResult.new("content", "application/pdf", metadata)
 
       assert result.metadata.title == "Test Doc"
-      assert result.metadata.author == "Jane Doe"
+      assert result.metadata.authors == ["Jane Doe"]
     end
 
     test "handles metadata with various value types" do
       metadata = %{
         "title" => "Sample Title",
-        "author" => "John Doe",
-        "page_count" => 42
+        "authors" => ["John Doe"]
       }
 
       result = ExtractionResult.new("content", "text/plain", metadata)
 
       assert result.metadata.title == "Sample Title"
-      assert result.metadata.author == "John Doe"
-      assert result.metadata.page_count == 42
+      assert result.metadata.authors == ["John Doe"]
     end
   end
 
   describe "new/4 - constructor with tables" do
     test "adds tables to result" do
       tables = [
-        %{"headers" => ["Col1", "Col2"], "rows" => [["a", "b"], ["c", "d"]]},
-        %{"headers" => ["X", "Y"], "rows" => [["1", "2"]]}
+        %{"cells" => [["Col1", "Col2"], ["a", "b"], ["c", "d"]]},
+        %{"cells" => [["X", "Y"], ["1", "2"]]}
       ]
 
       result = ExtractionResult.new("content", "application/pdf", %{}, tables)
 
       assert result.content == "content"
       assert length(result.tables) == 2
-      assert Enum.at(result.tables, 0).headers == ["Col1", "Col2"]
-      assert Enum.at(result.tables, 0).rows == [["a", "b"], ["c", "d"]]
-      assert Enum.at(result.tables, 1).headers == ["X", "Y"]
-      assert Enum.at(result.tables, 1).rows == [["1", "2"]]
+      assert hd(Enum.at(result.tables, 0).cells) == ["Col1", "Col2"]
+      assert Enum.at(result.tables, 0).cells == [["Col1", "Col2"], ["a", "b"], ["c", "d"]]
+      assert hd(Enum.at(result.tables, 1).cells) == ["X", "Y"]
+      assert Enum.at(result.tables, 1).cells == [["X", "Y"], ["1", "2"]]
     end
 
     test "handles empty tables list" do
@@ -131,18 +127,18 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
     end
 
     test "handles single table" do
-      tables = [%{"headers" => ["Name"], "rows" => [["Alice"], ["Bob"]]}]
+      tables = [%{"cells" => [["Name"], ["Alice"], ["Bob"]]}]
       result = ExtractionResult.new("content", "text/plain", %{}, tables)
 
       assert length(result.tables) == 1
-      assert result.tables |> List.first() |> Map.get(:headers) == ["Name"]
+      assert result.tables |> List.first() |> Map.get(:cells) |> hd() == ["Name"]
     end
 
     test "handles complex table structures with nested data" do
       tables = [
         %{
-          "headers" => ["ID", "Data", "Details"],
-          "rows" => [
+          "cells" => [
+            ["ID", "Data", "Details"],
             [1, "text", %{"nested" => "value"}],
             [2, "more", [1, 2, 3]]
           ]
@@ -153,14 +149,14 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
 
       assert length(result.tables) == 1
       table = List.first(result.tables)
-      assert table.headers == ["ID", "Data", "Details"]
-      assert length(table.rows) == 2
+      assert hd(table.cells) == ["ID", "Data", "Details"]
+      assert length(table.cells) == 3
     end
 
     test "handles large number of tables" do
       tables =
         Enum.map(1..100, fn i ->
-          %{"id" => i, "headers" => ["Col#{i}"]}
+          %{"id" => i, "cells" => [["Col#{i}"]]}
         end)
 
       result = ExtractionResult.new("content", "text/plain", %{}, tables)
@@ -198,40 +194,40 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
 
     test "adds images from options" do
       images = [
-        %{"path" => "/image1.png", "ocr_text" => "text in image 1"},
-        %{"path" => "/image2.jpg", "ocr_text" => "text in image 2"}
+        %{"path" => "/image1.png", "ocr_result" => %{"content" => "text in image 1", "mime_type" => ""}},
+        %{"path" => "/image2.jpg", "ocr_result" => %{"content" => "text in image 2", "mime_type" => ""}}
       ]
 
       opts = [images: images]
       result = ExtractionResult.new("content", "text/plain", %{}, [], opts)
 
       assert length(result.images) == 2
-      assert Enum.at(result.images, 0).ocr_text == "text in image 1"
-      assert Enum.at(result.images, 1).ocr_text == "text in image 2"
+      assert Enum.at(result.images, 0).ocr_result.content == "text in image 1"
+      assert Enum.at(result.images, 1).ocr_result.content == "text in image 2"
     end
 
     test "adds pages from options" do
       pages = [
-        %{"number" => 1, "content" => "Page 1 content"},
-        %{"number" => 2, "content" => "Page 2 content"}
+        %{"page_number" => 1, "content" => "Page 1 content"},
+        %{"page_number" => 2, "content" => "Page 2 content"}
       ]
 
       opts = [pages: pages]
       result = ExtractionResult.new("content", "text/plain", %{}, [], opts)
 
       assert length(result.pages) == 2
-      assert Enum.at(result.pages, 0).number == 1
+      assert Enum.at(result.pages, 0).page_number == 1
       assert Enum.at(result.pages, 0).content == "Page 1 content"
-      assert Enum.at(result.pages, 1).number == 2
+      assert Enum.at(result.pages, 1).page_number == 2
       assert Enum.at(result.pages, 1).content == "Page 2 content"
     end
 
     test "combines all options together" do
       metadata = %{"title" => "Test"}
-      tables = [%{"headers" => ["A"]}]
+      tables = [%{"cells" => [["A"]]}]
       chunks = [%{"content" => "chunk"}]
       images = [%{"path" => "image.png"}]
-      pages = [%{"number" => 1}]
+      pages = [%{"page_number" => 1}]
       languages = ["en", "de"]
 
       opts = [
@@ -247,13 +243,13 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
       assert result.mime_type == "application/pdf"
       assert result.metadata.title == "Test"
       assert length(result.tables) == 1
-      assert Enum.at(result.tables, 0).headers == ["A"]
+      assert hd(Enum.at(result.tables, 0).cells) == ["A"]
       assert result.detected_languages == languages
       assert length(result.chunks) == 1
       assert Enum.at(result.chunks, 0).content == "chunk"
       assert length(result.images) == 1
       assert length(result.pages) == 1
-      assert Enum.at(result.pages, 0).number == 1
+      assert Enum.at(result.pages, 0).page_number == 1
     end
 
     test "handles empty options list" do
@@ -364,13 +360,13 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
     test "handles metadata with empty values" do
       metadata = %{
         "title" => "",
-        "author" => nil
+        "authors" => []
       }
 
       result = ExtractionResult.new("content", "text/plain", metadata)
 
       assert result.metadata.title == ""
-      assert result.metadata.author == nil
+      assert result.metadata.authors == []
     end
 
     test "distinguishes between nil and missing fields" do
@@ -408,90 +404,4 @@ defmodule KreuzbergTest.Unit.ExtractionResultTest do
     end
   end
 
-  describe "normalize_keywords/1 - keyword string parsing (GitHub issue #309)" do
-    test "parses comma-separated keyword string from DOCX metadata" do
-      # This test addresses GitHub issue #309: DOCX files return keywords
-      # as comma-separated strings from metadata, which caused FunctionClauseError
-      # before the fix was implemented.
-      keywords_string = "calibre, docs, ebook, conversion"
-
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: keywords_string)
-
-      assert is_list(result.keywords)
-      assert length(result.keywords) == 4
-
-      assert Enum.at(result.keywords, 0) == %{"text" => "calibre", "score" => 1.0}
-      assert Enum.at(result.keywords, 1) == %{"text" => "docs", "score" => 1.0}
-      assert Enum.at(result.keywords, 2) == %{"text" => "ebook", "score" => 1.0}
-      assert Enum.at(result.keywords, 3) == %{"text" => "conversion", "score" => 1.0}
-    end
-
-    test "parses keyword string with extra whitespace" do
-      keywords_string = "  keyword1  ,   keyword2   , keyword3  "
-
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: keywords_string)
-
-      assert is_list(result.keywords)
-      assert length(result.keywords) == 3
-
-      # Verify whitespace is properly trimmed
-      assert Enum.at(result.keywords, 0) == %{"text" => "keyword1", "score" => 1.0}
-      assert Enum.at(result.keywords, 1) == %{"text" => "keyword2", "score" => 1.0}
-      assert Enum.at(result.keywords, 2) == %{"text" => "keyword3", "score" => 1.0}
-    end
-
-    test "handles keyword string with trailing/leading commas" do
-      keywords_string = ",keyword1,keyword2,"
-
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: keywords_string)
-
-      assert is_list(result.keywords)
-      # Empty strings from leading/trailing commas should be filtered out
-      assert length(result.keywords) == 2
-      assert Enum.at(result.keywords, 0) == %{"text" => "keyword1", "score" => 1.0}
-      assert Enum.at(result.keywords, 1) == %{"text" => "keyword2", "score" => 1.0}
-    end
-
-    test "handles empty keyword string" do
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: "")
-
-      assert result.keywords == []
-    end
-
-    test "handles keyword string with only whitespace" do
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: "   ")
-
-      assert result.keywords == []
-    end
-
-    test "handles single keyword in string" do
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: "single")
-
-      assert is_list(result.keywords)
-      assert length(result.keywords) == 1
-      assert Enum.at(result.keywords, 0) == %{"text" => "single", "score" => 1.0}
-    end
-
-    test "assigns default score of 1.0 to parsed keywords" do
-      # Keywords from DOCX metadata don't have scores, so we assign default 1.0
-      keywords_string = "keyword1, keyword2"
-
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: keywords_string)
-
-      Enum.each(result.keywords, fn keyword ->
-        assert keyword["score"] == 1.0
-      end)
-    end
-
-    test "preserves keyword order from string" do
-      keywords_string = "first, second, third, fourth"
-
-      result = ExtractionResult.new("content", "text/plain", %{}, [], keywords: keywords_string)
-
-      assert Enum.at(result.keywords, 0)["text"] == "first"
-      assert Enum.at(result.keywords, 1)["text"] == "second"
-      assert Enum.at(result.keywords, 2)["text"] == "third"
-      assert Enum.at(result.keywords, 3)["text"] == "fourth"
-    end
-  end
 end

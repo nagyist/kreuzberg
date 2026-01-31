@@ -37,9 +37,9 @@ defmodule Kreuzberg.Unit.PagesExtractionTest do
 
       Enum.each(result.pages, fn page ->
         assert is_map(page)
-        assert Map.has_key?(page, :number)
+        assert Map.has_key?(page, :page_number)
         assert Map.has_key?(page, :content)
-        assert is_integer(page.number)
+        assert is_integer(page.page_number)
       end)
     end
 
@@ -52,7 +52,7 @@ defmodule Kreuzberg.Unit.PagesExtractionTest do
         Kreuzberg.extract(get_test_pdf_bytes(), "application/pdf", config)
 
       Enum.each(result.pages, fn page ->
-        assert page.number > 0
+        assert page.page_number > 0
       end)
     end
   end
@@ -208,8 +208,8 @@ defmodule Kreuzberg.Unit.PagesExtractionTest do
         Kreuzberg.extract(get_test_pdf_bytes(), "application/pdf", config)
 
       Enum.each(result.pages, fn page ->
-        assert is_integer(page.number)
-        assert page.number > 0
+        assert is_integer(page.page_number)
+        assert page.page_number > 0
       end)
     end
 
@@ -224,7 +224,7 @@ defmodule Kreuzberg.Unit.PagesExtractionTest do
       Enum.with_index(result.pages, 1)
       |> Enum.each(fn {page, expected_index} ->
         # Page numbers should be sequential starting from 1
-        assert page.number == expected_index
+        assert page.page_number == expected_index
       end)
     end
 

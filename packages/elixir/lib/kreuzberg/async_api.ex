@@ -44,7 +44,7 @@ defmodule Kreuzberg.AsyncAPI do
 
       # Batch extract with configuration
       files = ["file1.pdf", "file2.pdf"]
-      config = %Kreuzberg.ExtractionConfig{extract_images: true}
+      config = %Kreuzberg.ExtractionConfig{force_ocr: true}
       task = Kreuzberg.AsyncAPI.batch_extract_files_async(files, "application/pdf", config)
       {:ok, results} = Task.await(task)
 
@@ -108,7 +108,7 @@ defmodule Kreuzberg.AsyncAPI do
       result.content
 
       # With configuration
-      config = %Kreuzberg.ExtractionConfig{extract_images: true}
+      config = %Kreuzberg.ExtractionConfig{force_ocr: true}
       task = Kreuzberg.AsyncAPI.extract_async(pdf_binary, "application/pdf", config)
       {:ok, result} = Task.await(task)
 
@@ -213,7 +213,7 @@ defmodule Kreuzberg.AsyncAPI do
       Enum.map(results, & &1.content)
 
       # With configuration
-      config = %Kreuzberg.ExtractionConfig{extract_images: true}
+      config = %Kreuzberg.ExtractionConfig{force_ocr: true}
       task = Kreuzberg.AsyncAPI.batch_extract_files_async(
         ["file1.pdf", "file2.pdf"],
         "application/pdf",

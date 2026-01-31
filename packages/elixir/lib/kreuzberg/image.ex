@@ -1,245 +1,159 @@
 defmodule Kreuzberg.Image do
   @moduledoc """
-  Structure representing an extracted image with optional OCR results.
+  Structure representing an extracted image from a document.
 
-  Contains binary image data and metadata extracted from documents,
-  along with OCR text results when OCR processing is enabled.
+  Matches the Rust `ExtractedImage` struct.
 
   ## Fields
 
-    * `:data` - Binary image data (PNG, JPEG, WebP, etc.)
-    * `:format` - Image format as string ("png", "jpeg", "webp", etc.)
+    * `:data` - Raw binary image data (PNG, JPEG, WebP, etc.)
+    * `:format` - Image format string ("png", "jpeg", "webp", etc.)
+    * `:image_index` - Zero-indexed position of image in the document/page
+    * `:page_number` - Page number where image was found
     * `:width` - Image width in pixels
     * `:height` - Image height in pixels
-    * `:mime_type` - MIME type of the image (e.g., "image/png")
-    * `:ocr_text` - Text extracted from image via OCR
-    * `:page_number` - Page number where image appears
-    * `:file_size` - Size of image data in bytes
-    * `:dpi` - Dots per inch of the image
-
-  ## Examples
-
-      iex> image = %Kreuzberg.Image{
-      ...>   format: "png",
-      ...>   width: 800,
-      ...>   height: 600,
-      ...>   data: <<...>>,
-      ...>   ocr_text: "Extracted text from image"
-      ...> }
-      iex> image.format
-      "png"
+    * `:colorspace` - Color space (e.g., "RGB", "CMYK", "Gray")
+    * `:bits_per_component` - Bits per color component (e.g., 8, 16)
+    * `:is_mask` - Whether this image is a mask image
+    * `:description` - Optional description of the image
+    * `:ocr_result` - Nested OCR extraction result map
   """
 
   @type t :: %__MODULE__{
-          data: binary() | nil,
-          format: String.t() | nil,
-          width: integer() | nil,
-          height: integer() | nil,
-          mime_type: String.t() | nil,
-          ocr_text: String.t() | nil,
-          page_number: integer() | nil,
-          file_size: integer() | nil,
-          dpi: integer() | nil
+          data: binary(),
+          format: String.t(),
+          image_index: non_neg_integer(),
+          page_number: non_neg_integer() | nil,
+          width: non_neg_integer() | nil,
+          height: non_neg_integer() | nil,
+          colorspace: String.t() | nil,
+          bits_per_component: non_neg_integer() | nil,
+          is_mask: boolean(),
+          description: String.t() | nil,
+          ocr_result: Kreuzberg.ExtractionResult.t() | nil
         }
 
   defstruct [
-    :data,
-    :format,
+    :page_number,
     :width,
     :height,
-    :mime_type,
-    :ocr_text,
-    :page_number,
-    :file_size,
-    :dpi
+    :colorspace,
+    :bits_per_component,
+    :description,
+    :ocr_result,
+    data: <<>>,
+    format: "",
+    image_index: 0,
+    is_mask: false
   ]
 
   @doc """
-  Creates a new Image struct with required format field.
+  Creates a new Image struct.
 
   ## Parameters
 
     * `format` - The image format (e.g., "png", "jpeg")
-    * `opts` - Optional keyword list with:
-      * `:data` - Binary image data
-      * `:width` - Image width in pixels
-      * `:height` - Image height in pixels
-      * `:mime_type` - MIME type
-      * `:ocr_text` - OCR extracted text
-      * `:page_number` - Page number
-      * `:file_size` - File size in bytes
-      * `:dpi` - DPI setting
-
-  ## Returns
-
-  An `Image` struct with the provided format and options.
-
-  ## Examples
-
-      iex> Kreuzberg.Image.new("png")
-      %Kreuzberg.Image{format: "png"}
-
-      iex> Kreuzberg.Image.new(
-      ...>   "jpeg",
-      ...>   width: 1920,
-      ...>   height: 1080,
-      ...>   dpi: 150
-      ...> )
-      %Kreuzberg.Image{
-        format: "jpeg",
-        width: 1920,
-        height: 1080,
-        dpi: 150
-      }
+    * `opts` - Optional keyword list of additional fields
   """
   @spec new(String.t(), keyword()) :: t()
   def new(format, opts \\ []) when is_binary(format) do
     %__MODULE__{
       format: format,
-      data: Keyword.get(opts, :data),
+      data: Keyword.get(opts, :data, <<>>),
+      image_index: Keyword.get(opts, :image_index, 0),
+      page_number: Keyword.get(opts, :page_number),
       width: Keyword.get(opts, :width),
       height: Keyword.get(opts, :height),
-      mime_type: Keyword.get(opts, :mime_type),
-      ocr_text: Keyword.get(opts, :ocr_text),
-      page_number: Keyword.get(opts, :page_number),
-      file_size: Keyword.get(opts, :file_size),
-      dpi: Keyword.get(opts, :dpi)
+      colorspace: Keyword.get(opts, :colorspace),
+      bits_per_component: Keyword.get(opts, :bits_per_component),
+      is_mask: Keyword.get(opts, :is_mask, false),
+      description: Keyword.get(opts, :description),
+      ocr_result: Keyword.get(opts, :ocr_result)
     }
   end
 
   @doc """
   Creates an Image struct from a map.
 
-  Converts a plain map (typically from NIF/Rust) into a proper struct.
-
-  ## Parameters
-
-    * `data` - A map containing image fields
-
-  ## Returns
-
-  An `Image` struct with matching fields populated.
+  Handles `bytes::Bytes` serde serialization where binary data arrives
+  as a list of u8 integers, converting it to Elixir binary.
 
   ## Examples
 
-      iex> image_map = %{
-      ...>   "format" => "png",
-      ...>   "width" => 1024,
-      ...>   "height" => 768
-      ...> }
-      iex> Kreuzberg.Image.from_map(image_map)
-      %Kreuzberg.Image{
-        format: "png",
-        width: 1024,
-        height: 768
-      }
+      iex> Kreuzberg.Image.from_map(%{"format" => "png", "image_index" => 0, "width" => 800})
+      %Kreuzberg.Image{format: "png", image_index: 0, width: 800}
   """
   @spec from_map(map()) :: t()
   def from_map(data) when is_map(data) do
     %__MODULE__{
-      data: data["data"],
-      format: data["format"],
+      data: normalize_image_data(data["data"]),
+      format: data["format"] || "",
+      image_index: data["image_index"] || 0,
+      page_number: data["page_number"],
       width: data["width"],
       height: data["height"],
-      mime_type: data["mime_type"],
-      ocr_text: data["ocr_text"],
-      page_number: data["page_number"],
-      file_size: data["file_size"],
-      dpi: data["dpi"]
+      colorspace: data["colorspace"],
+      bits_per_component: data["bits_per_component"],
+      is_mask: data["is_mask"] || false,
+      description: data["description"],
+      ocr_result: normalize_ocr_result(data["ocr_result"])
     }
   end
 
   @doc """
   Converts an Image struct to a map.
-
-  Useful for serialization and passing to external systems.
-
-  ## Parameters
-
-    * `image` - An `Image` struct
-
-  ## Returns
-
-  A map with string keys representing all fields.
-
-  ## Examples
-
-      iex> image = %Kreuzberg.Image{format: "png", width: 800}
-      iex> Kreuzberg.Image.to_map(image)
-      %{
-        "format" => "png",
-        "width" => 800,
-        "data" => nil,
-        ...
-      }
   """
   @spec to_map(t()) :: map()
   def to_map(%__MODULE__{} = image) do
     %{
       "data" => image.data,
       "format" => image.format,
+      "image_index" => image.image_index,
+      "page_number" => image.page_number,
       "width" => image.width,
       "height" => image.height,
-      "mime_type" => image.mime_type,
-      "ocr_text" => image.ocr_text,
-      "page_number" => image.page_number,
-      "file_size" => image.file_size,
-      "dpi" => image.dpi
+      "colorspace" => image.colorspace,
+      "bits_per_component" => image.bits_per_component,
+      "is_mask" => image.is_mask,
+      "description" => image.description,
+      "ocr_result" =>
+        case image.ocr_result do
+          nil -> nil
+          %Kreuzberg.ExtractionResult{} = r -> Kreuzberg.ExtractionResult.to_map(r)
+          other -> other
+        end
     }
   end
 
+  defp normalize_ocr_result(nil), do: nil
+  defp normalize_ocr_result(%Kreuzberg.ExtractionResult{} = r), do: r
+
+  defp normalize_ocr_result(map) when is_map(map) do
+    Kreuzberg.ExtractionResult.new(
+      map["content"] || "",
+      map["mime_type"] || "",
+      map["metadata"] || %{},
+      map["tables"] || [],
+      detected_languages: map["detected_languages"],
+      chunks: map["chunks"],
+      images: map["images"],
+      pages: map["pages"],
+      elements: map["elements"],
+      djot_content: map["djot_content"]
+    )
+  end
+
+  # bytes::Bytes serializes via serde as an array of u8 integers.
+  # Convert list of integers to binary for Elixir.
+  defp normalize_image_data(nil), do: <<>>
+  defp normalize_image_data(data) when is_binary(data), do: data
+  defp normalize_image_data(data) when is_list(data), do: :binary.list_to_bin(data)
+
   @doc """
   Returns whether the image has binary data.
-
-  ## Parameters
-
-    * `image` - An `Image` struct
-
-  ## Returns
-
-  `true` if image has data, `false` otherwise.
-
-  ## Examples
-
-      iex> image = %Kreuzberg.Image{format: "png", data: <<1, 2, 3>>}
-      iex> Kreuzberg.Image.has_data?(image)
-      true
-
-      iex> image = %Kreuzberg.Image{format: "png"}
-      iex> Kreuzberg.Image.has_data?(image)
-      false
   """
   @spec has_data?(t()) :: boolean()
   def has_data?(%__MODULE__{data: data}) do
     is_binary(data) and byte_size(data) > 0
   end
-
-  @doc """
-  Returns the aspect ratio (width / height) of the image.
-
-  ## Parameters
-
-    * `image` - An `Image` struct
-
-  ## Returns
-
-  The aspect ratio as a float, or nil if dimensions not available.
-
-  ## Examples
-
-      iex> image = %Kreuzberg.Image{width: 1920, height: 1080}
-      iex> Kreuzberg.Image.aspect_ratio(image)
-      1.7777777777777777
-
-      iex> image = %Kreuzberg.Image{format: "png"}
-      iex> Kreuzberg.Image.aspect_ratio(image)
-      nil
-  """
-  @spec aspect_ratio(t()) :: float() | nil
-  def aspect_ratio(%__MODULE__{width: w, height: h})
-      when is_integer(w) and is_integer(h) and h > 0 do
-    w / h
-  end
-
-  def aspect_ratio(_), do: nil
 end

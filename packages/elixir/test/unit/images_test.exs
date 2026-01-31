@@ -571,8 +571,8 @@ defmodule Kreuzberg.Unit.ImagesTest do
             Map.has_key?(image, "format") or
             Map.has_key?(image, "width") or
             Map.has_key?(image, "height") or
-            Map.has_key?(image, "mime_type") or
-            Map.has_key?(image, "ocr_text")
+            Map.has_key?(image, "image_index") or
+            Map.has_key?(image, "ocr_result")
 
         assert has_recognized_field
       end

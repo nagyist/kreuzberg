@@ -128,8 +128,8 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
 
       assert result.content != nil
 
-      if result.keywords != nil do
-        assert is_list(result.keywords)
+      if result.metadata.keywords != nil do
+        assert is_list(result.metadata.keywords)
       end
     end
 
@@ -169,7 +169,7 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
 
       assert result.content != nil
       # Both features should be available if configured
-      if result.keywords != nil, do: assert(is_list(result.keywords))
+      if result.metadata.keywords != nil, do: assert(is_list(result.metadata.keywords))
       if result.chunks != nil, do: assert(is_list(result.chunks))
     end
 
@@ -453,8 +453,8 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
 
       assert basic.content == with_keywords.content
 
-      if with_keywords.keywords != nil do
-        assert is_list(with_keywords.keywords)
+      if with_keywords.metadata.keywords != nil do
+        assert is_list(with_keywords.metadata.keywords)
       end
     end
 
@@ -749,8 +749,8 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
       assert first_chunk != nil
 
       # Extract text using byte range from metadata
-      byte_start = first_chunk.metadata["byte_start"]
-      byte_end = first_chunk.metadata["byte_end"]
+      byte_start = first_chunk.metadata.byte_start
+      byte_end = first_chunk.metadata.byte_end
       expected_text = binary_part(result.content, byte_start, byte_end - byte_start)
 
       # Normalize line endings for cross-platform consistency (Windows \r\n vs Unix \n)
@@ -776,14 +776,14 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
       result.chunks
       |> Enum.with_index()
       |> Enum.each(fn {chunk, index} ->
-        assert chunk.metadata["chunk_index"] == index
-        assert chunk.metadata["total_chunks"] == total_chunks
-        assert chunk.metadata["byte_start"] >= 0
-        assert chunk.metadata["byte_end"] > chunk.metadata["byte_start"]
+        assert chunk.metadata.chunk_index == index
+        assert chunk.metadata.total_chunks == total_chunks
+        assert chunk.metadata.byte_start >= 0
+        assert chunk.metadata.byte_end > chunk.metadata.byte_start
 
         # Content length should roughly correspond to byte range
         # (allowing for UTF-8 multi-byte characters)
-        byte_length = chunk.metadata["byte_end"] - chunk.metadata["byte_start"]
+        byte_length = chunk.metadata.byte_end - chunk.metadata.byte_start
         assert String.length(chunk.content) <= byte_length
       end)
     end
@@ -802,7 +802,7 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
       # Verify chunks are ordered by byte position
       byte_starts =
         result.chunks
-        |> Enum.map(fn chunk -> chunk.metadata["byte_start"] end)
+        |> Enum.map(fn chunk -> chunk.metadata.byte_start end)
         |> Enum.sort()
 
       # Check that chunks are in sequential order
@@ -825,8 +825,8 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
       {:ok, result} = Kreuzberg.extract(@sample_document, "text/plain", config)
 
       first_chunk = List.first(result.chunks)
-      assert first_chunk.metadata["byte_start"] == 0
-      assert first_chunk.metadata["chunk_index"] == 0
+      assert first_chunk.metadata.byte_start == 0
+      assert first_chunk.metadata.chunk_index == 0
 
       # First chunk should start with beginning of document
       assert String.starts_with?(result.content, first_chunk.content)
@@ -847,14 +847,14 @@ defmodule KreuzbergTest.Integration.E2EExtractionTest do
       content_length = byte_size(result.content)
 
       # Last chunk should extend to or near the end (within one chunk size)
-      assert last_chunk.metadata["byte_end"] <= content_length
-      assert last_chunk.metadata["byte_end"] >= content_length - 600
+      assert last_chunk.metadata.byte_end <= content_length
+      assert last_chunk.metadata.byte_end >= content_length - 600
 
       # Last chunk content should appear in the result content
       assert String.contains?(result.content, last_chunk.content)
 
       # Verify last chunk has the highest chunk_index
-      assert last_chunk.metadata["chunk_index"] == length(result.chunks) - 1
+      assert last_chunk.metadata.chunk_index == length(result.chunks) - 1
     end
 
     @tag :integration
