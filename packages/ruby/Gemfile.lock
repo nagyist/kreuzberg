@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     kreuzberg (4.2.7)
+      rb_sys (~> 0.9.119)
 
 GEM
   remote: https://rubygems.org/
@@ -172,7 +173,6 @@ DEPENDENCIES
   pry-byebug (~> 3.10)
   rake (~> 13.0)
   rake-compiler (~> 1.2)
-  rb_sys (= 0.9.119)
   rbs (~> 3.0)
   rspec (~> 3.12)
   rubocop (~> 1.66)
