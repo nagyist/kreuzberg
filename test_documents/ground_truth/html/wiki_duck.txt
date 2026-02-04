@@ -236,20 +236,20 @@ This article is about the bird. For duck as a food, see Duck as food . For other
 
 "Duckling" redirects here. For other uses, see Duckling (disambiguation)) .
 
- Duck Duck 
- 
- <!-- image --> 
- Bufflehead ( Bucephala albeola ) 
- Scientific classification) Edit this classification <!-- image --> 
- Domain: Eukaryota 
- Kingdom: Animalia 
- Phylum: Chordata 
- Class: Aves 
- Order: Anseriformes 
- Superfamily: Anatoidea 
- Family: Anatidae 
- Subfamilies Subfamilies 
- See text See text 
+ Duck Duck
+
+ <!-- image -->
+ Bufflehead ( Bucephala albeola )
+ Scientific classification) Edit this classification <!-- image -->
+ Domain: Eukaryota
+ Kingdom: Animalia
+ Phylum: Chordata
+ Class: Aves
+ Order: Anseriformes
+ Superfamily: Anatoidea
+ Family: Anatidae
+ Subfamilies Subfamilies
+ See text See text
 
 <!-- image -->
 
@@ -513,10 +513,10 @@ Duck at Wikipedia's sister projects
 - Ducks on postage stamps Archived 2013-05-13 at the Wayback Machine
 - Ducks at a Distance, by Rob Hines* at Project Gutenberg - A modern illustrated guide to identification of US waterfowl
 
- Authority control databases Edit this at Wikidata <!-- image --> 
- 
- National - United States - France - BnF data - Japan - Latvia - Israel 
- Other - IdRef 
+ Authority control databases Edit this at Wikidata <!-- image -->
+
+ National - United States - France - BnF data - Japan - Latvia - Israel
+ Other - IdRef
 
 <!-- image -->
 

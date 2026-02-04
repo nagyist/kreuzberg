@@ -18,7 +18,7 @@ Section 2
 
 This is some text in section 2.
 
- Header 1 Header 2 
- 
- Value 1 Value 2 
+ Header 1 Header 2
+
+ Value 1 Value 2
  Value 3 Value 4
