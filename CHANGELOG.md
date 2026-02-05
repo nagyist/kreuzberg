@@ -2643,6 +2643,14 @@ This release introduces **Kreuzberg v4**, a complete rewrite with Rust core, pol
 - [Format Support](reference/formats.md) - Supported file formats
 - [Extraction Guide](guides/extraction.md) - Extraction examples
 
+[4.2.10]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.10
+[4.2.9]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.9
+[4.2.8]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.8
+[4.2.7]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.7
+[4.2.6]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.6
+[4.2.5]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.5
+[4.2.4]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.4
+[4.2.3]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.3
 [4.2.2]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.2
 [4.2.1]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.1
 [4.2.0]: https://github.com/kreuzberg-dev/kreuzberg/releases/tag/v4.2.0
