@@ -13,7 +13,7 @@ item-0 at level 0: unspecified: group _root_
           item-12 at level 5: list: group list
         item-13 at level 4: list_item: 4 Distribution and habitat
           item-14 at level 5: list: group list
-        item-15 at level 4: list_item: 
+        item-15 at level 4: list_item:
           item-16 at level 5: inline: group group
             item-17 at level 6: text: 5 Behaviour
             item-18 at level 6: text: Toggle Behaviour subsection
@@ -26,7 +26,7 @@ item-0 at level 0: unspecified: group _root_
               item-25 at level 7: list: group list
             item-26 at level 6: list_item: 5.4 Predators
               item-27 at level 7: list: group list
-        item-28 at level 4: list_item: 
+        item-28 at level 4: list_item:
           item-29 at level 5: inline: group group
             item-30 at level 6: text: 6 Relationship with humans
             item-31 at level 6: text: Toggle Relationship with humans subsection
@@ -41,7 +41,7 @@ item-0 at level 0: unspecified: group _root_
               item-40 at level 7: list: group list
         item-41 at level 4: list_item: 7 See also
           item-42 at level 5: list: group list
-        item-43 at level 4: list_item: 
+        item-43 at level 4: list_item:
           item-44 at level 5: inline: group group
             item-45 at level 6: text: 8 Notes
             item-46 at level 6: text: Toggle Notes subsection
@@ -835,21 +835,21 @@ item-0 at level 0: unspecified: group _root_
     item-820 at level 2: section_header: Notes
       item-821 at level 3: section_header: Citations
         item-822 at level 4: list: group ordered list
-          item-823 at level 5: list_item: 
+          item-823 at level 5: list_item:
             item-824 at level 6: inline: group group
               item-825 at level 7: text: ^
               item-826 at level 7: text: "Duckling"
               item-827 at level 7: text: .
               item-828 at level 7: text: The American Heritage Dictionary of the English Language, Fourth Edition
               item-829 at level 7: text: . Houghton Mifflin Company. 2006 . Retrieved 2015-05-22 .
-          item-830 at level 5: list_item: 
+          item-830 at level 5: list_item:
             item-831 at level 6: inline: group group
               item-832 at level 7: text: ^
               item-833 at level 7: text: "Duckling"
               item-834 at level 7: text: .
               item-835 at level 7: text: Kernerman English Multilingual Dictionary (Beta Version)
               item-836 at level 7: text: . K. Dictionaries Ltd. 2000-2006 . Retrieved 2015-05-22 .
-          item-837 at level 5: list_item: 
+          item-837 at level 5: list_item:
             item-838 at level 6: inline: group group
               item-839 at level 7: text: ^
               item-840 at level 7: text: Dohner, Janet Vorwald (2001).
@@ -858,7 +858,7 @@ item-0 at level 0: unspecified: group _root_
               item-843 at level 7: text: ISBN
               item-844 at level 7: text: 978-0300138139
               item-845 at level 7: text: .
-          item-846 at level 5: list_item: 
+          item-846 at level 5: list_item:
             item-847 at level 6: inline: group group
               item-848 at level 7: text: ^
               item-849 at level 7: text: Visca, Curt; Visca, Kelley (2003).
@@ -867,7 +867,7 @@ item-0 at level 0: unspecified: group _root_
               item-852 at level 7: text: ISBN
               item-853 at level 7: text: 9780823961566
               item-854 at level 7: text: .
-          item-855 at level 5: list_item: 
+          item-855 at level 5: list_item:
             item-856 at level 6: inline: group group
               item-857 at level 7: text: ^
               item-858 at level 7: text: a
@@ -876,22 +876,22 @@ item-0 at level 0: unspecified: group _root_
               item-861 at level 7: text: d
               item-862 at level 7: text: Carboneras 1992
               item-863 at level 7: text: , p. 536.
-          item-864 at level 5: list_item: 
+          item-864 at level 5: list_item:
             item-865 at level 6: inline: group group
               item-866 at level 7: text: ^
               item-867 at level 7: text: Livezey 1986
               item-868 at level 7: text: , pp. 737-738.
-          item-869 at level 5: list_item: 
+          item-869 at level 5: list_item:
             item-870 at level 6: inline: group group
               item-871 at level 7: text: ^
               item-872 at level 7: text: Madsen, McHugh & de Kloet 1988
               item-873 at level 7: text: , p. 452.
-          item-874 at level 5: list_item: 
+          item-874 at level 5: list_item:
             item-875 at level 6: inline: group group
               item-876 at level 7: text: ^
               item-877 at level 7: text: Donne-Goussé, Laudet & Hänni 2002
               item-878 at level 7: text: , pp. 353-354.
-          item-879 at level 5: list_item: 
+          item-879 at level 5: list_item:
             item-880 at level 6: inline: group group
               item-881 at level 7: text: ^
               item-882 at level 7: text: a
@@ -902,32 +902,32 @@ item-0 at level 0: unspecified: group _root_
               item-887 at level 7: text: f
               item-888 at level 7: text: Carboneras 1992
               item-889 at level 7: text: , p. 540.
-          item-890 at level 5: list_item: 
+          item-890 at level 5: list_item:
             item-891 at level 6: inline: group group
               item-892 at level 7: text: ^
               item-893 at level 7: text: Elphick, Dunning & Sibley 2001
               item-894 at level 7: text: , p. 191.
-          item-895 at level 5: list_item: 
+          item-895 at level 5: list_item:
             item-896 at level 6: inline: group group
               item-897 at level 7: text: ^
               item-898 at level 7: text: Kear 2005
               item-899 at level 7: text: , p. 448.
-          item-900 at level 5: list_item: 
+          item-900 at level 5: list_item:
             item-901 at level 6: inline: group group
               item-902 at level 7: text: ^
               item-903 at level 7: text: Kear 2005
               item-904 at level 7: text: , p. 622-623.
-          item-905 at level 5: list_item: 
+          item-905 at level 5: list_item:
             item-906 at level 6: inline: group group
               item-907 at level 7: text: ^
               item-908 at level 7: text: Kear 2005
               item-909 at level 7: text: , p. 686.
-          item-910 at level 5: list_item: 
+          item-910 at level 5: list_item:
             item-911 at level 6: inline: group group
               item-912 at level 7: text: ^
               item-913 at level 7: text: Elphick, Dunning & Sibley 2001
               item-914 at level 7: text: , p. 193.
-          item-915 at level 5: list_item: 
+          item-915 at level 5: list_item:
             item-916 at level 6: inline: group group
               item-917 at level 7: text: ^
               item-918 at level 7: text: a
@@ -939,57 +939,57 @@ item-0 at level 0: unspecified: group _root_
               item-924 at level 7: text: g
               item-925 at level 7: text: Carboneras 1992
               item-926 at level 7: text: , p. 537.
-          item-927 at level 5: list_item: 
+          item-927 at level 5: list_item:
             item-928 at level 6: inline: group group
               item-929 at level 7: text: ^
               item-930 at level 7: text: American Ornithologists' Union 1998
               item-931 at level 7: text: , p. xix.
-          item-932 at level 5: list_item: 
+          item-932 at level 5: list_item:
             item-933 at level 6: inline: group group
               item-934 at level 7: text: ^
               item-935 at level 7: text: American Ornithologists' Union 1998
               item-936 at level 7: text: .
-          item-937 at level 5: list_item: 
+          item-937 at level 5: list_item:
             item-938 at level 6: inline: group group
               item-939 at level 7: text: ^
               item-940 at level 7: text: Carboneras 1992
               item-941 at level 7: text: , p. 538.
-          item-942 at level 5: list_item: 
+          item-942 at level 5: list_item:
             item-943 at level 6: inline: group group
               item-944 at level 7: text: ^
               item-945 at level 7: text: Christidis & Boles 2008
               item-946 at level 7: text: , p. 62.
-          item-947 at level 5: list_item: 
+          item-947 at level 5: list_item:
             item-948 at level 6: inline: group group
               item-949 at level 7: text: ^
               item-950 at level 7: text: Shirihai 2008
               item-951 at level 7: text: , pp. 239, 245.
-          item-952 at level 5: list_item: 
+          item-952 at level 5: list_item:
             item-953 at level 6: inline: group group
               item-954 at level 7: text: ^
               item-955 at level 7: text: a
               item-956 at level 7: text: b
               item-957 at level 7: text: Pratt, Bruner & Berrett 1987
               item-958 at level 7: text: , pp. 98-107.
-          item-959 at level 5: list_item: 
+          item-959 at level 5: list_item:
             item-960 at level 6: inline: group group
               item-961 at level 7: text: ^
               item-962 at level 7: text: Fitter, Fitter & Hosking 2000
               item-963 at level 7: text: , pp. 52-3.
-          item-964 at level 5: list_item: 
+          item-964 at level 5: list_item:
             item-965 at level 6: inline: group group
               item-966 at level 7: text: ^
               item-967 at level 7: text: "Pacific Black Duck"
               item-968 at level 7: text: .
               item-969 at level 7: text: www.wiresnr.org
               item-970 at level 7: text: . Retrieved 2018-04-27 .
-          item-971 at level 5: list_item: 
+          item-971 at level 5: list_item:
             item-972 at level 6: inline: group group
               item-973 at level 7: text: ^
               item-974 at level 7: text: Ogden, Evans.
               item-975 at level 7: text: "Dabbling Ducks"
               item-976 at level 7: text: . CWE . Retrieved 2006-11-02 .
-          item-977 at level 5: list_item: 
+          item-977 at level 5: list_item:
             item-978 at level 6: inline: group group
               item-979 at level 7: text: ^
               item-980 at level 7: text: Karl Mathiesen (16 March 2015).
@@ -997,7 +997,7 @@ item-0 at level 0: unspecified: group _root_
               item-982 at level 7: text: .
               item-983 at level 7: text: The Guardian
               item-984 at level 7: text: . Retrieved 13 November 2016 .
-          item-985 at level 5: list_item: 
+          item-985 at level 5: list_item:
             item-986 at level 6: inline: group group
               item-987 at level 7: text: ^
               item-988 at level 7: text: Rohwer, Frank C.; Anderson, Mich ... air Formation in Migratory Waterfowl".
@@ -1010,7 +1010,7 @@ item-0 at level 0: unspecified: group _root_
               item-995 at level 7: text: ISBN
               item-996 at level 7: text: 978-1-4615-6789-9
               item-997 at level 7: text: .
-          item-998 at level 5: list_item: 
+          item-998 at level 5: list_item:
             item-999 at level 6: inline: group group
               item-1000 at level 7: text: ^
               item-1001 at level 7: text: Smith, Cyndi M.; Cooke, Fred; Ro ...  Goudie, R. Ian; Boyd, W. Sean (2000).
@@ -1028,7 +1028,7 @@ item-0 at level 0: unspecified: group _root_
               item-1013 at level 7: text: :
               item-1014 at level 7: text: 10315/13797
               item-1015 at level 7: text: .
-          item-1016 at level 5: list_item: 
+          item-1016 at level 5: list_item:
             item-1017 at level 6: inline: group group
               item-1018 at level 7: text: ^
               item-1019 at level 7: text: "If You Find An Orphaned Duckling - Wildlife Rehabber"
@@ -1037,7 +1037,7 @@ item-0 at level 0: unspecified: group _root_
               item-1022 at level 7: text: . Archived from
               item-1023 at level 7: text: the original
               item-1024 at level 7: text: on 2018-09-23 . Retrieved 2018-12-22 .
-          item-1025 at level 5: list_item: 
+          item-1025 at level 5: list_item:
             item-1026 at level 6: inline: group group
               item-1027 at level 7: text: ^
               item-1028 at level 7: text: Carver, Heather (2011).
@@ -1049,7 +1049,7 @@ item-0 at level 0: unspecified: group _root_
               item-1034 at level 7: text: [
               item-1035 at level 7: text: self-published source
               item-1036 at level 7: text: ]
-          item-1037 at level 5: list_item: 
+          item-1037 at level 5: list_item:
             item-1038 at level 6: inline: group group
               item-1039 at level 7: text: ^
               item-1040 at level 7: text: Titlow, Budd (2013-09-03).
@@ -1058,7 +1058,7 @@ item-0 at level 0: unspecified: group _root_
               item-1043 at level 7: text: ISBN
               item-1044 at level 7: text: 9780762797707
               item-1045 at level 7: text: .
-          item-1046 at level 5: list_item: 
+          item-1046 at level 5: list_item:
             item-1047 at level 6: inline: group group
               item-1048 at level 7: text: ^
               item-1049 at level 7: text: Amos, Jonathan (2003-09-08).
@@ -1066,64 +1066,64 @@ item-0 at level 0: unspecified: group _root_
               item-1051 at level 7: text: .
               item-1052 at level 7: text: BBC News
               item-1053 at level 7: text: . Retrieved 2006-11-02 .
-          item-1054 at level 5: list_item: 
+          item-1054 at level 5: list_item:
             item-1055 at level 6: inline: group group
               item-1056 at level 7: text: ^
               item-1057 at level 7: text: "Mythbusters Episode 8"
               item-1058 at level 7: text: . 12 December 2003.
-          item-1059 at level 5: list_item: 
+          item-1059 at level 5: list_item:
             item-1060 at level 6: inline: group group
               item-1061 at level 7: text: ^
               item-1062 at level 7: text: Erlandson 1994
               item-1063 at level 7: text: , p. 171.
-          item-1064 at level 5: list_item: 
+          item-1064 at level 5: list_item:
             item-1065 at level 6: inline: group group
               item-1066 at level 7: text: ^
               item-1067 at level 7: text: Jeffries 2008
               item-1068 at level 7: text: , pp. 168, 243.
-          item-1069 at level 5: list_item: 
+          item-1069 at level 5: list_item:
             item-1070 at level 6: inline: group group
               item-1071 at level 7: text: ^
               item-1072 at level 7: text: a
               item-1073 at level 7: text: b
               item-1074 at level 7: text: Sued-Badillo 2003
               item-1075 at level 7: text: , p. 65.
-          item-1076 at level 5: list_item: 
+          item-1076 at level 5: list_item:
             item-1077 at level 6: inline: group group
               item-1078 at level 7: text: ^
               item-1079 at level 7: text: Thorpe 1996
               item-1080 at level 7: text: , p. 68.
-          item-1081 at level 5: list_item: 
+          item-1081 at level 5: list_item:
             item-1082 at level 6: inline: group group
               item-1083 at level 7: text: ^
               item-1084 at level 7: text: Maisels 1999
               item-1085 at level 7: text: , p. 42.
-          item-1086 at level 5: list_item: 
+          item-1086 at level 5: list_item:
             item-1087 at level 6: inline: group group
               item-1088 at level 7: text: ^
               item-1089 at level 7: text: Rau 1876
               item-1090 at level 7: text: , p. 133.
-          item-1091 at level 5: list_item: 
+          item-1091 at level 5: list_item:
             item-1092 at level 6: inline: group group
               item-1093 at level 7: text: ^
               item-1094 at level 7: text: Higman 2012
               item-1095 at level 7: text: , p. 23.
-          item-1096 at level 5: list_item: 
+          item-1096 at level 5: list_item:
             item-1097 at level 6: inline: group group
               item-1098 at level 7: text: ^
               item-1099 at level 7: text: Hume 2012
               item-1100 at level 7: text: , p. 53.
-          item-1101 at level 5: list_item: 
+          item-1101 at level 5: list_item:
             item-1102 at level 6: inline: group group
               item-1103 at level 7: text: ^
               item-1104 at level 7: text: Hume 2012
               item-1105 at level 7: text: , p. 52.
-          item-1106 at level 5: list_item: 
+          item-1106 at level 5: list_item:
             item-1107 at level 6: inline: group group
               item-1108 at level 7: text: ^
               item-1109 at level 7: text: Fieldhouse 2002
               item-1110 at level 7: text: , p. 167.
-          item-1111 at level 5: list_item: 
+          item-1111 at level 5: list_item:
             item-1112 at level 6: inline: group group
               item-1113 at level 7: text: ^
               item-1114 at level 7: text: Livingston, A. D. (1998-01-01).
@@ -1132,7 +1132,7 @@ item-0 at level 0: unspecified: group _root_
               item-1117 at level 7: text: ISBN
               item-1118 at level 7: text: 9781853263774
               item-1119 at level 7: text: .
-          item-1120 at level 5: list_item: 
+          item-1120 at level 5: list_item:
             item-1121 at level 6: inline: group group
               item-1122 at level 7: text: ^
               item-1123 at level 7: text: "Study plan for waterfowl injury ... ns in Hudson river resident waterfowl"
@@ -1141,19 +1141,19 @@ item-0 at level 0: unspecified: group _root_
               item-1126 at level 7: text: . US Department of Commerce. December 2008. p. 3.
               item-1127 at level 7: text: Archived
               item-1128 at level 7: text: (PDF) from the original on 2022-10-09 . Retrieved 2 July 2019 .
-          item-1129 at level 5: list_item: 
+          item-1129 at level 5: list_item:
             item-1130 at level 6: inline: group group
               item-1131 at level 7: text: ^
               item-1132 at level 7: text: "FAOSTAT"
               item-1133 at level 7: text: .
               item-1134 at level 7: text: www.fao.org
               item-1135 at level 7: text: . Retrieved 2019-10-25 .
-          item-1136 at level 5: list_item: 
+          item-1136 at level 5: list_item:
             item-1137 at level 6: inline: group group
               item-1138 at level 7: text: ^
               item-1139 at level 7: text: "Anas platyrhynchos, Domestic Du ... f - The University of Texas at Austin"
               item-1140 at level 7: text: . Digimorph.org . Retrieved 2012-12-23 .
-          item-1141 at level 5: list_item: 
+          item-1141 at level 5: list_item:
             item-1142 at level 6: inline: group group
               item-1143 at level 7: text: ^
               item-1144 at level 7: text: Sy Montgomery.
@@ -1161,7 +1161,7 @@ item-0 at level 0: unspecified: group _root_
               item-1146 at level 7: text: .
               item-1147 at level 7: text: Britannica.com
               item-1148 at level 7: text: . Retrieved 2012-12-23 .
-          item-1149 at level 5: list_item: 
+          item-1149 at level 5: list_item:
             item-1150 at level 6: inline: group group
               item-1151 at level 7: text: ^
               item-1152 at level 7: text: Glenday, Craig (2014).
@@ -1172,7 +1172,7 @@ item-0 at level 0: unspecified: group _root_
               item-1157 at level 7: text: ISBN
               item-1158 at level 7: text: 978-1-908843-15-9
               item-1159 at level 7: text: .
-          item-1160 at level 5: list_item: 
+          item-1160 at level 5: list_item:
             item-1161 at level 6: inline: group group
               item-1162 at level 7: text: ^
               item-1163 at level 7: text: Suomen kunnallisvaakunat
@@ -1180,17 +1180,17 @@ item-0 at level 0: unspecified: group _root_
               item-1165 at level 7: text: ISBN
               item-1166 at level 7: text: 951-773-085-3
               item-1167 at level 7: text: .
-          item-1168 at level 5: list_item: 
+          item-1168 at level 5: list_item:
             item-1169 at level 6: inline: group group
               item-1170 at level 7: text: ^
               item-1171 at level 7: text: "Lubānas simbolika"
               item-1172 at level 7: text: (in Latvian) . Retrieved September 9, 2021 .
-          item-1173 at level 5: list_item: 
+          item-1173 at level 5: list_item:
             item-1174 at level 6: inline: group group
               item-1175 at level 7: text: ^
               item-1176 at level 7: text: "Föglö"
               item-1177 at level 7: text: (in Swedish) . Retrieved September 9, 2021 .
-          item-1178 at level 5: list_item: 
+          item-1178 at level 5: list_item:
             item-1179 at level 6: inline: group group
               item-1180 at level 7: text: ^
               item-1181 at level 7: text: Young, Emma.
@@ -1198,14 +1198,14 @@ item-0 at level 0: unspecified: group _root_
               item-1183 at level 7: text: .
               item-1184 at level 7: text: New Scientist
               item-1185 at level 7: text: . Retrieved 7 January 2019 .
-          item-1186 at level 5: list_item: 
+          item-1186 at level 5: list_item:
             item-1187 at level 6: inline: group group
               item-1188 at level 7: text: ^
               item-1189 at level 7: text: "Howard the Duck (character)"
               item-1190 at level 7: text: .
               item-1191 at level 7: text: Grand Comics Database
               item-1192 at level 7: text: .
-          item-1193 at level 5: list_item: 
+          item-1193 at level 5: list_item:
             item-1194 at level 6: inline: group group
               item-1195 at level 7: text: ^
               item-1196 at level 7: text: Sanderson, Peter
@@ -1217,7 +1217,7 @@ item-0 at level 0: unspecified: group _root_
               item-1202 at level 7: text: ISBN
               item-1203 at level 7: text: 978-0756641238
               item-1204 at level 7: text: . December saw the debut of the  ... luding this bad-tempered talking duck.
-          item-1205 at level 5: list_item: 
+          item-1205 at level 5: list_item:
             item-1206 at level 6: inline: group group
               item-1207 at level 7: text: ^
               item-1208 at level 7: text: "The Duck"
@@ -1226,7 +1226,7 @@ item-0 at level 0: unspecified: group _root_
               item-1211 at level 7: text: . Retrieved 2022-01-20 .
       item-1212 at level 3: section_header: Sources
         item-1213 at level 4: list: group list
-          item-1214 at level 5: list_item: 
+          item-1214 at level 5: list_item:
             item-1215 at level 6: inline: group group
               item-1216 at level 7: text: American Ornithologists' Union (1998).
               item-1217 at level 7: text: Checklist of North American Birds
@@ -1236,7 +1236,7 @@ item-0 at level 0: unspecified: group _root_
               item-1221 at level 7: text: .
               item-1222 at level 7: text: Archived
               item-1223 at level 7: text: (PDF) from the original on 2022-10-09.
-          item-1224 at level 5: list_item: 
+          item-1224 at level 5: list_item:
             item-1225 at level 6: inline: group group
               item-1226 at level 7: text: Carboneras, Carlos (1992). del H ... liott, Andrew; Sargatal, Jordi (eds.).
               item-1227 at level 7: text: Handbook of the Birds of the World
@@ -1244,7 +1244,7 @@ item-0 at level 0: unspecified: group _root_
               item-1229 at level 7: text: ISBN
               item-1230 at level 7: text: 978-84-87334-10-8
               item-1231 at level 7: text: .
-          item-1232 at level 5: list_item: 
+          item-1232 at level 5: list_item:
             item-1233 at level 6: inline: group group
               item-1234 at level 7: text: Christidis, Les; Boles, Walter E., eds. (2008).
               item-1235 at level 7: text: Systematics and Taxonomy of Australian Birds
@@ -1252,7 +1252,7 @@ item-0 at level 0: unspecified: group _root_
               item-1237 at level 7: text: ISBN
               item-1238 at level 7: text: 978-0-643-06511-6
               item-1239 at level 7: text: .
-          item-1240 at level 5: list_item: 
+          item-1240 at level 5: list_item:
             item-1241 at level 6: inline: group group
               item-1242 at level 7: text: Donne-Goussé, Carole; Laudet, Vi ...  based on mitochondrial DNA analysis".
               item-1243 at level 7: text: Molecular Phylogenetics and Evolution
@@ -1270,7 +1270,7 @@ item-0 at level 0: unspecified: group _root_
               item-1255 at level 7: text: PMID
               item-1256 at level 7: text: 12099792
               item-1257 at level 7: text: .
-          item-1258 at level 5: list_item: 
+          item-1258 at level 5: list_item:
             item-1259 at level 6: inline: group group
               item-1260 at level 7: text: Elphick, Chris; Dunning, John B. Jr.; Sibley, David, eds. (2001).
               item-1261 at level 7: text: The Sibley Guide to Bird Life and Behaviour
@@ -1278,7 +1278,7 @@ item-0 at level 0: unspecified: group _root_
               item-1263 at level 7: text: ISBN
               item-1264 at level 7: text: 978-0-7136-6250-4
               item-1265 at level 7: text: .
-          item-1266 at level 5: list_item: 
+          item-1266 at level 5: list_item:
             item-1267 at level 6: inline: group group
               item-1268 at level 7: text: Erlandson, Jon M. (1994).
               item-1269 at level 7: text: Early Hunter-Gatherers of the California Coast
@@ -1286,7 +1286,7 @@ item-0 at level 0: unspecified: group _root_
               item-1271 at level 7: text: ISBN
               item-1272 at level 7: text: 978-1-4419-3231-0
               item-1273 at level 7: text: .
-          item-1274 at level 5: list_item: 
+          item-1274 at level 5: list_item:
             item-1275 at level 6: inline: group group
               item-1276 at level 7: text: Fieldhouse, Paul (2002).
               item-1277 at level 7: text: Food, Feasts, and Faith: An Ency ... dia of Food Culture in World Religions
@@ -1294,7 +1294,7 @@ item-0 at level 0: unspecified: group _root_
               item-1279 at level 7: text: ISBN
               item-1280 at level 7: text: 978-1-61069-412-4
               item-1281 at level 7: text: .
-          item-1282 at level 5: list_item: 
+          item-1282 at level 5: list_item:
             item-1283 at level 6: inline: group group
               item-1284 at level 7: text: Fitter, Julian; Fitter, Daniel; Hosking, David (2000).
               item-1285 at level 7: text: Wildlife of the Galápagos
@@ -1302,7 +1302,7 @@ item-0 at level 0: unspecified: group _root_
               item-1287 at level 7: text: ISBN
               item-1288 at level 7: text: 978-0-691-10295-5
               item-1289 at level 7: text: .
-          item-1290 at level 5: list_item: 
+          item-1290 at level 5: list_item:
             item-1291 at level 6: inline: group group
               item-1292 at level 7: text: Higman, B. W. (2012).
               item-1293 at level 7: text: How Food Made History
@@ -1310,7 +1310,7 @@ item-0 at level 0: unspecified: group _root_
               item-1295 at level 7: text: ISBN
               item-1296 at level 7: text: 978-1-4051-8947-7
               item-1297 at level 7: text: .
-          item-1298 at level 5: list_item: 
+          item-1298 at level 5: list_item:
             item-1299 at level 6: inline: group group
               item-1300 at level 7: text: Hume, Julian H. (2012).
               item-1301 at level 7: text: Extinct Birds
@@ -1318,7 +1318,7 @@ item-0 at level 0: unspecified: group _root_
               item-1303 at level 7: text: ISBN
               item-1304 at level 7: text: 978-1-4729-3744-5
               item-1305 at level 7: text: .
-          item-1306 at level 5: list_item: 
+          item-1306 at level 5: list_item:
             item-1307 at level 6: inline: group group
               item-1308 at level 7: text: Jeffries, Richard (2008).
               item-1309 at level 7: text: Holocene Hunter-Gatherers of the Lower Ohio River Valley
@@ -1326,7 +1326,7 @@ item-0 at level 0: unspecified: group _root_
               item-1311 at level 7: text: ISBN
               item-1312 at level 7: text: 978-0-8173-1658-7
               item-1313 at level 7: text: .
-          item-1314 at level 5: list_item: 
+          item-1314 at level 5: list_item:
             item-1315 at level 6: inline: group group
               item-1316 at level 7: text: Kear, Janet, ed. (2005).
               item-1317 at level 7: text: Ducks, Geese and Swans: Species Accounts (
@@ -1338,7 +1338,7 @@ item-0 at level 0: unspecified: group _root_
               item-1323 at level 7: text: ISBN
               item-1324 at level 7: text: 978-0-19-861009-0
               item-1325 at level 7: text: .
-          item-1326 at level 5: list_item: 
+          item-1326 at level 5: list_item:
             item-1327 at level 6: inline: group group
               item-1328 at level 7: text: Livezey, Bradley C. (October 1986).
               item-1329 at level 7: text: "A phylogenetic analysis of rece ... genera using morphological characters"
@@ -1353,7 +1353,7 @@ item-0 at level 0: unspecified: group _root_
               item-1338 at level 7: text: .
               item-1339 at level 7: text: Archived
               item-1340 at level 7: text: (PDF) from the original on 2022-10-09.
-          item-1341 at level 5: list_item: 
+          item-1341 at level 5: list_item:
             item-1342 at level 6: inline: group group
               item-1343 at level 7: text: Madsen, Cort S.; McHugh, Kevin P.; de Kloet, Siwo R. (July 1988).
               item-1344 at level 7: text: "A partial classification of wat ... l (Anatidae) based on single-copy DNA"
@@ -1368,7 +1368,7 @@ item-0 at level 0: unspecified: group _root_
               item-1353 at level 7: text: .
               item-1354 at level 7: text: Archived
               item-1355 at level 7: text: (PDF) from the original on 2022-10-09.
-          item-1356 at level 5: list_item: 
+          item-1356 at level 5: list_item:
             item-1357 at level 6: inline: group group
               item-1358 at level 7: text: Maisels, Charles Keith (1999).
               item-1359 at level 7: text: Early Civilizations of the Old World
@@ -1376,7 +1376,7 @@ item-0 at level 0: unspecified: group _root_
               item-1361 at level 7: text: ISBN
               item-1362 at level 7: text: 978-0-415-10975-8
               item-1363 at level 7: text: .
-          item-1364 at level 5: list_item: 
+          item-1364 at level 5: list_item:
             item-1365 at level 6: inline: group group
               item-1366 at level 7: text: Pratt, H. Douglas; Bruner, Phillip L.; Berrett, Delwyn G. (1987).
               item-1367 at level 7: text: A Field Guide to the Birds of Hawaii and the Tropical Pacific
@@ -1384,7 +1384,7 @@ item-0 at level 0: unspecified: group _root_
               item-1369 at level 7: text: ISBN
               item-1370 at level 7: text: 0-691-02399-9
               item-1371 at level 7: text: .
-          item-1372 at level 5: list_item: 
+          item-1372 at level 5: list_item:
             item-1373 at level 6: inline: group group
               item-1374 at level 7: text: Rau, Charles (1876).
               item-1375 at level 7: text: Early Man in Europe
@@ -1392,7 +1392,7 @@ item-0 at level 0: unspecified: group _root_
               item-1377 at level 7: text: LCCN
               item-1378 at level 7: text: 05040168
               item-1379 at level 7: text: .
-          item-1380 at level 5: list_item: 
+          item-1380 at level 5: list_item:
             item-1381 at level 6: inline: group group
               item-1382 at level 7: text: Shirihai, Hadoram (2008).
               item-1383 at level 7: text: A Complete Guide to Antarctic Wildlife
@@ -1400,7 +1400,7 @@ item-0 at level 0: unspecified: group _root_
               item-1385 at level 7: text: ISBN
               item-1386 at level 7: text: 978-0-691-13666-0
               item-1387 at level 7: text: .
-          item-1388 at level 5: list_item: 
+          item-1388 at level 5: list_item:
             item-1389 at level 6: inline: group group
               item-1390 at level 7: text: Sued-Badillo, Jalil (2003).
               item-1391 at level 7: text: Autochthonous Societies
@@ -1408,7 +1408,7 @@ item-0 at level 0: unspecified: group _root_
               item-1393 at level 7: text: ISBN
               item-1394 at level 7: text: 978-92-3-103832-7
               item-1395 at level 7: text: .
-          item-1396 at level 5: list_item: 
+          item-1396 at level 5: list_item:
             item-1397 at level 6: inline: group group
               item-1398 at level 7: text: Thorpe, I. J. (1996).
               item-1399 at level 7: text: The Origins of Agriculture in Europe
@@ -1422,48 +1422,48 @@ item-0 at level 0: unspecified: group _root_
         item-1407 at level 4: text: at Wikipedia's
         item-1408 at level 4: text: sister projects
       item-1409 at level 3: list: group list
-        item-1410 at level 4: list_item: 
+        item-1410 at level 4: list_item:
           item-1411 at level 5: inline: group group
             item-1412 at level 6: text: Definitions
             item-1413 at level 6: text: from Wiktionary
         item-1414 at level 4: picture
-        item-1415 at level 4: list_item: 
+        item-1415 at level 4: list_item:
           item-1416 at level 5: inline: group group
             item-1417 at level 6: text: Media
             item-1418 at level 6: text: from Commons
         item-1419 at level 4: picture
-        item-1420 at level 4: list_item: 
+        item-1420 at level 4: list_item:
           item-1421 at level 5: inline: group group
             item-1422 at level 6: text: Quotations
             item-1423 at level 6: text: from Wikiquote
         item-1424 at level 4: picture
-        item-1425 at level 4: list_item: 
+        item-1425 at level 4: list_item:
           item-1426 at level 5: inline: group group
             item-1427 at level 6: text: Recipes
             item-1428 at level 6: text: from Wikibooks
         item-1429 at level 4: picture
-        item-1430 at level 4: list_item: 
+        item-1430 at level 4: list_item:
           item-1431 at level 5: inline: group group
             item-1432 at level 6: text: Taxa
             item-1433 at level 6: text: from Wikispecies
         item-1434 at level 4: picture
-        item-1435 at level 4: list_item: 
+        item-1435 at level 4: list_item:
           item-1436 at level 5: inline: group group
             item-1437 at level 6: text: Data
             item-1438 at level 6: text: from Wikidata
         item-1439 at level 4: picture
       item-1440 at level 3: list: group list
-        item-1441 at level 4: list_item: 
+        item-1441 at level 4: list_item:
           item-1442 at level 5: inline: group group
             item-1443 at level 6: text: list of books
             item-1444 at level 6: text: (useful looking abstracts)
-        item-1445 at level 4: list_item: 
+        item-1445 at level 4: list_item:
           item-1446 at level 5: inline: group group
             item-1447 at level 6: text: Ducks on postage stamps
             item-1448 at level 6: text: Archived
             item-1449 at level 6: text: 2013-05-13 at the
             item-1450 at level 6: text: Wayback Machine
-        item-1451 at level 4: list_item: 
+        item-1451 at level 4: list_item:
           item-1452 at level 5: inline: group group
             item-1453 at level 6: text: Ducks at a Distance, by Rob Hines
             item-1454 at level 6: text: at

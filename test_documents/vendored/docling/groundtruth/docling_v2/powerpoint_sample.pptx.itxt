@@ -31,6 +31,6 @@ item-0 at level 0: unspecified: group _root_
       item-30 at level 3: list_item: List2
       item-31 at level 3: list_item: List3
     item-32 at level 2: list: group list
-      item-33 at level 3: list_item: l1 
+      item-33 at level 3: list_item: l1
       item-34 at level 3: list_item: l2
       item-35 at level 3: list_item: l3
