@@ -21,7 +21,7 @@ item-0 at level 0: unspecified: group _root_
         item-20 at level 4: text: I like to eat leaves
         item-21 at level 4: text: Here are some interesting things a respectful duck could eat:
         item-22 at level 4: table with [4x3]
-        item-23 at level 4: text: 
+        item-23 at level 4: text:
         item-24 at level 4: text: And let’s add another list in the end:
         item-25 at level 4: list: group list
           item-26 at level 5: list_item: Leaves
