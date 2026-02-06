@@ -9,10 +9,34 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 
 import pymupdf4llm
+
+# Suppress MuPDF C-level error/warning messages that get written directly to
+# stdout, which corrupts the persistent server's line-based JSON protocol.
+# See: https://github.com/pymupdf/PyMuPDF/issues/606
+import pymupdf
+pymupdf.TOOLS.mupdf_display_errors(False)
+
+# As an extra safety net, redirect the C-level stdout (fd 1) to stderr (fd 2)
+# during extraction so any remaining C library output goes to stderr.
+_original_stdout_fd = os.dup(1)
+_stderr_fd = os.dup(2)
+
+
+def _redirect_c_stdout_to_stderr():
+    """Redirect C-level fd 1 to fd 2 so MuPDF noise goes to stderr."""
+    sys.stdout.flush()
+    os.dup2(_stderr_fd, 1)
+
+
+def _restore_c_stdout():
+    """Restore C-level fd 1 for our JSON output."""
+    sys.stdout.flush()
+    os.dup2(_original_stdout_fd, 1)
 
 
 def extract_sync(file_path: str) -> dict:
@@ -35,9 +59,14 @@ def run_server() -> None:
         if not file_path:
             continue
         try:
+            # Redirect C-level stdout to stderr during extraction to prevent
+            # MuPDF C library noise from corrupting our JSON protocol.
+            _redirect_c_stdout_to_stderr()
             payload = extract_sync(file_path)
+            _restore_c_stdout()
             print(json.dumps(payload), flush=True)
         except Exception as e:
+            _restore_c_stdout()
             print(json.dumps({"error": str(e), "_extraction_time_ms": 0}), flush=True)
 
 
