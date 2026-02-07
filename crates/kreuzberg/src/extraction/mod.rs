@@ -27,7 +27,7 @@ pub mod html;
 #[cfg(feature = "office")]
 pub mod docx;
 
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 pub mod libreoffice;
 
 #[cfg(feature = "office")]
@@ -69,7 +69,7 @@ pub use excel::{excel_to_markdown, read_excel_bytes, read_excel_file};
 #[cfg(feature = "html")]
 pub use html::{convert_html_to_markdown, process_html};
 
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 pub use libreoffice::{check_libreoffice_available, convert_doc_to_docx, convert_ppt_to_pptx};
 
 #[cfg(feature = "office")]

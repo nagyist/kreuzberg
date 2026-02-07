@@ -8,7 +8,7 @@ import { assertions, buildConfig, extractBytes, initWasm, resolveDocument, shoul
 await initWasm();
 
 Deno.test("html_simple_table", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("web/simple_table.html");
+	const documentBytes = await resolveDocument("html/simple_table.html");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {

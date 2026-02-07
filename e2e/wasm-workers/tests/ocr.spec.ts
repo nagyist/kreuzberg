@@ -64,7 +64,7 @@ describe("ocr", () => {
 	});
 
 	it("ocr_pdf_image_only_german", async () => {
-		const documentBytes = getFixture("pdfs/image_only_german_pdf.pdf");
+		const documentBytes = getFixture("pdf/image_only_german_pdf.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -89,7 +89,7 @@ describe("ocr", () => {
 	});
 
 	it("ocr_pdf_rotated_90", async () => {
-		const documentBytes = getFixture("pdfs/ocr_test_rotated_90.pdf");
+		const documentBytes = getFixture("pdf/ocr_test_rotated_90.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -115,7 +115,7 @@ describe("ocr", () => {
 	});
 
 	it("ocr_pdf_tesseract", async () => {
-		const documentBytes = getFixture("pdfs/ocr_test.pdf");
+		const documentBytes = getFixture("pdf/ocr_test.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;

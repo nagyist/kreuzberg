@@ -8,7 +8,7 @@ import { assertions, buildConfig, extractBytes, initWasm, resolveDocument, shoul
 await initWasm();
 
 Deno.test("api_batch_bytes_async", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -30,7 +30,7 @@ Deno.test("api_batch_bytes_async", { permissions: { read: true } }, async () => 
 });
 
 Deno.test("api_batch_bytes_sync", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -52,7 +52,7 @@ Deno.test("api_batch_bytes_sync", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("api_batch_file_async", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -74,7 +74,7 @@ Deno.test("api_batch_file_async", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("api_batch_file_sync", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -96,7 +96,7 @@ Deno.test("api_batch_file_sync", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("api_extract_bytes_async", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -117,7 +117,7 @@ Deno.test("api_extract_bytes_async", { permissions: { read: true } }, async () =
 });
 
 Deno.test("api_extract_bytes_sync", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -138,7 +138,7 @@ Deno.test("api_extract_bytes_sync", { permissions: { read: true } }, async () =>
 });
 
 Deno.test("api_extract_file_async", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -159,7 +159,7 @@ Deno.test("api_extract_file_async", { permissions: { read: true } }, async () =>
 });
 
 Deno.test("api_extract_file_sync", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -180,7 +180,7 @@ Deno.test("api_extract_file_sync", { permissions: { read: true } }, async () => 
 });
 
 Deno.test("config_chunking", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ chunking: { max_chars: 500, max_overlap: 50 } });
 	let result: ExtractionResult | null = null;
 	try {
@@ -201,7 +201,7 @@ Deno.test("config_chunking", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("config_force_ocr", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ force_ocr: true });
 	let result: ExtractionResult | null = null;
 	try {
@@ -221,7 +221,7 @@ Deno.test("config_force_ocr", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("config_images", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/embedded_images_tables.pdf");
+	const documentBytes = await resolveDocument("pdf/embedded_images_tables.pdf");
 	const config = buildConfig({ images: { extract_images: true } });
 	let result: ExtractionResult | null = null;
 	try {
@@ -241,7 +241,7 @@ Deno.test("config_images", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("config_language_detection", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ language_detection: { enabled: true } });
 	let result: ExtractionResult | null = null;
 	try {
@@ -262,7 +262,7 @@ Deno.test("config_language_detection", { permissions: { read: true } }, async ()
 });
 
 Deno.test("config_pages", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/multi_page.pdf");
+	const documentBytes = await resolveDocument("pdf/multi_page.pdf");
 	const config = buildConfig({ pages: { end: 3, start: 1 } });
 	let result: ExtractionResult | null = null;
 	try {
@@ -282,7 +282,7 @@ Deno.test("config_pages", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("config_use_cache_false", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ use_cache: false });
 	let result: ExtractionResult | null = null;
 	try {
@@ -302,7 +302,7 @@ Deno.test("config_use_cache_false", { permissions: { read: true } }, async () =>
 });
 
 Deno.test("output_format_djot", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ output_format: "djot" });
 	let result: ExtractionResult | null = null;
 	try {
@@ -322,7 +322,7 @@ Deno.test("output_format_djot", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("output_format_html", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ output_format: "html" });
 	let result: ExtractionResult | null = null;
 	try {
@@ -342,7 +342,7 @@ Deno.test("output_format_html", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("output_format_markdown", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ output_format: "markdown" });
 	let result: ExtractionResult | null = null;
 	try {
@@ -362,7 +362,7 @@ Deno.test("output_format_markdown", { permissions: { read: true } }, async () =>
 });
 
 Deno.test("output_format_plain", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ output_format: "plain" });
 	let result: ExtractionResult | null = null;
 	try {
@@ -382,7 +382,7 @@ Deno.test("output_format_plain", { permissions: { read: true } }, async () => {
 });
 
 Deno.test("result_format_element_based", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ result_format: "element_based" });
 	let result: ExtractionResult | null = null;
 	try {
@@ -402,7 +402,7 @@ Deno.test("result_format_element_based", { permissions: { read: true } }, async 
 });
 
 Deno.test("result_format_unified", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("pdfs/fake_memo.pdf");
+	const documentBytes = await resolveDocument("pdf/fake_memo.pdf");
 	const config = buildConfig({ result_format: "unified" });
 	let result: ExtractionResult | null = null;
 	try {

@@ -6,23 +6,23 @@
 //! - File validation and reading
 //! - Extraction pipeline orchestration
 
-#[cfg(any(feature = "otel", not(feature = "office")))]
+#[cfg(any(feature = "otel", not(all(feature = "office", not(target_arch = "wasm32")))))]
 use crate::KreuzbergError;
 use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::core::mime::{LEGACY_POWERPOINT_MIME_TYPE, LEGACY_WORD_MIME_TYPE};
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use crate::extraction::libreoffice::{convert_doc_to_docx, convert_ppt_to_pptx};
 use crate::types::ExtractionResult;
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use crate::types::LibreOfficeConversionResult;
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use serde_json::json;
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use std::borrow::Cow;
 use std::path::Path;
 
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use super::helpers::pool_mime_type;
 
 use super::helpers::get_extractor;
@@ -151,7 +151,7 @@ pub async fn extract_file(
         let detected_mime = mime::detect_or_validate(Some(path), mime_type)?;
 
         match detected_mime.as_str() {
-            #[cfg(feature = "office")]
+            #[cfg(all(feature = "office", not(target_arch = "wasm32")))]
             LEGACY_WORD_MIME_TYPE => {
                 let original_bytes = tokio::fs::read(path).await?;
                 let conversion = convert_doc_to_docx(&original_bytes).await?;
@@ -160,13 +160,13 @@ pub async fn extract_file(
                 apply_libreoffice_metadata(&mut result, LEGACY_WORD_MIME_TYPE, &conversion);
                 return Ok(result);
             }
-            #[cfg(not(feature = "office"))]
+            #[cfg(not(all(feature = "office", not(target_arch = "wasm32"))))]
             LEGACY_WORD_MIME_TYPE => {
                 return Err(KreuzbergError::UnsupportedFormat(
                     "Legacy Word conversion requires the `office` feature or LibreOffice support".to_string(),
                 ));
             }
-            #[cfg(feature = "office")]
+            #[cfg(all(feature = "office", not(target_arch = "wasm32")))]
             LEGACY_POWERPOINT_MIME_TYPE => {
                 let original_bytes = tokio::fs::read(path).await?;
                 let conversion = convert_ppt_to_pptx(&original_bytes).await?;
@@ -175,7 +175,7 @@ pub async fn extract_file(
                 apply_libreoffice_metadata(&mut result, LEGACY_POWERPOINT_MIME_TYPE, &conversion);
                 return Ok(result);
             }
-            #[cfg(not(feature = "office"))]
+            #[cfg(not(all(feature = "office", not(target_arch = "wasm32"))))]
             LEGACY_POWERPOINT_MIME_TYPE => {
                 return Err(KreuzbergError::UnsupportedFormat(
                     "Legacy PowerPoint conversion requires the `office` feature or LibreOffice support".to_string(),
@@ -222,7 +222,7 @@ pub(in crate::core::extractor) async fn extract_bytes_with_extractor(
     Ok(result)
 }
 
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 pub(in crate::core::extractor) fn apply_libreoffice_metadata(
     result: &mut ExtractionResult,
     legacy_mime: &str,

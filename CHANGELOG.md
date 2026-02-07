@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### WASM Office Format Support
+- Added office document extraction to the WASM target: DOCX, PPTX, RTF, reStructuredText, Org-mode, FictionBook, Typst, BibTeX, and Markdown are now available in the browser/WASM build.
+- Added WASM integration tests for all new office formats (`office_extraction.rs`).
+- Added e2e fixture definitions for RTF, RST, Org, FB2, Typst, BibTeX, and Markdown formats.
+- Regenerated e2e test suites across all language bindings to include new office format fixtures.
+
 #### Citation Extraction
 - Added structured citation extraction for RIS (`.ris`), PubMed/MEDLINE (`.nbib`), and EndNote XML (`.enw`) formats via `biblib` crate with rich metadata including authors, DOI, year, keywords, and abstract.
 - Added `CitationExtractor` with priority 60 for `application/x-research-info-systems`, `application/x-pubmed`, and `application/x-endnote+xml` MIME types.
@@ -41,6 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced hardcoded 256 MB gzip decompression limit with configurable `max_archive_size` (default 500 MB).
 
 ### Fixed
+
+#### WASM Build
+- Fixed `zstd-sys` build failure for `wasm32-unknown-unknown` by disabling default features on the `zip` crate and using `deflate-flate2` (pure Rust) instead of `zstd` (C code incompatible with WASM).
+- Fixed `tokio`/`mio` compilation failure on WASM by removing `tokio-runtime` from the `office` feature (only needed for LibreOffice subprocess conversion, not in-memory parsers).
+- Gated LibreOffice conversion paths (`libreoffice.rs`, legacy DOC/PPT handlers) behind `not(target_arch = "wasm32")` to prevent WASM builds from pulling in tokio filesystem and process APIs.
 
 #### MIME Type Detection
 - Fixed `.typ` files not recognized as Typst format; added `.typ` as an alias for `application/x-typst`.

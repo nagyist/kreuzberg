@@ -1,0 +1,16 @@
+{
+	"id": "office_fb2_basic",
+	"category": "office",
+	"description": "FictionBook (FB2) document extraction baseline.",
+	"document": {
+		"path": "fictionbook/basic.fb2",
+		"media_type": "application/x-fictionbook+xml"
+	},
+	"extraction": {
+		"config": {}
+	},
+	"assertions": {
+		"expected_mime": "application/x-fictionbook+xml",
+		"min_content_length": 10
+	}
+}

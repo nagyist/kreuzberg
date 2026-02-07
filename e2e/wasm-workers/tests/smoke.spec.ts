@@ -8,7 +8,7 @@ import { assertions, buildConfig, getFixture, shouldSkipFixture } from "./helper
 
 describe("smoke", () => {
 	it("smoke_docx_basic", async () => {
-		const documentBytes = getFixture("documents/fake.docx");
+		const documentBytes = getFixture("docx/fake.docx");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -37,7 +37,7 @@ describe("smoke", () => {
 	});
 
 	it("smoke_html_basic", async () => {
-		const documentBytes = getFixture("web/simple_table.html");
+		const documentBytes = getFixture("html/simple_table.html");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -86,7 +86,7 @@ describe("smoke", () => {
 	});
 
 	it("smoke_json_basic", async () => {
-		const documentBytes = getFixture("data_formats/simple.json");
+		const documentBytes = getFixture("json/simple.json");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -110,7 +110,7 @@ describe("smoke", () => {
 	});
 
 	it("smoke_pdf_basic", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -159,7 +159,7 @@ describe("smoke", () => {
 	});
 
 	it("smoke_xlsx_basic", async () => {
-		const documentBytes = getFixture("spreadsheets/stanley_cups.xlsx");
+		const documentBytes = getFixture("xlsx/stanley_cups.xlsx");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;

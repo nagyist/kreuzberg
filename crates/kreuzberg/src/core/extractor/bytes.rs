@@ -5,16 +5,16 @@
 //! - Legacy format conversion (DOC, PPT)
 //! - Extraction pipeline orchestration
 
-#[cfg(not(feature = "office"))]
+#[cfg(not(all(feature = "office", not(target_arch = "wasm32"))))]
 use crate::KreuzbergError;
 use crate::Result;
 use crate::core::config::ExtractionConfig;
 use crate::core::mime::{LEGACY_POWERPOINT_MIME_TYPE, LEGACY_WORD_MIME_TYPE};
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use crate::extraction::libreoffice::{convert_doc_to_docx, convert_ppt_to_pptx};
 use crate::types::ExtractionResult;
 
-#[cfg(feature = "office")]
+#[cfg(all(feature = "office", not(target_arch = "wasm32")))]
 use super::file::apply_libreoffice_metadata;
 use super::file::extract_bytes_with_extractor;
 #[cfg(feature = "otel")]
@@ -72,7 +72,7 @@ pub async fn extract_bytes(content: &[u8], mime_type: &str, config: &ExtractionC
         let validated_mime = mime::validate_mime_type(mime_type)?;
 
         match validated_mime.as_str() {
-            #[cfg(feature = "office")]
+            #[cfg(all(feature = "office", not(target_arch = "wasm32")))]
             LEGACY_WORD_MIME_TYPE => {
                 let conversion = convert_doc_to_docx(content).await?;
                 let mut result =
@@ -80,13 +80,13 @@ pub async fn extract_bytes(content: &[u8], mime_type: &str, config: &ExtractionC
                 apply_libreoffice_metadata(&mut result, LEGACY_WORD_MIME_TYPE, &conversion);
                 return Ok(result);
             }
-            #[cfg(not(feature = "office"))]
+            #[cfg(not(all(feature = "office", not(target_arch = "wasm32"))))]
             LEGACY_WORD_MIME_TYPE => {
                 return Err(KreuzbergError::UnsupportedFormat(
                     "Legacy Word conversion requires the `office` feature or LibreOffice support".to_string(),
                 ));
             }
-            #[cfg(feature = "office")]
+            #[cfg(all(feature = "office", not(target_arch = "wasm32")))]
             LEGACY_POWERPOINT_MIME_TYPE => {
                 let conversion = convert_ppt_to_pptx(content).await?;
                 let mut result =
@@ -94,7 +94,7 @@ pub async fn extract_bytes(content: &[u8], mime_type: &str, config: &ExtractionC
                 apply_libreoffice_metadata(&mut result, LEGACY_POWERPOINT_MIME_TYPE, &conversion);
                 return Ok(result);
             }
-            #[cfg(not(feature = "office"))]
+            #[cfg(not(all(feature = "office", not(target_arch = "wasm32"))))]
             LEGACY_POWERPOINT_MIME_TYPE => {
                 return Err(KreuzbergError::UnsupportedFormat(
                     "Legacy PowerPoint conversion requires the `office` feature or LibreOffice support".to_string(),

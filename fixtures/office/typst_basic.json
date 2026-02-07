@@ -1,0 +1,16 @@
+{
+	"id": "office_typst_basic",
+	"category": "office",
+	"description": "Typst document extraction baseline.",
+	"document": {
+		"path": "typst/simple.typ",
+		"media_type": "application/x-typst"
+	},
+	"extraction": {
+		"config": {}
+	},
+	"assertions": {
+		"expected_mime": "application/x-typst",
+		"min_content_length": 10
+	}
+}

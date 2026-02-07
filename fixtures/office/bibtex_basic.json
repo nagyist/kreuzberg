@@ -1,0 +1,16 @@
+{
+	"id": "office_bibtex_basic",
+	"category": "office",
+	"description": "BibTeX document extraction baseline.",
+	"document": {
+		"path": "bibtex/comprehensive.bib",
+		"media_type": "application/x-bibtex"
+	},
+	"extraction": {
+		"config": {}
+	},
+	"assertions": {
+		"expected_mime": "application/x-bibtex",
+		"min_content_length": 10
+	}
+}

@@ -33,7 +33,7 @@ describe("structured", () => {
 	});
 
 	it("structured_json_simple", async () => {
-		const documentBytes = getFixture("data_formats/simple.json");
+		const documentBytes = getFixture("json/simple.json");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -58,7 +58,7 @@ describe("structured", () => {
 	});
 
 	it("structured_yaml_simple", async () => {
-		const documentBytes = getFixture("data_formats/simple.yaml");
+		const documentBytes = getFixture("yaml/simple.yaml");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;

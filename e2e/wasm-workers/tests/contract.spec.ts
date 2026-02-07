@@ -8,7 +8,7 @@ import { assertions, buildConfig, getFixture, shouldSkipFixture } from "./helper
 
 describe("contract", () => {
 	it("api_batch_bytes_async", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -34,7 +34,7 @@ describe("contract", () => {
 	});
 
 	it("api_batch_bytes_sync", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -63,7 +63,7 @@ describe("contract", () => {
 	});
 
 	it("api_batch_file_async", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -89,7 +89,7 @@ describe("contract", () => {
 	});
 
 	it("api_batch_file_sync", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -118,7 +118,7 @@ describe("contract", () => {
 	});
 
 	it("api_extract_bytes_async", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -143,7 +143,7 @@ describe("contract", () => {
 	});
 
 	it("api_extract_bytes_sync", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -168,7 +168,7 @@ describe("contract", () => {
 	});
 
 	it("api_extract_file_async", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -193,7 +193,7 @@ describe("contract", () => {
 	});
 
 	it("api_extract_file_sync", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -218,7 +218,7 @@ describe("contract", () => {
 	});
 
 	it("config_chunking", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -243,7 +243,7 @@ describe("contract", () => {
 	});
 
 	it("config_force_ocr", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -267,7 +267,7 @@ describe("contract", () => {
 	});
 
 	it("config_images", async () => {
-		const documentBytes = getFixture("pdfs/embedded_images_tables.pdf");
+		const documentBytes = getFixture("pdf/embedded_images_tables.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -291,7 +291,7 @@ describe("contract", () => {
 	});
 
 	it("config_language_detection", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -316,7 +316,7 @@ describe("contract", () => {
 	});
 
 	it("config_pages", async () => {
-		const documentBytes = getFixture("pdfs/multi_page.pdf");
+		const documentBytes = getFixture("pdf/multi_page.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -340,7 +340,7 @@ describe("contract", () => {
 	});
 
 	it("config_use_cache_false", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -364,7 +364,7 @@ describe("contract", () => {
 	});
 
 	it("output_format_djot", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -388,7 +388,7 @@ describe("contract", () => {
 	});
 
 	it("output_format_html", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -412,7 +412,7 @@ describe("contract", () => {
 	});
 
 	it("output_format_markdown", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -436,7 +436,7 @@ describe("contract", () => {
 	});
 
 	it("output_format_plain", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -460,7 +460,7 @@ describe("contract", () => {
 	});
 
 	it("result_format_element_based", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -484,7 +484,7 @@ describe("contract", () => {
 	});
 
 	it("result_format_unified", async () => {
-		const documentBytes = getFixture("pdfs/fake_memo.pdf");
+		const documentBytes = getFixture("pdf/fake_memo.pdf");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;

@@ -8,7 +8,7 @@ import { assertions, buildConfig, getFixture, shouldSkipFixture } from "./helper
 
 describe("html", () => {
 	it("html_complex_layout", async () => {
-		const documentBytes = getFixture("web/taylor_swift.html");
+		const documentBytes = getFixture("html/taylor_swift.html");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;
@@ -32,7 +32,7 @@ describe("html", () => {
 	});
 
 	it("html_simple_table", async () => {
-		const documentBytes = getFixture("web/simple_table.html");
+		const documentBytes = getFixture("html/simple_table.html");
 		if (documentBytes === null) {
 			console.warn("[SKIP] Test skipped: fixture not available in Cloudflare Workers environment");
 			return;

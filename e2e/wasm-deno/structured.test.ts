@@ -29,7 +29,7 @@ Deno.test("structured_json_basic", { permissions: { read: true } }, async () => 
 });
 
 Deno.test("structured_json_simple", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("data_formats/simple.json");
+	const documentBytes = await resolveDocument("json/simple.json");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {
@@ -50,7 +50,7 @@ Deno.test("structured_json_simple", { permissions: { read: true } }, async () =>
 });
 
 Deno.test("structured_yaml_simple", { permissions: { read: true } }, async () => {
-	const documentBytes = await resolveDocument("data_formats/simple.yaml");
+	const documentBytes = await resolveDocument("yaml/simple.yaml");
 	const config = buildConfig(undefined);
 	let result: ExtractionResult | null = null;
 	try {

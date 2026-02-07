@@ -1,0 +1,16 @@
+{
+	"id": "office_rst_basic",
+	"category": "office",
+	"description": "reStructuredText document extraction baseline.",
+	"document": {
+		"path": "rst/restructured_text.rst",
+		"media_type": "text/x-rst"
+	},
+	"extraction": {
+		"config": {}
+	},
+	"assertions": {
+		"expected_mime": "text/x-rst",
+		"min_content_length": 10
+	}
+}

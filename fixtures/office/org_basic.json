@@ -1,0 +1,16 @@
+{
+	"id": "office_org_basic",
+	"category": "office",
+	"description": "Org-mode document extraction baseline.",
+	"document": {
+		"path": "org/comprehensive.org",
+		"media_type": "text/x-org"
+	},
+	"extraction": {
+		"config": {}
+	},
+	"assertions": {
+		"expected_mime": "text/x-org",
+		"min_content_length": 10
+	}
+}

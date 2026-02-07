@@ -1,0 +1,17 @@
+{
+	"id": "office_rtf_basic",
+	"category": "office",
+	"description": "RTF document extraction baseline.",
+	"document": {
+		"path": "rtf/lorem_ipsum.rtf",
+		"media_type": "application/rtf"
+	},
+	"extraction": {
+		"config": {}
+	},
+	"assertions": {
+		"expected_mime": "application/rtf",
+		"min_content_length": 10,
+		"content_contains_any": ["lorem", "ipsum"]
+	}
+}
