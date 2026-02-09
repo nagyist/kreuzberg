@@ -21,6 +21,12 @@ dev = [
     "types-psutil>=7.1.3.20251202",
     "validate-pyproject>=0.24.1",
 ]
+bench-docling = ["docling>=2.64.1"]
+bench-markitdown = ["markitdown[all]>=0.1.4"]
+bench-unstructured = ["unstructured[all-docs]>=0.18.21"]
+bench-pymupdf4llm = ["pymupdf4llm>=0.0.17", "pymupdf-layout>=0.0.1", "Pillow>=10.0.0"]
+bench-pdfplumber = ["pdfplumber>=0.11.4"]
+bench-mineru = ["mineru[pipeline]>=2.6.7", "onnxruntime"]
 doc = [
     "mkdocs>=1.6.1",
     "mkdocs-gen-files>=0.6.0",

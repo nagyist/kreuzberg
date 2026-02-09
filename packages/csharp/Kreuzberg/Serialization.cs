@@ -813,7 +813,7 @@ internal class ByteArrayConverter : JsonConverter<byte[]>
 
 /// <summary>
 /// Custom JSON converter for attributes that handles array-of-arrays format from Rust serde.
-/// Rust serializes Vec<(String, String)> as [["k","v"],["k2","v2"]]
+/// Rust serializes Vec&lt;(String, String)&gt; as [["k","v"],["k2","v2"]]
 /// but C# Dictionary expects {"k":"v","k2":"v2"} format.
 /// This converter bridges the gap by converting between the two formats.
 /// </summary>
@@ -1326,7 +1326,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract open_graph dictionary
             if (node.TryGetPropertyValue("open_graph", out var openGraph) && openGraph?.GetValueKind() != JsonValueKind.Null)
             {
-                var ogDict = JsonSerializer.Deserialize<Dictionary<string, string>>(openGraph.ToJsonString(), Serialization.Options);
+                var ogDict = JsonSerializer.Deserialize<Dictionary<string, string>>(openGraph!.ToJsonString(), Serialization.Options);
                 if (ogDict != null && ogDict.Count > 0)
                 {
                     htmlMetadata.OpenGraph = ogDict;
@@ -1336,7 +1336,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract twitter_card dictionary
             if (node.TryGetPropertyValue("twitter_card", out var twitterCard) && twitterCard?.GetValueKind() != JsonValueKind.Null)
             {
-                var tcDict = JsonSerializer.Deserialize<Dictionary<string, string>>(twitterCard.ToJsonString(), Serialization.Options);
+                var tcDict = JsonSerializer.Deserialize<Dictionary<string, string>>(twitterCard!.ToJsonString(), Serialization.Options);
                 if (tcDict != null && tcDict.Count > 0)
                 {
                     htmlMetadata.TwitterCard = tcDict;
@@ -1346,7 +1346,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract meta_tags dictionary
             if (node.TryGetPropertyValue("meta_tags", out var metaTags) && metaTags?.GetValueKind() != JsonValueKind.Null)
             {
-                var mtDict = JsonSerializer.Deserialize<Dictionary<string, string>>(metaTags.ToJsonString(), Serialization.Options);
+                var mtDict = JsonSerializer.Deserialize<Dictionary<string, string>>(metaTags!.ToJsonString(), Serialization.Options);
                 if (mtDict != null && mtDict.Count > 0)
                 {
                     htmlMetadata.MetaTags = mtDict;
@@ -1356,7 +1356,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract headers list
             if (node.TryGetPropertyValue("headers", out var headers) && headers?.GetValueKind() != JsonValueKind.Null)
             {
-                var headersList = JsonSerializer.Deserialize<List<HeaderMetadata>>(headers.ToJsonString(), Serialization.Options);
+                var headersList = JsonSerializer.Deserialize<List<HeaderMetadata>>(headers!.ToJsonString(), Serialization.Options);
                 if (headersList != null && headersList.Count > 0)
                 {
                     htmlMetadata.Headers = headersList;
@@ -1366,7 +1366,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract links list
             if (node.TryGetPropertyValue("links", out var links) && links?.GetValueKind() != JsonValueKind.Null)
             {
-                var linksList = JsonSerializer.Deserialize<List<LinkMetadata>>(links.ToJsonString(), Serialization.Options);
+                var linksList = JsonSerializer.Deserialize<List<LinkMetadata>>(links!.ToJsonString(), Serialization.Options);
                 if (linksList != null && linksList.Count > 0)
                 {
                     htmlMetadata.Links = linksList;
@@ -1376,7 +1376,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract images list
             if (node.TryGetPropertyValue("images", out var images) && images?.GetValueKind() != JsonValueKind.Null)
             {
-                var imagesList = JsonSerializer.Deserialize<List<HtmlImageMetadata>>(images.ToJsonString(), Serialization.Options);
+                var imagesList = JsonSerializer.Deserialize<List<HtmlImageMetadata>>(images!.ToJsonString(), Serialization.Options);
                 if (imagesList != null && imagesList.Count > 0)
                 {
                     htmlMetadata.Images = imagesList;
@@ -1386,7 +1386,7 @@ internal class MetadataConverter : JsonConverter<Metadata>
             // Extract structured_data list
             if (node.TryGetPropertyValue("structured_data", out var structuredData) && structuredData?.GetValueKind() != JsonValueKind.Null)
             {
-                var sdList = JsonSerializer.Deserialize<List<StructuredData>>(structuredData.ToJsonString(), Serialization.Options);
+                var sdList = JsonSerializer.Deserialize<List<StructuredData>>(structuredData!.ToJsonString(), Serialization.Options);
                 if (sdList != null && sdList.Count > 0)
                 {
                     htmlMetadata.StructuredData = sdList;

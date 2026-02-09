@@ -8,6 +8,7 @@ use crate::core::config::PageConfig;
 use crate::pdf::metadata::PdfExtractionMetadata;
 use crate::types::{PageBoundary, PageContent};
 use pdfium_render::prelude::*;
+use std::borrow::Cow;
 
 /// Result type for PDF text extraction with optional page tracking.
 type PdfTextExtractionResult = (String, Option<Vec<PageBoundary>>, Option<Vec<PageContent>>);
@@ -182,6 +183,82 @@ pub fn extract_text_from_pdf_document(
     let config = page_config.unwrap();
 
     extract_text_lazy_with_tracking(document, config, extraction_config)
+}
+
+/// Strip `/Rotate` entries from PDF bytes to work around a pdfium bug where
+/// `FPDFText_CountChars` returns 0 for pages with 90° or 270° rotation.
+///
+/// PDF `/Rotate` is a display hint — the actual text coordinates in content streams
+/// are in the original (unrotated) space. Pdfium's text extraction layer fails to
+/// account for this, so we remove the rotation before loading the document.
+///
+/// Uses direct byte-level patching to handle incremental PDF updates correctly
+/// (where lopdf may miss updated objects). Replaces `/Rotate <value>` with spaces
+/// to preserve file offsets and cross-reference table validity.
+///
+/// Returns `Cow::Borrowed` if no `/Rotate` entries were patched,
+/// or `Cow::Owned` with patched bytes if any `/Rotate` entries were blanked.
+pub(crate) fn strip_page_rotation(pdf_bytes: &[u8]) -> Cow<'_, [u8]> {
+    // Quick scan: if /Rotate doesn't appear at all, skip allocation.
+    if !has_rotate_marker(pdf_bytes) {
+        return Cow::Borrowed(pdf_bytes);
+    }
+
+    let mut patched = pdf_bytes.to_vec();
+    let mut modified = false;
+    let mut pos = 0;
+
+    while pos + 7 < patched.len() {
+        let Some(offset) = find_rotate_offset(&patched, pos) else {
+            break;
+        };
+
+        let key_end = offset + 7;
+
+        // Skip whitespace between key and value
+        let mut val_start = key_end;
+        while val_start < patched.len() && patched[val_start].is_ascii_whitespace() {
+            val_start += 1;
+        }
+
+        // Read the integer value
+        let mut val_end = val_start;
+        if val_end < patched.len() && patched[val_end] == b'-' {
+            val_end += 1;
+        }
+        while val_end < patched.len() && patched[val_end].is_ascii_digit() {
+            val_end += 1;
+        }
+
+        // Only blank if we found a numeric value after /Rotate
+        if val_end > val_start {
+            for byte in &mut patched[offset..val_end] {
+                *byte = b' ';
+            }
+            modified = true;
+        }
+
+        pos = if val_end > offset + 7 { val_end } else { offset + 7 };
+    }
+
+    if modified {
+        Cow::Owned(patched)
+    } else {
+        Cow::Borrowed(pdf_bytes)
+    }
+}
+
+/// Check if the raw PDF bytes contain any `/Rotate` marker.
+fn has_rotate_marker(bytes: &[u8]) -> bool {
+    bytes.windows(7).any(|w| w == b"/Rotate")
+}
+
+/// Find the next `/Rotate` offset starting from `start`.
+fn find_rotate_offset(bytes: &[u8], start: usize) -> Option<usize> {
+    bytes[start..]
+        .windows(7)
+        .position(|w| w == b"/Rotate")
+        .map(|p| start + p)
 }
 
 /// Fast path for text extraction without page tracking.

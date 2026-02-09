@@ -8,7 +8,7 @@ use crate::config::{BenchmarkConfig, BenchmarkMode};
 use crate::fixture::FixtureManager;
 use crate::registry::AdapterRegistry;
 use crate::stats::percentile_r7;
-use crate::types::{BenchmarkResult, DiskSizeInfo, DurationStatistics, IterationResult, PerformanceMetrics};
+use crate::types::{BenchmarkResult, DiskSizeInfo, DurationStatistics, ErrorKind, IterationResult, PerformanceMetrics};
 use crate::{Error, Result};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -318,8 +318,13 @@ impl BenchmarkRunner {
         };
 
         let warmup_start = if config.profiling.enabled { 1 } else { 0 };
+        let mut warmup_timed_out = false;
         for _iteration in warmup_start..config.warmup_iterations {
             let result = adapter.extract(file_path, config.timeout).await?;
+            if result.error_kind == ErrorKind::Timeout {
+                warmup_timed_out = true;
+                break;
+            }
             drop(result);
         }
 
@@ -329,10 +334,20 @@ impl BenchmarkRunner {
             1
         };
 
-        for _iteration in 0..config.benchmark_iterations {
+        // If warmup already timed out, run only one iteration to record the result.
+        let effective_iterations = if warmup_timed_out {
+            1
+        } else {
+            config.benchmark_iterations
+        };
+        'outer: for _iteration in 0..effective_iterations {
             for _amp in 0..amplification_factor {
                 let result = adapter.extract(file_path, config.timeout).await?;
+                let timed_out = result.error_kind == ErrorKind::Timeout;
                 all_results.push(result);
+                if timed_out {
+                    break 'outer;
+                }
             }
         }
 
@@ -499,8 +514,15 @@ impl BenchmarkRunner {
             let refs: Vec<&std::path::Path> = file_paths.iter().map(|p| p.as_path()).collect();
             let batch_results = adapter.extract_batch(&refs, config.timeout).await?;
 
+            let has_timeout = batch_results.iter().any(|r| r.error_kind == ErrorKind::Timeout);
+
             if iteration >= config.warmup_iterations {
                 all_batch_results.push(batch_results);
+            }
+
+            // Stop retrying if any file in the batch timed out
+            if has_timeout {
+                break;
             }
         }
 

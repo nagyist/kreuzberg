@@ -1,9 +1,3 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = [
-#     "unstructured[all-docs]>=0.18.21",
-# ]
-# ///
 """Unstructured extraction wrapper for benchmark harness."""
 
 from __future__ import annotations

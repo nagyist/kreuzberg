@@ -994,7 +994,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
+          cache-prefix: benchmark-docling
+
+      - name: Install docling benchmark dependencies
+        run: uv sync --group dev --group bench-docling --all-extras --all-packages --no-install-project --no-install-workspace
 
       - name: Run benchmark
         env:
@@ -1046,8 +1049,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
+          cache-prefix: benchmark-markitdown
 
+      - name: Install markitdown benchmark dependencies
+        run: uv sync --group dev --group bench-markitdown --all-extras --all-packages --no-install-project --no-install-workspace
 
       - name: Run benchmark
         env:
@@ -1099,8 +1104,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
-
+          cache-prefix: benchmark-pandoc
 
       - name: Install pandoc
         run: |
@@ -1163,8 +1167,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
+          cache-prefix: benchmark-unstructured
 
+      - name: Install unstructured benchmark dependencies
+        run: uv sync --group dev --group bench-unstructured --all-extras --all-packages --no-install-project --no-install-workspace
 
       - name: Run benchmark
         env:
@@ -1274,7 +1280,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
+          cache-prefix: benchmark-pymupdf4llm
+
+      - name: Install pymupdf4llm benchmark dependencies
+        run: uv sync --group dev --group bench-pymupdf4llm --all-extras --all-packages --no-install-project --no-install-workspace
 
       - name: Run benchmark
         env:
@@ -1326,8 +1335,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
+          cache-prefix: benchmark-pdfplumber
 
+      - name: Install pdfplumber benchmark dependencies
+        run: uv sync --group dev --group bench-pdfplumber --all-extras --all-packages --no-install-project --no-install-workspace
 
       - name: Run benchmark
         env:
@@ -1379,8 +1390,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           python-version: "3.11"
-          cache-prefix: benchmark-python
+          cache-prefix: benchmark-mineru
 
+      - name: Install mineru benchmark dependencies
+        run: uv sync --group dev --group bench-mineru --all-extras --all-packages --no-install-project --no-install-workspace
 
       - name: Run benchmark
         env:

@@ -77,6 +77,13 @@ impl DocumentExtractor for PdfExtractor {
         mime_type: &str,
         config: &ExtractionConfig,
     ) -> Result<ExtractionResult> {
+        // Strip /Rotate from page dicts to work around pdfium text extraction bug
+        // where FPDFText_CountChars returns 0 for 90°/270° rotated pages.
+        #[cfg(feature = "pdf")]
+        let derotated = crate::pdf::text::strip_page_rotation(content);
+        #[cfg(feature = "pdf")]
+        let content = &*derotated;
+
         #[cfg(feature = "pdf")]
         let (pdf_metadata, native_text, tables, page_contents, _boundaries) = {
             #[cfg(target_arch = "wasm32")]

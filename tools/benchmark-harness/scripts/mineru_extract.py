@@ -1,10 +1,3 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = [
-#     "mineru[pipeline]>=2.6.7",
-#     "onnxruntime",
-# ]
-# ///
 """MinerU extraction wrapper for benchmark harness.
 
 Supports three modes:

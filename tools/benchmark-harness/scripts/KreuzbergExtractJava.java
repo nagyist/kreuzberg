@@ -1,6 +1,7 @@
 import dev.kreuzberg.ExtractionResult;
 import dev.kreuzberg.Kreuzberg;
 import dev.kreuzberg.KreuzbergException;
+import dev.kreuzberg.config.ExtractionConfig;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,6 +12,8 @@ import java.util.List;
 public final class KreuzbergExtractJava {
     private static final double NANOS_IN_MILLISECOND = 1_000_000.0;
     private static final int WARMUP_ITERATIONS = 10;
+    private static final ExtractionConfig BENCH_CONFIG =
+            new ExtractionConfig.Builder().useCache(false).build();
 
     private KreuzbergExtractJava() { }
 
@@ -71,7 +74,7 @@ public final class KreuzbergExtractJava {
         Path path = Path.of(positionalArgs.get(1));
         try {
             for (int i = 0; i < WARMUP_ITERATIONS; i++) {
-                Kreuzberg.extractFile(path, null);
+                Kreuzberg.extractFile(path, BENCH_CONFIG);
                 if (debug && i % 2 == 0) {
                     debugLog("Warmup iteration", String.valueOf(i + 1));
                 }
@@ -108,7 +111,7 @@ public final class KreuzbergExtractJava {
             long start = System.nanoTime();
             try {
                 Path path = Path.of(filePath);
-                ExtractionResult result = Kreuzberg.extractFile(path, null);
+                ExtractionResult result = Kreuzberg.extractFile(path, BENCH_CONFIG);
                 double elapsedMs = (System.nanoTime() - start) / NANOS_IN_MILLISECOND;
                 String json = toJson(result, elapsedMs);
                 System.out.println(json);
@@ -142,7 +145,7 @@ public final class KreuzbergExtractJava {
         try {
             List<ExtractionResult> results = new ArrayList<>();
             for (Path path : paths) {
-                results.add(Kreuzberg.extractFile(path, null));
+                results.add(Kreuzberg.extractFile(path, BENCH_CONFIG));
             }
             double totalMs = (System.nanoTime() - start) / NANOS_IN_MILLISECOND;
 
@@ -197,7 +200,7 @@ public final class KreuzbergExtractJava {
             if (debug) {
                 debugLog("Starting extraction", "");
             }
-            result = Kreuzberg.extractFile(path, null);
+            result = Kreuzberg.extractFile(path, BENCH_CONFIG);
             if (debug) {
                 debugLog("Extraction completed", "");
             }

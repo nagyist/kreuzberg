@@ -1385,7 +1385,7 @@ public static class KreuzbergClient
 
 /// <summary>
 /// Helper class to store cached configuration JSON in ConditionalWeakTable.
-/// ConditionalWeakTable<K, V> only allows the value to be a class (reference type),
+/// ConditionalWeakTable&lt;K, V&gt; only allows the value to be a class (reference type),
 /// so we wrap the JSON string in this simple class.
 /// </summary>
 internal class ConfigCacheEntry

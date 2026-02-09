@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Kreuzberg;
 
+var benchConfig = new ExtractionConfig { UseCache = false };
 var debug = Environment.GetEnvironmentVariable("KREUZBERG_BENCHMARK_DEBUG") == "true";
 var argsSpan = args.AsSpan();
 
@@ -84,7 +85,7 @@ try
         }
 
         var sw = System.Diagnostics.Stopwatch.StartNew();
-        var result = KreuzbergClient.ExtractBytesSync(content, mimeType);
+        var result = KreuzbergClient.ExtractBytesSync(content, mimeType, benchConfig);
         sw.Stop();
 
         var output = new
@@ -142,7 +143,7 @@ try
                 var mimeType = GuessMimeType(line);
 
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                var result = KreuzbergClient.ExtractBytesSync(content, mimeType);
+                var result = KreuzbergClient.ExtractBytesSync(content, mimeType, benchConfig);
                 sw.Stop();
 
                 var output = new

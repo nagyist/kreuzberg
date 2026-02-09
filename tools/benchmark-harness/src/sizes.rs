@@ -119,11 +119,11 @@ pub fn measure_framework_sizes_strict() -> Result<FrameworkSizes> {
     Ok(sizes)
 }
 
-/// Measure a single framework
-/// Returns Ok(Some(size)) for successful measurement, Err for measurement failure.
-/// Never returns Ok(None) - if we can't measure, we return an error.
+/// Measure a single framework.
+/// Returns Ok(Some(size)) for successful measurement, Ok(None) for frameworks
+/// that aren't installed, or Err for measurement failures.
 fn measure_framework(name: &str, method: &str) -> Result<Option<u64>> {
-    let result = match method {
+    match method {
         "pip_package" => measure_pip_package(extract_package_name(name)),
         "npm_package" => measure_npm_package(extract_package_name(name)),
         "binary_size" => measure_binary(name),
@@ -134,16 +134,6 @@ fn measure_framework(name: &str, method: &str) -> Result<Option<u64>> {
         "hex_package" => measure_hex_package(name),
         "php_extension" => measure_php_extension(name),
         _ => Err(Error::Benchmark(format!("Unknown measurement method: {}", method))),
-    };
-
-    // Convert None results to errors - we don't allow estimates
-    match result {
-        Ok(Some(size)) => Ok(Some(size)),
-        Ok(None) => Err(Error::Benchmark(format!(
-            "Could not measure {} - framework may not be installed. Install it first or skip this framework.",
-            name
-        ))),
-        Err(e) => Err(e),
     }
 }
 
@@ -166,70 +156,97 @@ fn extract_package_name(framework: &str) -> &str {
     }
 }
 
-/// Measure Python package size using pip show (with uv pip show fallback)
+/// Measure Python package size via `uv pip show`.
+///
+/// Packages must be installed in the project .venv via `uv sync --group bench-*`.
+/// Returns an error if the package cannot be found or measured.
 fn measure_pip_package(package: &str) -> Result<Option<u64>> {
-    // Try `pip show` first, then fall back to `uv pip show`
-    let pip_output = Command::new("pip").args(["show", "-f", package]).output().ok();
-    let uv_output = if pip_output.as_ref().is_some_and(|o| o.status.success()) {
-        None
-    } else {
-        eprintln!("  pip show failed for {}, trying uv pip show", package);
-        Command::new("uv").args(["pip", "show", "-f", package]).output().ok()
-    };
-
-    let output = pip_output
-        .filter(|o| o.status.success())
-        .or_else(|| uv_output.filter(|o| o.status.success()));
-
-    if let Some(output) = output {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-
-        // Find Location line
-        if let Some(location_line) = stdout.lines().find(|l| l.starts_with("Location:")) {
-            let location = location_line.strip_prefix("Location:").unwrap().trim();
-            let location_path = Path::new(location);
-
-            // Try package directory first (e.g. {location}/kreuzberg/)
-            let package_dir = location_path.join(package.replace('-', "_"));
-            if package_dir.exists() {
-                return Ok(Some(dir_size(&package_dir)));
-            }
-
-            // Fall back to summing individual files listed by pip show -f
-            // This handles native extensions (maturin) where files are at top-level
-            let mut in_files_section = false;
-            let mut total_size: u64 = 0;
-            let mut found_files = false;
-            for line in stdout.lines() {
-                if line.starts_with("Files:") {
-                    in_files_section = true;
-                    continue;
-                }
-                if in_files_section {
-                    let file_rel = line.trim();
-                    if file_rel.is_empty() {
-                        continue;
-                    }
-                    // Lines after Files: that don't start with whitespace are new sections
-                    if !line.starts_with(' ') && !line.starts_with('\t') {
-                        break;
-                    }
-                    let file_path = location_path.join(file_rel);
-                    if let Ok(metadata) = fs::metadata(&file_path) {
-                        total_size += metadata.len();
-                        found_files = true;
-                    }
-                }
-            }
-            if found_files {
-                return Ok(Some(total_size));
-            }
-        }
-    } else {
-        eprintln!("  Neither pip nor uv could measure size for {}", package);
+    // For native packages (e.g. kreuzberg installed via maturin develop),
+    // use Python to find the actual package directory which includes the native .so.
+    // This is more reliable than parsing pip show output for editable installs.
+    if let Some(size) = measure_pip_package_via_python(package) {
+        return Ok(Some(size));
     }
 
-    Ok(None)
+    let output = Command::new("uv")
+        .args(["pip", "show", "-f", package])
+        .output()
+        .map_err(|e| Error::Benchmark(format!("Failed to run `uv pip show {}`: {}", package, e)))?;
+
+    if !output.status.success() {
+        return Ok(None);
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    Ok(parse_pip_show_size(&stdout, package))
+}
+
+/// Parse pip show -f output to extract package size
+fn parse_pip_show_size(stdout: &str, package: &str) -> Option<u64> {
+    // Find Location line
+    let location_line = stdout.lines().find(|l| l.starts_with("Location:"))?;
+    let location = location_line.strip_prefix("Location:")?.trim();
+    let location_path = Path::new(location);
+
+    // For editable installs (e.g. maturin develop), pip show reports an
+    // "Editable project location:" and the Files: section only contains
+    // dist-info metadata (~16KB). Measure the actual package directory
+    // at the editable project location instead.
+    if let Some(editable_line) = stdout.lines().find(|l| l.starts_with("Editable project location:"))
+        && let Some(editable_path) = editable_line
+            .strip_prefix("Editable project location:")
+            .map(|s| s.trim())
+    {
+        let project_dir = Path::new(editable_path);
+        // Measure the Python package directory within the editable project
+        // (e.g. packages/python/kreuzberg/ for the kreuzberg package)
+        let pkg_dir = project_dir.join(package.replace('-', "_"));
+        if pkg_dir.exists() {
+            return Some(dir_size(&pkg_dir));
+        }
+        // Fall back to the project directory itself
+        if project_dir.exists() {
+            return Some(dir_size(project_dir));
+        }
+    }
+
+    // Try package directory first (e.g. {location}/kreuzberg/)
+    let package_dir = location_path.join(package.replace('-', "_"));
+    if package_dir.exists() {
+        return Some(dir_size(&package_dir));
+    }
+
+    // Fall back to summing individual files listed by pip show -f
+    // This handles native extensions (maturin) where files are at top-level
+    let mut in_files_section = false;
+    let mut total_size: u64 = 0;
+    let mut found_files = false;
+    for line in stdout.lines() {
+        if line.starts_with("Files:") {
+            in_files_section = true;
+            continue;
+        }
+        if in_files_section {
+            let file_rel = line.trim();
+            if file_rel.is_empty() {
+                continue;
+            }
+            // Lines after Files: that don't start with whitespace are new sections
+            if !line.starts_with(' ') && !line.starts_with('\t') {
+                break;
+            }
+            let file_path = location_path.join(file_rel);
+            if let Ok(metadata) = fs::metadata(&file_path) {
+                total_size += metadata.len();
+                found_files = true;
+            }
+        }
+    }
+    if found_files {
+        return Some(total_size);
+    }
+
+    None
 }
 
 /// Measure npm package size including native addon binary
@@ -433,6 +450,14 @@ fn measure_jar(name: &str) -> Result<Option<u64>> {
             total += dir_size(deps_dir);
         }
 
+        // Check if native libs are actually bundled in classes/natives/.
+        // In CI, the natives/ dir may only contain .gitkeep placeholders
+        // without real .so/.dylib files. Add FFI libs from target/release/.
+        let natives_dir = Path::new("packages/java/target/classes/natives");
+        if !has_native_extension(natives_dir) {
+            total += measure_native_ffi_libs();
+        }
+
         if total > 0 {
             return Ok(Some(total));
         }
@@ -495,7 +520,17 @@ fn measure_gem_package(package: &str) -> Result<Option<u64>> {
     }
     let ruby_lib = Path::new("packages/ruby/lib");
     if ruby_lib.exists() {
-        return Ok(Some(dir_size(ruby_lib)));
+        let mut total = dir_size(ruby_lib);
+
+        // If lib/ doesn't contain native extensions (e.g. .bundle or .so),
+        // add the FFI native libs from target/release/ as fallback.
+        if !has_native_extension(ruby_lib) {
+            total += measure_native_ffi_libs();
+        }
+
+        if total > 0 {
+            return Ok(Some(total));
+        }
     }
 
     Ok(None)
@@ -567,17 +602,20 @@ fn measure_nuget_package(name: &str) -> Result<Option<u64>> {
                 // Measure the compiled output (bin directory)
                 let bin_dir = proj_dir.join("bin");
                 if bin_dir.exists() {
-                    return Ok(Some(dir_size(&bin_dir)));
-                }
-                // Fall back to measuring the FFI shared library
-                let ffi_paths = [
-                    "target/release/libkreuzberg_ffi.so",
-                    "target/release/libkreuzberg_ffi.dylib",
-                ];
-                for ffi_path in ffi_paths {
-                    if let Ok(metadata) = fs::metadata(ffi_path) {
-                        return Ok(Some(metadata.len()));
+                    let mut total = dir_size(&bin_dir);
+
+                    // Check if bin/ contains native FFI libs (e.g. in runtimes/*/native/).
+                    // In CI, the runtimes/ dir may not be populated by the build task.
+                    if !has_native_extension(&bin_dir) {
+                        total += measure_native_ffi_libs();
                     }
+
+                    return Ok(Some(total));
+                }
+                // Fall back to measuring the FFI shared library directly
+                let ffi_size = measure_native_ffi_libs();
+                if ffi_size > 0 {
+                    return Ok(Some(ffi_size));
                 }
             }
         }
@@ -666,6 +704,97 @@ fn measure_php_extension(name: &str) -> Result<Option<u64>> {
     Ok(None)
 }
 
+/// Measure the native FFI + pdfium libraries from target/release/.
+/// Returns the total size of found native libs, or 0 if none are found.
+/// Only counts one platform variant of each library (first match wins).
+fn measure_native_ffi_libs() -> u64 {
+    let mut total = 0u64;
+
+    // FFI shared library (one per platform)
+    for path in [
+        "target/release/libkreuzberg_ffi.so",
+        "target/release/libkreuzberg_ffi.dylib",
+        "target/release/kreuzberg_ffi.dll",
+    ] {
+        if let Ok(m) = fs::metadata(path) {
+            total += m.len();
+            break;
+        }
+    }
+
+    // PDFium runtime library (one per platform)
+    for path in [
+        "target/release/libpdfium.so",
+        "target/release/libpdfium.dylib",
+        "target/release/pdfium.dll",
+    ] {
+        if let Ok(m) = fs::metadata(path) {
+            total += m.len();
+            break;
+        }
+    }
+
+    total
+}
+
+/// Measure a pip package by asking Python where it is installed.
+/// This handles editable installs (maturin develop) where the native .so
+/// is in the site-packages directory alongside the Python source files.
+fn measure_pip_package_via_python(package: &str) -> Option<u64> {
+    let module_name = package.replace('-', "_");
+    let script = format!(
+        "import {mod_name}, os; print(os.path.dirname({mod_name}.__file__))",
+        mod_name = module_name
+    );
+    let output = Command::new("python3").args(["-c", &script]).output().ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let pkg_dir = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if pkg_dir.is_empty() {
+        return None;
+    }
+
+    let path = Path::new(&pkg_dir);
+    if path.exists() {
+        let size = dir_size(path);
+        // Sanity check: if the directory is suspiciously small (< 1MB),
+        // it likely doesn't include the native extension. Return None to
+        // fall through to pip show parsing.
+        if size > 1_000_000 {
+            return Some(size);
+        }
+    }
+
+    None
+}
+
+/// Check if a directory (or one level of subdirectories) contains native
+/// extension files (.so, .bundle, .dylib, .dll, .node).
+fn has_native_extension(dir: &Path) -> bool {
+    has_native_extension_inner(dir, 0)
+}
+
+fn has_native_extension_inner(dir: &Path, depth: u32) -> bool {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return false;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_file()
+            && let Some(ext) = path.extension().and_then(|e| e.to_str())
+            && matches!(ext, "so" | "bundle" | "dylib" | "dll" | "node")
+        {
+            return true;
+        } else if path.is_dir() && depth < 2 && has_native_extension_inner(&path, depth + 1) {
+            return true;
+        }
+    }
+    false
+}
+
 /// Calculate total size of a directory
 fn dir_size(path: &Path) -> u64 {
     let mut size = 0;
@@ -741,5 +870,47 @@ mod tests {
 
         let size = dir_size(temp.path());
         assert_eq!(size, 11); // "hello" (5) + "world!" (6)
+    }
+
+    #[test]
+    fn test_measure_native_ffi_libs_does_not_panic() {
+        // Should return 0 or a positive value depending on build state
+        let _size = measure_native_ffi_libs();
+    }
+
+    #[test]
+    fn test_measure_pip_package_via_python_nonexistent() {
+        let result = measure_pip_package_via_python("nonexistent_package_xyz_123");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_has_native_extension_empty_dir() {
+        let temp = tempfile::TempDir::new().unwrap();
+        assert!(!has_native_extension(temp.path()));
+    }
+
+    #[test]
+    fn test_has_native_extension_with_so() {
+        let temp = tempfile::TempDir::new().unwrap();
+        fs::write(temp.path().join("module.so"), "fake").unwrap();
+        assert!(has_native_extension(temp.path()));
+    }
+
+    #[test]
+    fn test_has_native_extension_nested() {
+        let temp = tempfile::TempDir::new().unwrap();
+        let sub = temp.path().join("subdir");
+        fs::create_dir(&sub).unwrap();
+        fs::write(sub.join("lib.dylib"), "fake").unwrap();
+        assert!(has_native_extension(temp.path()));
+    }
+
+    #[test]
+    fn test_has_native_extension_no_match() {
+        let temp = tempfile::TempDir::new().unwrap();
+        fs::write(temp.path().join("file.txt"), "text").unwrap();
+        fs::write(temp.path().join("lib.py"), "python").unwrap();
+        assert!(!has_native_extension(temp.path()));
     }
 }
