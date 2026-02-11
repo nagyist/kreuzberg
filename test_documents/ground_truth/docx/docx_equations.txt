@@ -1,0 +1,29 @@
+This is a word document and this is an inline equation: . If instead, I want an equation by line, I can do this:
+
+
+And that is an equation by itself. Cheers!
+
+This is another equation:
+
+
+This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text.
+
+
+This is a word document and this is an inline equation: . If instead, I want an equation by line, I can do this:
+
+
+
+And that is an equation by itself. Cheers!
+
+This is another equation:
+
+
+
+This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text. This is text.
+
+
+This is a word document and this is an inline equation: . If instead, I want an equation by line, I can do this:
+
+
+
+And that is an equation by itself. Cheers!
