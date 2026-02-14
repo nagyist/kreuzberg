@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### PaddleOCR Multi-Language Support (#388)
+- **106+ language support via 12 script families**: PaddleOCR recognition models now cover english, chinese (simplified+traditional+japanese), latin, korean, east slavic (cyrillic), thai, greek, arabic, devanagari, tamil, telugu, and kannada script families.
+- **Per-family recognition model architecture**: Shared detection/classification models with per-family recognition models and dictionaries, downloaded on demand from HuggingFace (`Kreuzberg/paddleocr-onnx-models`).
+- **Engine pool for concurrent multi-language OCR**: Replaced single-engine architecture with a per-family engine pool (`HashMap<String, Arc<Mutex<OcrLite>>>`), enabling concurrent OCR across different languages.
+- **Backend-agnostic `--ocr-language` CLI flag**: Works with all OCR backends (tesseract, paddle-ocr, easyocr). Tesseract expects ISO 639-3 codes (eng, fra, deu); PaddleOCR accepts flexible codes (en, ch, french, korean) via `map_language_code()`.
+- **SHA256 checksum verification**: All model downloads verified against embedded checksums for integrity.
+
+### Changed
+
+#### PaddleOCR Engine Internals
+- **CrnnNet recognition height**: Fixed from 48 to 32 pixels to match PP-OCRv5/v3 model expectations.
+- **Model manager split**: `MODELS` constant replaced with `SHARED_MODELS` (det+cls) and `REC_MODELS` (12 families), with new cache layout `rec/{family}/model.onnx`.
+- **Language code mapping expanded**: `map_language_code()` now handles Thai, Greek, East Slavic, and additional Latin-script languages.
+
 #### DOCX Full Extraction Pipeline (#387)
 - **DocumentStructure generation**: Builds hierarchical document tree with heading-based sections, paragraphs, lists, tables, images, headers/footers, and footnotes/endnotes when `include_document_structure = true`.
 - **Pages field population**: Splits extracted text into per-page `PageContent` entries using detected page break boundaries, with tables and images assigned to correct pages.
