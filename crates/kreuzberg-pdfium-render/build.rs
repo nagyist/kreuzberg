@@ -50,8 +50,20 @@ fn main() -> Result<(), BuildError> {
     #[cfg(feature = "bindings")]
     build_bindings()?;
 
-    #[cfg(feature = "static")]
-    statically_link_pdfium();
+    // Detect static linking from environment variable instead of Cargo feature.
+    // This avoids the mutually-exclusive feature problem with `--all-features`.
+    if std::env::var("PDFIUM_STATIC_LIB_PATH").is_ok() {
+        println!("cargo:rustc-cfg=pdfium_use_static");
+        statically_link_pdfium();
+    } else if let Ok(path) = std::env::var("PDFIUM_DYNAMIC_LIB_PATH") {
+        // Instruct cargo to dynamically link the given library during the build.
+        println!("cargo:rustc-link-lib=dylib=pdfium");
+        println!("cargo:rustc-link-search=native={}", path);
+    }
+
+    // Rerun build script if linking env vars change.
+    println!("cargo:rerun-if-env-changed=PDFIUM_STATIC_LIB_PATH");
+    println!("cargo:rerun-if-env-changed=PDFIUM_DYNAMIC_LIB_PATH");
 
     Ok(())
 }
@@ -171,7 +183,6 @@ fn build_bindings_for_one_pdfium_release(release: &str) -> Result<(), BuildError
     Ok(())
 }
 
-#[cfg(feature = "static")]
 fn statically_link_pdfium() {
     if let Ok(path) = std::env::var("PDFIUM_STATIC_LIB_PATH") {
         // Instruct cargo to statically link the given library during the build.
@@ -198,10 +209,5 @@ fn statically_link_pdfium() {
 
         #[cfg(feature = "core_graphics")]
         println!("cargo:rustc-link-lib=framework=CoreGraphics");
-    } else if let Ok(path) = std::env::var("PDFIUM_DYNAMIC_LIB_PATH") {
-        // Instruct cargo to dynamically link the given library during the build.
-
-        println!("cargo:rustc-link-lib=dylib=pdfium");
-        println!("cargo:rustc-link-search=native={}", path);
     }
 }

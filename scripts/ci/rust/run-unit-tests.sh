@@ -23,7 +23,7 @@ echo "  CARGO_TERM_COLOR: ${CARGO_TERM_COLOR:-not set}"
 
 echo "Workspace information:"
 echo "  Repository: $REPO_ROOT"
-echo "  Excluded packages: kreuzberg-e2e-generator, kreuzberg-py, kreuzberg-node"
+echo "  Excluded packages: kreuzberg-e2e-generator, kreuzberg-py, kreuzberg-node (+ benchmark-harness on Windows)"
 
 if [ ! -d "$TESSDATA_PREFIX" ]; then
   echo "WARNING: TESSDATA_PREFIX directory not found: $TESSDATA_PREFIX"
@@ -67,15 +67,12 @@ if ! {
   if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
     extra_excludes+=(--exclude benchmark-harness)
   fi
-  # NOTE: kreuzberg-pdfium-render is excluded because --all-features enables
-  # mutually exclusive static/dynamic linking features simultaneously.
   RUST_BACKTRACE=full cargo test \
     --workspace \
     --exclude kreuzberg \
     --exclude kreuzberg-e2e-generator \
     --exclude kreuzberg-py \
     --exclude kreuzberg-node \
-    --exclude kreuzberg-pdfium-render \
     ${extra_excludes[@]+"${extra_excludes[@]}"} \
     --all-features \
     --verbose

@@ -8,13 +8,13 @@ use once_cell::sync::OnceCell;
 use std::ffi::CString;
 use std::fmt::{Debug, Formatter};
 
-#[cfg(all(not(target_arch = "wasm32"), not(feature = "static")))]
+#[cfg(all(not(target_arch = "wasm32"), not(pdfium_use_static)))]
 use {
     crate::bindings::dynamic_bindings::DynamicPdfiumBindings, libloading::Library, std::ffi::OsString,
     std::path::PathBuf,
 };
 
-#[cfg(all(not(target_arch = "wasm32"), feature = "static"))]
+#[cfg(all(not(target_arch = "wasm32"), pdfium_use_static))]
 use crate::bindings::static_bindings::StaticPdfiumBindings;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -126,7 +126,7 @@ impl Pdfium {
     ///
     /// This function is only available when this crate's `static` feature is enabled.
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(any(doc, feature = "static"))]
+    #[cfg(any(doc, pdfium_use_static))]
     #[inline]
     pub fn bind_to_statically_linked_library() -> Result<Box<dyn PdfiumLibraryBindings>, PdfiumError> {
         if BINDINGS.get().is_none() {
@@ -142,7 +142,7 @@ impl Pdfium {
     /// Returns a new [PdfiumLibraryBindings] object that contains bindings to the functions exposed
     /// by the library, or an error if the library could not be loaded.
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     #[inline]
     pub fn bind_to_system_library() -> Result<Box<dyn PdfiumLibraryBindings>, PdfiumError> {
         if BINDINGS.get().is_none() {
@@ -179,7 +179,7 @@ impl Pdfium {
     /// Returns a new [PdfiumLibraryBindings] object that contains bindings to the functions
     /// exposed by the library, or an error if the library could not be loaded.
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     #[inline]
     pub fn bind_to_library(path: impl AsRef<Path>) -> Result<Box<dyn PdfiumLibraryBindings>, PdfiumError> {
         if BINDINGS.get().is_none() {
@@ -197,7 +197,7 @@ impl Pdfium {
     /// On Linux and Android, this will be `libpdfium.so` or similar; on Windows, this will
     /// be `pdfium.dll` or similar; on MacOS, this will be `libpdfium.dylib` or similar.
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     #[inline]
     pub fn pdfium_platform_library_name() -> OsString {
         libloading::library_filename("pdfium")
@@ -206,7 +206,7 @@ impl Pdfium {
     /// Returns the name of the external Pdfium library on the currently running platform,
     /// prefixed with the given path string.
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     #[inline]
     pub fn pdfium_platform_library_name_at_path(path: &(impl AsRef<Path> + ?Sized)) -> PathBuf {
         path.as_ref().join(Pdfium::pdfium_platform_library_name())
@@ -537,7 +537,7 @@ impl Default for Pdfium {
     /// Binds to a Pdfium library that was statically linked into the currently running
     /// executable by calling [Pdfium::bind_to_statically_linked_library]. This function
     /// will panic if no statically linked Pdfium functions can be located.
-    #[cfg(feature = "static")]
+    #[cfg(pdfium_use_static)]
     #[inline]
     fn default() -> Self {
         Pdfium::new(Pdfium::bind_to_statically_linked_library().unwrap())
@@ -548,7 +548,7 @@ impl Default for Pdfium {
     /// will be used as a fall back.
     ///
     /// This function will panic if no suitable Pdfium library can be loaded.
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     #[cfg(not(target_arch = "wasm32"))]
     #[inline]
     fn default() -> Self {

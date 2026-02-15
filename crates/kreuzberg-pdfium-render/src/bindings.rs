@@ -19,11 +19,11 @@
 #![allow(clippy::too_many_arguments)]
 
 #[cfg(not(target_arch = "wasm32"))]
-#[cfg(not(feature = "static"))]
+#[cfg(not(pdfium_use_static))]
 pub(crate) mod dynamic_bindings;
 
 #[cfg(not(target_arch = "wasm32"))]
-#[cfg(feature = "static")]
+#[cfg(pdfium_use_static)]
 pub(crate) mod static_bindings;
 
 #[cfg(target_arch = "wasm32")]
@@ -305,7 +305,7 @@ pub trait PdfiumLibraryBindings: Send + Sync + Drop {
     fn FPDF_SetSandBoxPolicy(&self, policy: FPDF_DWORD, enable: FPDF_BOOL);
 
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(feature = "pdfium_use_win32")]
+    #[cfg(all(feature = "pdfium_use_win32", target_os = "windows"))]
     /// Sets printing mode when printing on Windows.
     ///
     ///    mode - `FPDF_PRINTMODE_EMF` to output EMF (default)
@@ -3213,7 +3213,7 @@ pub trait PdfiumLibraryBindings: Send + Sync + Drop {
     fn FPDFBitmap_Destroy(&self, bitmap: FPDF_BITMAP);
 
     #[cfg(not(target_arch = "wasm32"))]
-    #[cfg(feature = "pdfium_use_win32")]
+    #[cfg(all(feature = "pdfium_use_win32", target_os = "windows"))]
     /// Renders the contents of a page to a device (screen, bitmap, or printer).
     /// This function is only supported on Windows.
     ///

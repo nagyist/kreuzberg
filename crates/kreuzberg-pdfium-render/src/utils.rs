@@ -442,13 +442,13 @@ pub(crate) mod test {
     use crate::pdfium::Pdfium;
 
     #[inline]
-    #[cfg(feature = "static")]
+    #[cfg(pdfium_use_static)]
     pub(crate) fn test_bind_to_pdfium() -> Pdfium {
         Pdfium::default()
     }
 
     #[inline]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     pub(crate) fn test_bind_to_pdfium() -> Pdfium {
         match Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path("./"))
             .or_else(|_| Pdfium::bind_to_system_library())

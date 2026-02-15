@@ -16,9 +16,6 @@ pub mod text;
 #[cfg(feature = "paragraph")]
 pub mod paragraph;
 
-#[cfg(feature = "flatten")]
-mod flatten; // Keep internal flatten operation private.
-
 use object::ownership::PdfPageObjectOwnership;
 
 use crate::bindgen::{
@@ -821,17 +818,6 @@ impl<'a> PdfPage<'a> {
     }
 
     /// Flattens all annotations and form fields on this [PdfPage] into the page contents.
-    #[cfg(feature = "flatten")]
-    // Use a custom-written flatten operation, rather than Pdfium's built-in flatten. See:
-    // https://github.com/ajrcarey/pdfium-render/issues/140
-    pub fn flatten(&mut self) -> Result<(), PdfiumError> {
-        flatten_page(self.handle())
-    }
-
-    /// Flattens all annotations and form fields on this [PdfPage] into the page contents.
-    #[cfg(not(feature = "flatten"))]
-    // Use Pdfium's built-in flatten. This has some problems; see:
-    // https://github.com/ajrcarey/pdfium-render/issues/140
     pub fn flatten(&mut self) -> Result<(), PdfiumError> {
         // TODO: AJRC - 28/5/22 - consider allowing the caller to set the FLAT_NORMALDISPLAY or FLAT_PRINT flag.
         let flag = FLAT_PRINT;

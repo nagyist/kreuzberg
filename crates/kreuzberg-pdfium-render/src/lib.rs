@@ -533,7 +533,7 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_readme_example() -> Result<(), PdfiumError> {
         // Runs the code in the main example at the top of README.md.
 
@@ -573,7 +573,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_dynamic_bindings() -> Result<(), PdfiumError> {
         let pdfium = Pdfium::default();
 
@@ -600,7 +600,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "static")]
+    #[cfg(pdfium_use_static)]
     fn test_static_bindings() {
         // Simply checks that the static bindings contain no compilation errors.
 
@@ -634,7 +634,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_custom_font_paths_with_text_rendering() -> Result<(), PdfiumError> {
         // Use system font paths that exist on Ubuntu CI
         let config = PdfiumConfig::new().set_user_font_paths(vec!["/usr/share/fonts/truetype/".to_string()]);
@@ -674,7 +674,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_empty_font_paths() -> Result<(), PdfiumError> {
         let config = PdfiumConfig::new(); // No custom paths
 
@@ -694,7 +694,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_font_paths_with_null_bytes() -> Result<(), PdfiumError> {
         // Path with null byte should be safely ignored
         let config = PdfiumConfig::new().set_user_font_paths(vec![
@@ -719,7 +719,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_font_paths_nonexistent() -> Result<(), PdfiumError> {
         // Non-existent paths should not crash Pdfium
         let config = PdfiumConfig::new().set_user_font_paths(vec![
@@ -744,7 +744,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "static"))]
+    #[cfg(not(pdfium_use_static))]
     fn test_default_config_uses_simple_initialization() -> Result<(), PdfiumError> {
         // Test that default config (no font paths, no font provider) uses FPDF_InitLibrary()
         // rather than FPDF_InitLibraryWithConfig() to avoid potential overhead.

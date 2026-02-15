@@ -46,55 +46,21 @@ web-sys = { version = "0.3", features = ["TextDecoder", "ImageData", "Window", "
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 libloading = "0.9"
 
-[target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "0.62", optional = true }
-
 [build-dependencies]
 bindgen = { version = "0.72", optional = true }
 
 [features]
-default = ["pdfium_latest", "image_latest", "thread_safe"]
+default = ["pdfium_7543", "image_latest", "thread_safe"]
 bindings = ["dep:bindgen"]
-static = []
 thread_safe = []
-"libstdc++" = ["static"]
-"libc++" = ["static"]
-core_graphics = ["static"]
-paragraph = []
-flatten = []
 
 # Image
 image_latest = ["image_025"]
 image_025 = ["dep:image_025"]
 
-# Pdfium version selection features (default is latest)
-pdfium_latest = ["pdfium_7543"]
-pdfium_future = ["pdfium_use_skia", "pdfium_enable_xfa", "pdfium_enable_v8"]
+# Pdfium version (only latest supported)
 pdfium_7543 = []
-pdfium_7350 = []
-pdfium_7215 = []
-pdfium_7123 = []
-pdfium_6996 = []
-pdfium_6721 = []
-pdfium_6666 = []
-pdfium_6611 = []
-pdfium_6569 = []
-pdfium_6555 = []
-pdfium_6490 = []
-pdfium_6406 = []
-pdfium_6337 = []
-pdfium_6295 = []
-pdfium_6259 = []
-pdfium_6164 = []
-pdfium_6124 = []
-pdfium_6110 = []
-pdfium_6084 = []
-pdfium_6043 = []
-pdfium_6015 = []
-pdfium_5961 = []
 
-# Pdfium compile-time flags
-pdfium_use_win32 = ["dep:windows"]
-pdfium_use_skia = []
-pdfium_enable_xfa = []
-pdfium_enable_v8 = []
+[lints.rust.unexpected_cfgs]
+level = "allow"
+check-cfg = ['cfg(pdfium_use_static)']
