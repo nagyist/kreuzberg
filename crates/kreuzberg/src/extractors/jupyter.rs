@@ -271,8 +271,9 @@ impl JupyterExtractor {
                 }
             }
 
-            // Then include markdown/HTML if no plain text was available
-            if !data.contains_key("text/plain") {
+            // Also include markdown/HTML content — these often contain richer
+            // semantic information than text/plain (e.g. descriptive fallback text)
+            {
                 for mime_type in &["text/markdown", "text/html"] {
                     if let Some(mime_content) = data.get(*mime_type) {
                         let mime_text = Self::extract_source(mime_content);

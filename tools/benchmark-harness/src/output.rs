@@ -40,6 +40,16 @@ pub fn validate_result(result: &BenchmarkResult) -> Result<()> {
         )));
     }
 
+    // Check for invalid state: success=true but error_kind is not None
+    if result.success && result.error_kind != ErrorKind::None {
+        return Err(Error::Benchmark(format!(
+            "Invalid result state for {}/{}: success=true but error_kind is {:?}",
+            result.framework,
+            result.file_path.display(),
+            result.error_kind
+        )));
+    }
+
     Ok(())
 }
 

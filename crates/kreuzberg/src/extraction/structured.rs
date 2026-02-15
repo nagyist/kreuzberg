@@ -124,8 +124,11 @@ pub fn parse_json(data: &[u8], config: Option<JsonExtractionConfig>) -> Result<S
         metadata.insert("json_schema".to_string(), schema_json);
     }
 
-    let text_parts = extract_from_json_value(&value, "", &config, &mut metadata, &mut text_fields);
-    let content = text_parts.join("\n");
+    // Still extract text fields for metadata population
+    let _text_parts = extract_from_json_value(&value, "", &config, &mut metadata, &mut text_fields);
+    // Output pretty-printed JSON to preserve structure (matches ground truth format)
+    let content = serde_json::to_string_pretty(&value)
+        .unwrap_or_else(|_| String::from_utf8_lossy(data).to_string());
 
     Ok(StructuredDataResult {
         content,
@@ -289,8 +292,10 @@ pub fn parse_yaml(data: &[u8]) -> Result<StructuredDataResult> {
     let mut metadata = HashMap::new();
     let mut text_fields = Vec::new();
 
-    let text_parts = extract_from_value(&value, "", &mut metadata, &mut text_fields);
-    let content = text_parts.join("\n");
+    // Still extract for metadata population
+    let _text_parts = extract_from_value(&value, "", &mut metadata, &mut text_fields);
+    // Output original YAML content to preserve structure (matches ground truth format)
+    let content = yaml_str.to_string();
 
     Ok(StructuredDataResult {
         content,
@@ -361,8 +366,10 @@ pub fn parse_toml(data: &[u8]) -> Result<StructuredDataResult> {
     let mut metadata = HashMap::new();
     let mut text_fields = Vec::new();
 
-    let text_parts = extract_from_toml_value(&value, "", &mut metadata, &mut text_fields);
-    let content = text_parts.join("\n");
+    // Still extract for metadata population
+    let _text_parts = extract_from_toml_value(&value, "", &mut metadata, &mut text_fields);
+    // Output original TOML content to preserve structure (matches ground truth format)
+    let content = toml_str.to_string();
 
     Ok(StructuredDataResult {
         content,
@@ -433,25 +440,25 @@ mod tests {
         let json = r#"{"name": "John", "age": 30}"#;
         let result = parse_json(json.as_bytes(), None).unwrap();
         assert_eq!(result.format, "json");
-        assert!(result.content.contains("name: John"));
-        assert!(result.content.contains("age: 30"));
+        assert!(result.content.contains("\"name\": \"John\""));
+        assert!(result.content.contains("\"age\": 30"));
     }
 
     #[test]
     fn test_parse_json_nested() {
         let json = r#"{"user": {"name": "Alice", "email": "alice@example.com"}}"#;
         let result = parse_json(json.as_bytes(), None).unwrap();
-        assert!(result.content.contains("user.name: Alice"));
-        assert!(result.content.contains("user.email: alice@example.com"));
+        assert!(result.content.contains("\"name\": \"Alice\""));
+        assert!(result.content.contains("\"email\": \"alice@example.com\""));
     }
 
     #[test]
     fn test_parse_json_array() {
         let json = r#"{"items": ["apple", "banana", "cherry"]}"#;
         let result = parse_json(json.as_bytes(), None).unwrap();
-        assert!(result.content.contains("items[0]: apple"));
-        assert!(result.content.contains("items[1]: banana"));
-        assert!(result.content.contains("items[2]: cherry"));
+        assert!(result.content.contains("\"apple\""));
+        assert!(result.content.contains("\"banana\""));
+        assert!(result.content.contains("\"cherry\""));
     }
 
     #[test]
@@ -478,8 +485,8 @@ mod tests {
     fn test_parse_yaml_nested() {
         let yaml = "user:\n  name: Alice\n  email: alice@example.com";
         let result = parse_yaml(yaml.as_bytes()).unwrap();
-        assert!(result.content.contains("user.name: Alice"));
-        assert!(result.content.contains("user.email: alice@example.com"));
+        assert!(result.content.contains("name: Alice"));
+        assert!(result.content.contains("email: alice@example.com"));
     }
 
     #[test]
@@ -487,16 +494,16 @@ mod tests {
         let toml = "name = \"John\"\nage = 30";
         let result = parse_toml(toml.as_bytes()).unwrap();
         assert_eq!(result.format, "toml");
-        assert!(result.content.contains("name: John"));
-        assert!(result.content.contains("age: 30"));
+        assert!(result.content.contains("name = \"John\""));
+        assert!(result.content.contains("age = 30"));
     }
 
     #[test]
     fn test_parse_toml_table() {
         let toml = "[user]\nname = \"Alice\"\nemail = \"alice@example.com\"";
         let result = parse_toml(toml.as_bytes()).unwrap();
-        assert!(result.content.contains("user.name: Alice"));
-        assert!(result.content.contains("user.email: alice@example.com"));
+        assert!(result.content.contains("name = \"Alice\""));
+        assert!(result.content.contains("email = \"alice@example.com\""));
     }
 
     #[test]

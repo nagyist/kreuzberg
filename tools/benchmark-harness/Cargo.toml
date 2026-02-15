@@ -12,6 +12,10 @@ homepage = "https://kreuzberg.dev"
 name = "benchmark-harness"
 path = "src/main.rs"
 
+[[bin]]
+name = "kreuzberg-extract"
+path = "src/bin/kreuzberg_extract.rs"
+
 [lib]
 name = "benchmark_harness"
 path = "src/lib.rs"

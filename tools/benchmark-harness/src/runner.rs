@@ -470,18 +470,39 @@ impl BenchmarkRunner {
             all_results.first().and_then(|r| r.error_message.clone())
         };
 
+        // Take error_kind from the most severe across iterations
+        // Severity: Timeout=3 > HarnessError=2 > FrameworkError=1 > EmptyContent=1 > None=0
+        let error_kind = all_results
+            .iter()
+            .map(|r| r.error_kind)
+            .max_by_key(|ek| match ek {
+                ErrorKind::Timeout => 3,
+                ErrorKind::HarnessError => 2,
+                ErrorKind::FrameworkError => 1,
+                ErrorKind::EmptyContent => 1,
+                ErrorKind::None => 0,
+            })
+            .unwrap_or(ErrorKind::None);
+
+        // Take quality from the first SUCCESSFUL iteration, not always from the first iteration
+        let quality = all_results
+            .iter()
+            .find(|r| r.success)
+            .and_then(|r| r.quality.clone())
+            .or_else(|| first_result.quality.clone());
+
         Ok(BenchmarkResult {
             framework: first_result.framework.clone(),
             file_path: first_result.file_path.clone(),
             file_size: first_result.file_size,
             success: any_success,
             error_message,
-            error_kind: first_result.error_kind,
+            error_kind,
             duration: statistics.mean,
             extraction_duration: avg_extraction_duration,
             subprocess_overhead,
             metrics: aggregated_metrics,
-            quality: first_result.quality.clone(),
+            quality,
             iterations,
             statistics: Some(statistics),
             cold_start_duration,
@@ -592,12 +613,19 @@ impl BenchmarkRunner {
             let subprocess_overhead = avg_extraction_duration.map(|ext| statistics.mean.saturating_sub(ext));
             let first_result = file_iterations[0];
 
+            let any_success = file_iterations.iter().any(|r| r.success);
+            let error_message = if any_success {
+                None
+            } else {
+                first_result.error_message.clone()
+            };
+
             aggregated_results.push(BenchmarkResult {
                 framework: first_result.framework.clone(),
                 file_path: first_result.file_path.clone(),
                 file_size: first_result.file_size,
-                success: true,
-                error_message: None,
+                success: any_success,
+                error_message,
                 error_kind: first_result.error_kind,
                 duration: statistics.mean,
                 extraction_duration: avg_extraction_duration,

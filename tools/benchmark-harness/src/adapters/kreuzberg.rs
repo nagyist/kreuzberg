@@ -342,6 +342,51 @@ fn build_library_env() -> Result<Vec<(String, String)>> {
     Ok(envs)
 }
 
+/// Create Rust subprocess adapter (persistent server mode)
+///
+/// Runs kreuzberg extraction in a subprocess for fair timing comparisons.
+/// Uses the `kreuzberg-extract` binary built from the benchmark harness crate.
+pub fn create_rust_subprocess_adapter(ocr_enabled: bool) -> Result<SubprocessAdapter> {
+    // Find the kreuzberg-extract binary in target directory
+    let binary_path = find_kreuzberg_extract_binary()?;
+
+    let mut args = Vec::new();
+    args.push(ocr_flag(ocr_enabled));
+
+    let supported_formats = get_kreuzberg_supported_formats();
+    Ok(SubprocessAdapter::with_persistent_mode(
+        "kreuzberg-rust",
+        binary_path,
+        args,
+        vec![],
+        supported_formats,
+    ))
+}
+
+/// Find the kreuzberg-extract binary
+fn find_kreuzberg_extract_binary() -> Result<PathBuf> {
+    // Check in target/release first
+    if let Ok(root) = workspace_root() {
+        let release_path = root.join("target/release/kreuzberg-extract");
+        if release_path.exists() {
+            return Ok(release_path);
+        }
+        let debug_path = root.join("target/debug/kreuzberg-extract");
+        if debug_path.exists() {
+            return Ok(debug_path);
+        }
+    }
+
+    // Try which
+    if let Ok(path) = which::which("kreuzberg-extract") {
+        return Ok(path);
+    }
+
+    Err(crate::Error::Config(
+        "kreuzberg-extract binary not found. Build with: cargo build -p benchmark-harness --bin kreuzberg-extract".to_string(),
+    ))
+}
+
 /// Create Python adapter (persistent server mode)
 pub fn create_python_adapter(ocr_enabled: bool) -> Result<SubprocessAdapter> {
     let script_path = get_script_path("kreuzberg_extract.py")?;

@@ -65,7 +65,7 @@ impl DocumentExtractor for CsvExtractor {
         let delimiter = if mime_type == "text/tab-separated-values" {
             '\t'
         } else {
-            ','
+            detect_delimiter(&text)
         };
 
         let rows = parse_csv(&text, delimiter);
@@ -136,6 +136,35 @@ impl DocumentExtractor for CsvExtractor {
     fn priority(&self) -> i32 {
         60 // Higher than PlainTextExtractor (50) to take precedence
     }
+}
+
+/// Auto-detect CSV delimiter using consistency-based approach.
+/// Tests each candidate delimiter and picks the one producing the most
+/// consistent column count across sample lines.
+fn detect_delimiter(text: &str) -> char {
+    const CANDIDATES: &[char] = &[',', '\t', '|', ';'];
+    let mut best_delimiter = ',';
+    let mut best_score = 0usize;
+
+    for &candidate in CANDIDATES {
+        let sample: String = text.lines().take(10).collect::<Vec<_>>().join("\n");
+        let rows = parse_csv(&sample, candidate);
+        if rows.len() < 2 {
+            continue;
+        }
+        let col_counts: Vec<usize> = rows.iter().map(|r| r.len()).collect();
+        let first_count = col_counts[0];
+        if first_count <= 1 {
+            continue;
+        }
+        let consistent_rows = col_counts.iter().filter(|&&c| c == first_count).count();
+        let score = consistent_rows * first_count;
+        if score > best_score {
+            best_score = score;
+            best_delimiter = candidate;
+        }
+    }
+    best_delimiter
 }
 
 /// Parse CSV text into rows of fields, handling RFC 4180 quoted fields.
@@ -336,6 +365,34 @@ mod tests {
         // Quoted fields with commas should be preserved as single fields
         assert!(result.content.contains("Smith, John"));
         assert_eq!(result.tables[0].cells[1][0], "Smith, John");
+    }
+
+    #[test]
+    fn test_detect_delimiter_comma() {
+        assert_eq!(detect_delimiter("a,b,c\n1,2,3\n4,5,6"), ',');
+    }
+
+    #[test]
+    fn test_detect_delimiter_semicolon() {
+        assert_eq!(detect_delimiter("a;b;c\n1;2;3\n4;5;6"), ';');
+    }
+
+    #[test]
+    fn test_detect_delimiter_pipe() {
+        assert_eq!(detect_delimiter("a|b|c\n1|2|3\n4|5|6"), '|');
+    }
+
+    #[test]
+    fn test_detect_delimiter_tab() {
+        assert_eq!(detect_delimiter("a\tb\tc\n1\t2\t3\n4\t5\t6"), '\t');
+    }
+
+    #[test]
+    fn test_detect_delimiter_semicolons_with_commas_in_values() {
+        assert_eq!(
+            detect_delimiter("\"last, first\";age;city\n\"doe, john\";30;NYC\n\"smith, jane\";25;LA"),
+            ';'
+        );
     }
 
     #[tokio::test]

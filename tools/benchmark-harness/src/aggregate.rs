@@ -554,10 +554,11 @@ fn build_comparison(by_framework_mode: &HashMap<String, FrameworkModeAggregation
         }
 
         let avg = |v: &[f64]| -> f64 {
-            if v.is_empty() {
+            let finite: Vec<f64> = v.iter().copied().filter(|x| x.is_finite()).collect();
+            if finite.is_empty() {
                 f64::NAN
             } else {
-                v.iter().sum::<f64>() / v.len() as f64
+                finite.iter().sum::<f64>() / finite.len() as f64
             }
         };
 
@@ -638,6 +639,7 @@ fn build_comparison(by_framework_mode: &HashMap<String, FrameworkModeAggregation
     let mut deltas_vs_baseline = HashMap::new();
     if let Some(baseline) = metrics
         .iter()
+        .filter(|(_, dur, _, _, _)| dur.is_finite())
         .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal))
     {
         for (k, dur, thr, mem_val, _) in &metrics {

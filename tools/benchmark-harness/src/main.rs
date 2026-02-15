@@ -249,12 +249,25 @@ async fn main() -> Result<()> {
                 };
             }
 
-            // Always register native adapter if requested or no specific frameworks specified
+            // Register kreuzberg-rust adapter
+            // Default: subprocess mode for fair timing comparisons (same overhead as all other frameworks)
+            // Fallback: in-process NativeAdapter if kreuzberg-extract binary is not built
             let mut kreuzberg_count = 0;
             if should_init("kreuzberg-rust") {
-                registry.register(Arc::new(NativeAdapter::with_config(extraction_config)))?;
-                eprintln!("[adapter] ✓ kreuzberg-rust (registered)");
-                kreuzberg_count += 1;
+                use benchmark_harness::adapters::create_rust_subprocess_adapter;
+                match create_rust_subprocess_adapter(ocr) {
+                    Ok(adapter) => {
+                        registry.register(Arc::new(adapter))?;
+                        eprintln!("[adapter] ✓ kreuzberg-rust (subprocess mode)");
+                        kreuzberg_count += 1;
+                    }
+                    Err(_) => {
+                        // Fallback to in-process mode if binary not found
+                        registry.register(Arc::new(NativeAdapter::with_config(extraction_config)))?;
+                        eprintln!("[adapter] ✓ kreuzberg-rust (in-process mode, build kreuzberg-extract for fair benchmarks)");
+                        kreuzberg_count += 1;
+                    }
+                }
             }
 
             use benchmark_harness::adapters::{

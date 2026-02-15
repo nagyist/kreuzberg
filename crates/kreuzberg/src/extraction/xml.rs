@@ -34,7 +34,25 @@ use std::borrow::Cow;
 use std::collections::HashSet;
 
 pub fn parse_xml(xml_bytes: &[u8], preserve_whitespace: bool) -> Result<XmlExtractionResult> {
-    let mut reader = Reader::from_reader(xml_bytes);
+    // Handle UTF-16 encoded XML by detecting BOM and transcoding to UTF-8
+    let decoded_bytes;
+    let effective_bytes = if xml_bytes.len() >= 2 {
+        if xml_bytes[0] == 0xFF && xml_bytes[1] == 0xFE {
+            // UTF-16 LE BOM
+            decoded_bytes = decode_utf16_to_utf8(xml_bytes, false)?;
+            &decoded_bytes
+        } else if xml_bytes[0] == 0xFE && xml_bytes[1] == 0xFF {
+            // UTF-16 BE BOM
+            decoded_bytes = decode_utf16_to_utf8(xml_bytes, true)?;
+            &decoded_bytes
+        } else {
+            xml_bytes
+        }
+    } else {
+        xml_bytes
+    };
+
+    let mut reader = Reader::from_reader(effective_bytes);
     reader.config_mut().trim_text(!preserve_whitespace);
     reader.config_mut().check_end_names = false;
 
@@ -178,6 +196,29 @@ pub fn parse_xml(xml_bytes: &[u8], preserve_whitespace: bool) -> Result<XmlExtra
         element_count,
         unique_elements,
     })
+}
+
+/// Decode UTF-16 bytes (with BOM) to UTF-8 bytes.
+fn decode_utf16_to_utf8(data: &[u8], big_endian: bool) -> Result<Vec<u8>> {
+    // Skip BOM (first 2 bytes)
+    let data = &data[2..];
+    if data.len() % 2 != 0 {
+        return Err(KreuzbergError::parsing("Invalid UTF-16: odd byte count".to_string()));
+    }
+
+    let u16_iter = data.chunks_exact(2).map(|chunk| {
+        if big_endian {
+            u16::from_be_bytes([chunk[0], chunk[1]])
+        } else {
+            u16::from_le_bytes([chunk[0], chunk[1]])
+        }
+    });
+
+    let text: String = char::decode_utf16(u16_iter)
+        .map(|r| r.unwrap_or(char::REPLACEMENT_CHARACTER))
+        .collect();
+
+    Ok(text.into_bytes())
 }
 
 #[cfg(test)]
