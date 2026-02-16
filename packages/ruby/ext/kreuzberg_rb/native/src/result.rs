@@ -562,15 +562,19 @@ pub fn extraction_result_to_ruby(ruby: &Ruby, result: RustExtractionResult) -> R
             let kw_hash = ruby.hash_new();
             kw_hash.aset("text", kw.text.as_str())?;
             kw_hash.aset("score", ruby.float_from_f64(kw.score as f64).into_value_with(ruby))?;
-            kw_hash.aset("algorithm", kw.algorithm.as_str())?;
-            if kw.positions.is_empty() {
-                kw_hash.aset("positions", ruby.qnil().as_value())?;
-            } else {
+            let algo_str = serde_json::to_value(&kw.algorithm)
+                .ok()
+                .and_then(|v| v.as_str().map(String::from))
+                .unwrap_or_default();
+            kw_hash.aset("algorithm", algo_str.as_str())?;
+            if let Some(positions) = kw.positions {
                 let positions_array = ruby.ary_new();
-                for pos in kw.positions {
+                for pos in positions {
                     positions_array.push(pos as i64)?;
                 }
                 kw_hash.aset("positions", positions_array)?;
+            } else {
+                kw_hash.aset("positions", ruby.qnil().as_value())?;
             }
             keywords_array.push(kw_hash)?;
         }

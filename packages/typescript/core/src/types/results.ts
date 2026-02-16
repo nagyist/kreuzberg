@@ -265,7 +265,7 @@ export interface PageContent {
  * Represents rectangular coordinates with position and dimensions.
  */
 export interface OcrBoundingGeometryRectangle {
-	type: 'rectangle';
+	type: "rectangle";
 	left: number;
 	top: number;
 	width: number;
@@ -278,7 +278,7 @@ export interface OcrBoundingGeometryRectangle {
  * Represents irregular quadrilateral shapes with four corner points.
  */
 export interface OcrBoundingGeometryQuadrilateral {
-	type: 'quadrilateral';
+	type: "quadrilateral";
 	points: number[][];
 }
 
@@ -320,7 +320,7 @@ export interface OcrRotation {
  *
  * Defines the granularity of OCR element extraction.
  */
-export type OcrElementLevel = 'word' | 'line' | 'block' | 'page';
+export type OcrElementLevel = "word" | "line" | "block" | "page";
 
 /**
  * Individual OCR element (word, line, block, or page).

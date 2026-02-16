@@ -23,6 +23,7 @@ use pdfium_render::prelude::*;
 /// - Font sizes are captured
 /// - Position order is preserved
 #[test]
+#[ignore = "hangs in CI due to pdfium-render character iteration blocking"]
 fn test_extract_chars_basic() {
     if helpers::skip_if_missing("pdf/tiny.pdf") {
         return;
@@ -60,6 +61,7 @@ fn test_extract_chars_basic() {
 /// - Characters appear in left-to-right order
 /// - Y-coordinates generally decrease as we move down the page
 #[test]
+#[ignore = "hangs in CI due to pdfium-render character iteration blocking"]
 fn test_extract_chars_preserves_order() {
     if helpers::skip_if_missing("pdf/tiny.pdf") {
         return;
