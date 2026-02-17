@@ -105,13 +105,12 @@ impl CrnnNet {
 
     fn read_keys_from_file(&mut self, path: &str) -> Result<(), OcrError> {
         let content = std::fs::read_to_string(path)?;
-        let mut keys = Vec::new();
 
-        // Prepend CTC blank token and append space token to match get_keys() layout.
-        // The ONNX model's output index 0 = blank, last index = space.
-        keys.push("#".to_string());
-        keys.extend(content.split('\n').map(|s| s.to_string()));
-        keys.push(" ".to_string());
+        // PP-OCRv5 dict files already include the CTC blank token ("#") at
+        // index 0 and the space token (" ") at the end.  Do NOT prepend/append
+        // extra tokens — doing so shifts every character index by one and
+        // produces garbled output.
+        let keys: Vec<String> = content.split('\n').map(|s| s.to_string()).collect();
 
         self.keys = keys;
         Ok(())
@@ -262,16 +261,17 @@ mod tests {
     }
 
     #[test]
-    fn test_read_keys_from_file_has_blank_and_space() {
+    fn test_read_keys_from_file_preserves_dict_layout() {
         let dir = std::env::temp_dir().join("kreuzberg_test_dict");
         std::fs::create_dir_all(&dir).unwrap();
         let dict_path = dir.join("test_dict.txt");
-        std::fs::write(&dict_path, "a\nb\nc").unwrap();
+        // PP-OCRv5 dict files already include "#" (blank) at start and " " at end.
+        std::fs::write(&dict_path, "#\na\nb\nc\n ").unwrap();
 
         let mut net = CrnnNet::new();
         net.read_keys_from_file(dict_path.to_str().unwrap()).unwrap();
 
-        // Should be: ["#", "a", "b", "c", " "]
+        // Dict is loaded as-is: ["#", "a", "b", "c", " "]
         assert_eq!(net.keys[0], "#");
         assert_eq!(net.keys[1], "a");
         assert_eq!(net.keys[2], "b");
