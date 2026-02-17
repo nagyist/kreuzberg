@@ -3,7 +3,7 @@
 //! Handles document loading, text extraction, metadata parsing, and table detection.
 
 use crate::Result;
-use crate::core::config::ExtractionConfig;
+use crate::core::config::{ExtractionConfig, OutputFormat};
 use crate::types::{PageBoundary, PageContent};
 
 #[cfg(feature = "pdf")]
@@ -18,6 +18,7 @@ pub(crate) type PdfExtractionPhaseResult = (
     Vec<Table>,
     Option<Vec<PageContent>>,
     Option<Vec<PageBoundary>>,
+    Option<String>, // pre-rendered markdown (when output_format == Markdown)
 );
 
 /// Extract text, metadata, and tables from a PDF document using a single shared instance.
@@ -43,6 +44,7 @@ pub(crate) type PdfExtractionPhaseResult = (
 /// - Extracted tables (if OCR feature enabled)
 /// - Per-page content (if page extraction configured)
 /// - Page boundaries for per-page OCR evaluation
+/// - Pre-rendered markdown (if output_format == Markdown, None otherwise)
 #[cfg(feature = "pdf")]
 pub(crate) fn extract_all_from_document(
     document: &PdfDocument,
@@ -53,7 +55,39 @@ pub(crate) fn extract_all_from_document(
 
     let tables = extract_tables_from_document(document, &pdf_metadata)?;
 
-    Ok((pdf_metadata, native_text, tables, page_contents, boundaries))
+    // If markdown output is requested, render it while we have the document loaded.
+    // Skip when force_ocr is set since OCR results produce their own markdown via hOCR.
+    let pre_rendered_markdown = if config.output_format == OutputFormat::Markdown && !config.force_ocr {
+        let k = config
+            .pdf_options
+            .as_ref()
+            .and_then(|opts| opts.hierarchy.as_ref())
+            .map(|h| h.k_clusters)
+            .unwrap_or(4);
+
+        match crate::pdf::markdown::render_document_as_markdown(document, k) {
+            Ok(md) if !md.trim().is_empty() => Some(md),
+            Ok(_) => {
+                tracing::warn!("Markdown rendering produced empty output, will fall back to plain text");
+                None
+            }
+            Err(e) => {
+                tracing::warn!("Markdown rendering failed: {:?}, will fall back to plain text", e);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    Ok((
+        pdf_metadata,
+        native_text,
+        tables,
+        page_contents,
+        boundaries,
+        pre_rendered_markdown,
+    ))
 }
 
 /// Extract tables from PDF document using native text positions.

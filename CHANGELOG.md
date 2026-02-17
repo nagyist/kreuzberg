@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **PDF markdown output format**: Native PDF text extraction now supports `output_format: Markdown`, producing structured markdown with headings (via font-size clustering), paragraphs, inline bold/italic markup, and list detection — instead of flat text with visual line breaks.
+- **Multi-column PDF layout detection**: Histogram-based column gutter detection identifies 2+ column layouts (academic papers, magazines) and processes each column independently, preventing text interleaving across columns.
+- **Bold/italic detection via font name fallback**: When PDF font descriptor flags don't indicate bold/italic, the extractor checks font names for "Bold"/"Italic"/"Oblique" substrings and font weight >= 700 as secondary signals.
+
+### Fixed
+
+- **PDF document loaded twice for markdown rendering**: Eliminated redundant Pdfium initialization and document parsing by rendering markdown speculatively during the first document load, saving 25-40ms per PDF.
+- **NaN panics in PDF text clustering and block merging**: Replaced `expect()` calls on `partial_cmp` with `unwrap_or(Ordering::Equal)` across clustering, extraction, and markdown modules to handle corrupt PDF coordinates gracefully.
+- **PDF heading detection false positives**: Added distance threshold to font-size centroid matching — decorative elements with extreme font sizes no longer receive heading levels.
+- **PDF list item false positives**: Long paragraphs starting with "1." or "-" no longer misclassified as list items (added line count constraint).
+- **Silent markdown fallback**: `tracing::warn` messages for markdown rendering failures are no longer gated behind the `otel` feature flag.
+- **PDF font-size clustering float imprecision**: Changed exact `dedup()` to tolerance-based dedup (0.05pt) and added NaN/Inf filtering for font sizes from corrupt PDFs.
+
 - **ExtractionResult typed keyword and quality fields**: `ExtractionResult` now includes typed fields `extracted_keywords: Option<Vec<ExtractedKeyword>>` and `quality_score: Option<f64>` instead of untyped `metadata.additional` entries. Keywords now carry algorithm, score, and position information for better keyword analysis.
 - **ProcessingWarning type for extraction pipeline**: New `ProcessingWarning { source: String, message: String }` type added to `ExtractionResult.processing_warnings` to explicitly surface non-fatal warnings during document processing (e.g., recoverable decoding issues, missing optional features).
 - **Metadata typed fields**: `Metadata` struct now includes typed fields `category`, `tags`, `document_version`, `abstract_text`, and `output_format` for better structured metadata handling across all language bindings.

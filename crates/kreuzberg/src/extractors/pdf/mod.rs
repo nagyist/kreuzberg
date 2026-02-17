@@ -85,7 +85,8 @@ impl DocumentExtractor for PdfExtractor {
         let content = &*derotated;
 
         #[cfg(feature = "pdf")]
-        let (mut pdf_metadata, native_text, tables, page_contents, _boundaries) = {
+        #[allow(unused_variables)]
+        let (mut pdf_metadata, native_text, tables, page_contents, boundaries, pre_rendered_markdown) = {
             #[cfg(target_arch = "wasm32")]
             {
                 let pdfium = crate::pdf::bindings::bind_pdfium(PdfError::MetadataExtractionFailed, "initialize Pdfium")
@@ -138,7 +139,7 @@ impl DocumentExtractor for PdfExtractor {
                             }
                         };
 
-                        let (pdf_metadata, native_text, tables, page_contents, _boundaries) =
+                        let (pdf_metadata, native_text, tables, page_contents, boundaries, pre_rendered_markdown) =
                             extract_all_from_document(&document, &config_owned)
                                 .map_err(|e| PdfError::ExtractionFailed(e.to_string()))?;
 
@@ -157,7 +158,8 @@ impl DocumentExtractor for PdfExtractor {
                             native_text,
                             tables,
                             page_contents,
-                            _boundaries,
+                            boundaries,
+                            pre_rendered_markdown,
                         ))
                     })
                     .await
@@ -202,16 +204,16 @@ impl DocumentExtractor for PdfExtractor {
         };
 
         #[cfg(feature = "ocr")]
-        let text = if config.force_ocr {
+        let (text, used_ocr) = if config.force_ocr {
             if config.ocr.is_some() {
-                extract_with_ocr(content, config).await?
+                (extract_with_ocr(content, config).await?, true)
             } else {
-                native_text
+                (native_text, false)
             }
         } else if config.ocr.is_some() {
             let decision = ocr::evaluate_per_page_ocr(
                 &native_text,
-                _boundaries.as_deref(),
+                boundaries.as_deref(),
                 pdf_metadata.pdf_specific.page_count,
             );
 
@@ -230,16 +232,34 @@ impl DocumentExtractor for PdfExtractor {
             }
 
             if decision.fallback {
-                extract_with_ocr(content, config).await?
+                (extract_with_ocr(content, config).await?, true)
             } else {
-                native_text
+                (native_text, false)
             }
         } else {
-            native_text
+            (native_text, false)
         };
 
         #[cfg(not(feature = "ocr"))]
-        let text = native_text;
+        let (text, used_ocr) = (native_text, false);
+
+        // Post-processing: use pre-rendered markdown from initial document load if available.
+        // The markdown was rendered during the first document load to avoid redundant PDF parsing.
+        // OCR results already produce markdown via the hOCR path, so this only applies
+        // when native text extraction was used and markdown output was requested.
+        #[cfg(feature = "pdf")]
+        let (text, used_pdf_markdown) = if !used_ocr {
+            if let Some(md) = pre_rendered_markdown {
+                (md, true)
+            } else {
+                (text, false)
+            }
+        } else {
+            (text, false)
+        };
+
+        #[cfg(not(feature = "pdf"))]
+        let used_pdf_markdown = false;
 
         #[cfg(feature = "pdf")]
         if let Some(ref page_cfg) = config.pages
@@ -306,9 +326,15 @@ impl DocumentExtractor for PdfExtractor {
             }
         }
 
+        let effective_mime_type = if used_pdf_markdown {
+            "text/markdown".to_string()
+        } else {
+            mime_type.to_string()
+        };
+
         Ok(ExtractionResult {
             content: text,
-            mime_type: mime_type.to_string().into(),
+            mime_type: effective_mime_type.into(),
             metadata: Metadata {
                 #[cfg(feature = "pdf")]
                 title: pdf_metadata.title.clone(),

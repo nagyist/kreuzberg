@@ -236,6 +236,9 @@ fn create_char(text: &str, x: f32, y: f32, font_size: f32) -> CharData {
         y,
         width: font_size * 0.6,
         height: font_size,
+        is_bold: false,
+        is_italic: false,
+        baseline_y: y,
     }
 }
 
@@ -343,6 +346,9 @@ fn test_merge_zero_font_size() {
             font_size: 0.0,
             width: 0.0,
             height: 0.0,
+            is_bold: false,
+            is_italic: false,
+            baseline_y: 10.0,
         },
         CharData {
             text: "B".to_string(),
@@ -351,6 +357,9 @@ fn test_merge_zero_font_size() {
             font_size: 0.0,
             width: 0.0,
             height: 0.0,
+            is_bold: false,
+            is_italic: false,
+            baseline_y: 10.0,
         },
     ];
 
