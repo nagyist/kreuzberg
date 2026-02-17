@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.3.5]
 
 ### Added
 
@@ -22,8 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Image placeholder injection in PDF markdown output**: Image references are inserted with OCR text as blockquotes at correct vertical position matching the image's bounding box.
 - **`render_document_as_markdown_with_tables()` function**: New public function for table-aware markdown rendering that embeds tables inline at correct positions and injects image placeholders. Used internally by `render_document_as_markdown()`.
 - **`inject_image_placeholders()` function**: New post-processing function for markdown that injects `![Image description]()` placeholders and OCR text blockquotes at correct vertical positions in the content.
+- **`bounding_box` field in all language bindings**: Added `bounding_box` (optional `BoundingBox`) to `Table` and `ExtractedImage` types across all 10 language bindings: Python, TypeScript (Node/Core/WASM), Ruby, PHP, Go, Java, C#, and Elixir.
 
 ### Fixed
+
+- **Pipeline test flakiness**: Disabled post-processing in pipeline tests that don't test post-processing, fixing `test_pipeline_without_chunking` and related tests that failed due to global processor cache poisoning in parallel execution.
+- **PHP FFI bridge missing `bounding_box`**: The PHP Rust bridge (`kreuzberg-php`) was not passing `bounding_box` through for `Table` or `ExtractedImage`, causing the field to always be null despite being defined in the PHP user-facing types.
 
 - **PaddleOCR dict index offset causing wrong character recognition (#395)**: `read_keys_from_file()` was missing the CTC blank token (`#`) at index 0 and the space token at the end, causing off-by-one character mapping errors. Now matches the `get_keys()` layout used for embedded models.
 - **PaddleOCR angle classifier misfiring on short text (#395)**: Changed `use_angle_cls` default from `true` to `false`. The angle classifier can misfire on short text regions (e.g., 2-3 character table cells), rotating crops incorrectly before recognition. Users can re-enable via `PaddleOcrConfig::with_angle_cls(true)` for rotated documents.

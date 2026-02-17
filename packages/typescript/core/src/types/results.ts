@@ -21,6 +21,8 @@ export interface Table {
 	cells: string[][];
 	markdown: string;
 	pageNumber: number;
+	/** Bounding box of the table on the page (PDF coordinates). */
+	boundingBox?: BoundingBox | null;
 }
 
 export interface ChunkMetadata {
@@ -51,6 +53,8 @@ export interface ExtractedImage {
 	isMask: boolean;
 	description?: string | null;
 	ocrResult?: ExtractionResult;
+	/** Bounding box of the image on the page (PDF coordinates). */
+	boundingBox?: BoundingBox | null;
 }
 
 // ============================================================================

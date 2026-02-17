@@ -588,6 +588,10 @@ pub struct ExtractedTable {
     /// Page number
     #[php(prop)]
     pub page_number: usize,
+
+    /// Bounding box as associative array {x0, y0, x1, y1} or null
+    #[php(prop)]
+    pub bounding_box: Option<HashMap<String, f64>>,
 }
 
 #[php_impl]
@@ -602,10 +606,19 @@ impl ExtractedTable {
 impl ExtractedTable {
     /// Convert from Rust Table to PHP ExtractedTable.
     pub fn from_rust(table: kreuzberg::Table) -> PhpResult<Self> {
+        let bounding_box = table.bounding_box.map(|bb| {
+            let mut map = HashMap::new();
+            map.insert("x0".to_string(), bb.x0);
+            map.insert("y0".to_string(), bb.y0);
+            map.insert("x1".to_string(), bb.x1);
+            map.insert("y1".to_string(), bb.y1);
+            map
+        });
         Ok(Self {
             cells: table.cells,
             markdown: table.markdown,
             page_number: table.page_number,
+            bounding_box,
         })
     }
 }
@@ -644,6 +657,9 @@ pub struct ExtractedImage {
     pub description: Option<String>,
     #[php(prop)]
     pub is_mask: bool,
+    /// Bounding box as associative array {x0, y0, x1, y1} or null
+    #[php(prop)]
+    pub bounding_box: Option<HashMap<String, f64>>,
 }
 
 #[php_impl]
@@ -657,6 +673,14 @@ impl ExtractedImage {
 
 impl ExtractedImage {
     pub fn from_rust(img: kreuzberg::ExtractedImage) -> PhpResult<Self> {
+        let bounding_box = img.bounding_box.map(|bb| {
+            let mut map = HashMap::new();
+            map.insert("x0".to_string(), bb.x0);
+            map.insert("y0".to_string(), bb.y0);
+            map.insert("x1".to_string(), bb.x1);
+            map.insert("y1".to_string(), bb.y1);
+            map
+        });
         Ok(Self {
             data: img.data.to_vec(),
             format: img.format.into_owned(),
@@ -668,6 +692,7 @@ impl ExtractedImage {
             bits_per_component: img.bits_per_component.map(|b| b as i32),
             description: img.description,
             is_mask: img.is_mask,
+            bounding_box,
         })
     }
 }
@@ -1093,10 +1118,20 @@ pub(crate) fn php_array_to_table(arr: &ext_php_rs::types::ZendHashTable) -> PhpR
         .map(|v| v as usize)
         .unwrap_or(1);
 
+    let bounding_box = arr
+        .get("bounding_box")
+        .and_then(|v| v.array())
+        .map(|bb_arr| kreuzberg::types::BoundingBox {
+            x0: bb_arr.get("x0").and_then(|v| v.double()).unwrap_or(0.0),
+            y0: bb_arr.get("y0").and_then(|v| v.double()).unwrap_or(0.0),
+            x1: bb_arr.get("x1").and_then(|v| v.double()).unwrap_or(0.0),
+            y1: bb_arr.get("y1").and_then(|v| v.double()).unwrap_or(0.0),
+        });
+
     Ok(kreuzberg::types::Table {
         cells,
         markdown,
         page_number,
-        bounding_box: None,
+        bounding_box,
     })
 }

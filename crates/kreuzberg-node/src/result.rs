@@ -207,6 +207,12 @@ impl TryFrom<RustExtractionResult> for JsExtractionResult {
                     is_mask: img.is_mask,
                     description: img.description,
                     ocr_result,
+                    bounding_box: img.bounding_box.map(|bb| JsBoundingBox {
+                        x0: bb.x0,
+                        y0: bb.y0,
+                        x1: bb.x1,
+                        y1: bb.y1,
+                    }),
                 });
             }
             Some(js_images)
@@ -224,6 +230,12 @@ impl TryFrom<RustExtractionResult> for JsExtractionResult {
                         cells: t.cells.clone(),
                         markdown: t.markdown.clone(),
                         page_number: t.page_number as u32,
+                        bounding_box: t.bounding_box.map(|bb| JsBoundingBox {
+                            x0: bb.x0,
+                            y0: bb.y0,
+                            x1: bb.x1,
+                            y1: bb.y1,
+                        }),
                     })
                     .collect();
 
@@ -258,6 +270,12 @@ impl TryFrom<RustExtractionResult> for JsExtractionResult {
                             is_mask: img.is_mask,
                             description: img.description.clone(),
                             ocr_result,
+                            bounding_box: img.bounding_box.map(|bb| JsBoundingBox {
+                                x0: bb.x0,
+                                y0: bb.y0,
+                                x1: bb.x1,
+                                y1: bb.y1,
+                            }),
                         }
                     })
                     .collect();
@@ -387,6 +405,12 @@ impl TryFrom<RustExtractionResult> for JsExtractionResult {
                     cells: t.cells,
                     markdown: t.markdown,
                     page_number: t.page_number as u32,
+                    bounding_box: t.bounding_box.map(|bb| JsBoundingBox {
+                        x0: bb.x0,
+                        y0: bb.y0,
+                        x1: bb.x1,
+                        y1: bb.y1,
+                    }),
                 })
                 .collect(),
             detected_languages: val.detected_languages,
@@ -537,7 +561,12 @@ impl TryFrom<JsExtractionResult> for RustExtractionResult {
                     is_mask: img.is_mask,
                     description: img.description,
                     ocr_result,
-                    bounding_box: None,
+                    bounding_box: img.bounding_box.map(|bb| kreuzberg::types::BoundingBox {
+                        x0: bb.x0,
+                        y0: bb.y0,
+                        x1: bb.x1,
+                        y1: bb.y1,
+                    }),
                 });
             }
             Some(rust_images)
@@ -602,7 +631,12 @@ impl TryFrom<JsExtractionResult> for RustExtractionResult {
                     cells: t.cells,
                     markdown: t.markdown,
                     page_number: t.page_number as usize,
-                    bounding_box: None,
+                    bounding_box: t.bounding_box.map(|bb| kreuzberg::types::BoundingBox {
+                        x0: bb.x0,
+                        y0: bb.y0,
+                        x1: bb.x1,
+                        y1: bb.y1,
+                    }),
                 })
                 .collect(),
             detected_languages: val.detected_languages,
