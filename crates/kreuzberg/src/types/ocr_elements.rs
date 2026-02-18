@@ -100,7 +100,7 @@ pub struct OcrConfidence {
     ///
     /// PaddleOCR provides this as `box_score`, Tesseract doesn't have a direct equivalent.
     /// Range: 0.0 to 1.0 (or None if not available).
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub detection: Option<f64>,
 
     /// Recognition confidence: how confident about the text content.
