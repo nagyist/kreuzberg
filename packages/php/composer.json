@@ -42,7 +42,7 @@
 		"ext-kreuzberg": "*"
 	},
 	"require-dev": {
-		"friendsofphp/php-cs-fixer": "^3.64",
+		"friendsofphp/php-cs-fixer": "^3.94",
 		"phpstan/phpstan": "^2.0",
 		"phpunit/phpunit": "^13.0"
 	},
