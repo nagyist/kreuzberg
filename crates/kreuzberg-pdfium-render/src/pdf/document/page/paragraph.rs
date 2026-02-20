@@ -197,8 +197,8 @@ impl<'a> PdfStyledString<'a> {
 pub enum PdfParagraphFragment<'a> {
     /// A run of styled text.
     StyledString(PdfStyledString<'a>),
-    /// A line break with alignment information.
-    LineBreak(PdfLineAlignment),
+    /// A line break with alignment and position information from the preceding line.
+    LineBreak(PdfLineAlignment, PdfPoints, PdfPoints), // alignment, bottom, left
     /// A non-text page object (image, path, shading, etc.).
     NonTextObject(FPDF_PAGEOBJECT),
 }
@@ -422,6 +422,13 @@ impl<'a> PdfParagraph<'a> {
             })
             .collect::<Vec<_>>();
 
+        // Filter out significantly rotated text objects (e.g. vertical sidebar text).
+        // Rotated objects produce individual characters that interleave with body text.
+        let positioned_objects: Vec<_> = positioned_objects
+            .into_iter()
+            .filter(|(_, _, _, _, object)| !is_significantly_rotated(object))
+            .collect();
+
         let paragraph_left = objects_left.unwrap_or(PdfPoints::ZERO);
         let paragraph_right = objects_right.unwrap_or(paragraph_left);
 
@@ -470,7 +477,8 @@ impl<'a> PdfParagraph<'a> {
                         current_line_fragments,
                     ));
 
-                    current_line_fragments = vec![PdfParagraphFragment::LineBreak(current_line_alignment)];
+                    current_line_fragments =
+                        vec![PdfParagraphFragment::LineBreak(current_line_alignment, bottom, left)];
                     current_line_left = left;
                     current_line_bottom = bottom;
                     current_line_alignment = next_line_alignment;
@@ -824,7 +832,7 @@ impl<'a> PdfParagraph<'a> {
             .iter()
             .filter_map(|fragment| match fragment {
                 PdfParagraphFragment::StyledString(string) => Some(string.text.as_str()),
-                PdfParagraphFragment::LineBreak(_) => Some("\n"),
+                PdfParagraphFragment::LineBreak(..) => Some("\n"),
                 _ => None,
             })
             .collect::<Vec<_>>()
@@ -851,14 +859,14 @@ impl<'a> PdfParagraph<'a> {
         let mut lines: Vec<PdfLine<'a>> = Vec::new();
         let mut current_fragments: Vec<PdfParagraphFragment<'a>> = Vec::new();
         let mut current_width = PdfPoints::ZERO;
-        let current_bottom = self.bottom.unwrap_or(PdfPoints::ZERO);
-        let current_left = self.left.unwrap_or(PdfPoints::ZERO);
+        let mut current_bottom = self.bottom.unwrap_or(PdfPoints::ZERO);
+        let mut current_left = self.left.unwrap_or(PdfPoints::ZERO);
 
         let effective_max_width = self.max_width.unwrap_or(PdfPoints::new(f32::MAX));
 
         for fragment in self.fragments {
             match fragment {
-                PdfParagraphFragment::LineBreak(alignment) => {
+                PdfParagraphFragment::LineBreak(alignment, line_bottom, line_left) => {
                     if !current_fragments.is_empty() {
                         lines.push(PdfLine::new(
                             alignment,
@@ -868,6 +876,8 @@ impl<'a> PdfParagraph<'a> {
                             std::mem::take(&mut current_fragments),
                         ));
                         current_width = PdfPoints::ZERO;
+                        current_bottom = line_bottom;
+                        current_left = line_left;
                     }
                 }
                 PdfParagraphFragment::StyledString(ref styled) => {
@@ -920,6 +930,17 @@ impl<'a> PdfParagraph<'a> {
     pub fn as_group(&self) -> Result<(), PdfiumError> {
         Err(PdfiumError::PdfiumLibraryInternalError(PdfiumInternalError::Unknown))
     }
+}
+
+/// Returns true if a page object is rotated more than 10 degrees from horizontal.
+///
+/// Used to filter out vertical sidebar text (e.g. arXiv identifiers) that would
+/// otherwise produce individual characters interleaved with body text.
+fn is_significantly_rotated(object: &PdfPageObject) -> bool {
+    const ROTATION_THRESHOLD_DEGREES: f32 = 10.0;
+    let rotation = object.get_rotation_counter_clockwise_degrees().abs();
+    let normalized = if rotation > 180.0 { 360.0 - rotation } else { rotation };
+    normalized > ROTATION_THRESHOLD_DEGREES
 }
 
 #[cfg(test)]

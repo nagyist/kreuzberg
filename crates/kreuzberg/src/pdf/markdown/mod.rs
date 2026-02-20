@@ -7,6 +7,7 @@
 mod assembly;
 mod bridge;
 mod classify;
+mod columns;
 mod constants;
 mod lines;
 mod paragraphs;

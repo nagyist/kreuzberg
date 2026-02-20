@@ -3,6 +3,9 @@
 //! Two conversion paths:
 //! 1. Structure tree: `ExtractedBlock` → `PdfParagraph` (for tagged PDFs)
 //! 2. Page objects: `PdfPage` → `(Vec<SegmentData>, Vec<ImagePosition>)` (heuristic extraction)
+//!
+//! The page objects path includes post-processing ligature repair for pages
+//! with broken font encodings (detected via `PdfPageTextChar::has_unicode_map_error()`).
 
 use crate::pdf::hierarchy::SegmentData;
 use pdfium_render::prelude::*;
@@ -155,11 +158,11 @@ fn convert_blocks(blocks: &[ExtractedBlock], body_font_size: f32, paragraphs: &m
     }
 }
 
-/// Extract text segments and image positions from a PDF page using the page objects API.
+/// Extract text segments and image positions from a PDF page.
 ///
-/// Uses `PdfParagraph::from_objects()` for spatial analysis and text grouping,
-/// then converts the output into owned `SegmentData` for compatibility with the
-/// existing pipeline (lines → paragraphs → classify → render).
+/// Uses the page objects API with column detection for text extraction.
+/// For pages with broken font encodings (ligature corruption), applies
+/// per-character repair using `PdfPageTextChar::has_unicode_map_error()`.
 ///
 /// Also detects image objects and records their positions for interleaving.
 pub(super) fn objects_to_page_data(
@@ -168,18 +171,142 @@ pub(super) fn objects_to_page_data(
     image_offset: &mut usize,
 ) -> (Vec<SegmentData>, Vec<ImagePosition>) {
     let objects: Vec<PdfPageObject> = page.objects().iter().collect();
-    let paragraphs: Vec<PdfiumParagraph> = PdfiumParagraph::from_objects(&objects);
 
+    // Extract text via page objects API with column detection.
     let mut segments = Vec::new();
-    let mut images = Vec::new();
+    let column_groups = super::columns::split_objects_into_columns(&objects);
+    for column_indices in &column_groups {
+        let column_obj_slice: Vec<PdfPageObject<'_>> =
+            column_indices.iter().filter_map(|&i| objects.get(i)).cloned().collect();
+        let paragraphs: Vec<PdfiumParagraph> = PdfiumParagraph::from_objects(&column_obj_slice);
+        extract_paragraphs_to_segments(paragraphs, &mut segments);
+    }
 
-    // Convert each pdfium paragraph into segments with per-line position data.
-    // Using into_lines() gives us accurate baseline positions for each line,
-    // which is critical for the downstream segments_to_lines() grouping.
+    // Apply ligature repair using per-char font error detection.
+    if let Some(repair_map) = build_ligature_repair_map(page) {
+        for seg in &mut segments {
+            seg.text = apply_ligature_repairs(&seg.text, &repair_map);
+        }
+    }
+
+    // Separate image scan: iterate page objects to find images with positions
+    let mut images = Vec::new();
+    for obj in &objects {
+        if let Some(img_obj) = obj.as_image_object() {
+            let y_top = img_obj.bounds().map(|b| b.top().value).unwrap_or(0.0);
+            images.push(ImagePosition {
+                page_number,
+                image_index: *image_offset,
+                y_top,
+            });
+            *image_offset += 1;
+        }
+    }
+
+    (segments, images)
+}
+
+/// Build a mapping of corrupted characters → correct ligature expansions for a page.
+///
+/// Walks the per-character API to find characters with `has_unicode_map_error()`,
+/// then determines the correct ligature expansion based on the character's raw
+/// unicode value and font-specific encoding patterns.
+///
+/// Returns `None` if the page has no encoding errors (most pages).
+fn build_ligature_repair_map(page: &PdfPage) -> Option<Vec<(char, &'static str)>> {
+    let text = match page.text() {
+        Ok(t) => t,
+        Err(_) => return None,
+    };
+
+    let chars = text.chars();
+    let char_count = chars.len();
+    if char_count == 0 {
+        return None;
+    }
+
+    let mut repair_map: Vec<(char, &'static str)> = Vec::new();
+
+    for i in 0..char_count {
+        let ch = match chars.get(i) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+
+        if ch.is_generated().unwrap_or(false) {
+            continue;
+        }
+
+        if !ch.has_unicode_map_error().unwrap_or(false) {
+            continue;
+        }
+
+        // Skip symbol/math fonts — their encodings are intentional
+        if ch.font_is_symbolic() {
+            continue;
+        }
+
+        let unicode_val = ch.unicode_value();
+        let mapped_char = match char::from_u32(unicode_val) {
+            Some(c) => c,
+            None => continue,
+        };
+
+        // Check if we already have a mapping for this character
+        if repair_map.iter().any(|(c, _)| *c == mapped_char) {
+            continue;
+        }
+
+        // Determine the correct ligature based on raw unicode value.
+        // Different fonts encode ligatures at different positions. We check
+        // both the low-byte encoding (CM fonts) and ASCII fallback positions.
+        let ligature = match unicode_val {
+            // Standard Type1/CM ligature positions (low bytes)
+            0x0B => "ff",
+            0x0C => "fi",
+            0x0D => "fl",
+            0x0E => "ffi",
+            0x0F => "ffl",
+            // Alternate low-byte positions used by some fonts
+            0x01 => "fi",
+            0x02 => "fl",
+            0x03 => "ff",
+            0x04 => "ffi",
+            0x05 => "ffl",
+            // When broken CMap maps ligature codes to ASCII positions,
+            // we need context from the specific font. Since we can't
+            // determine the exact original glyph code, we use the most
+            // common mapping for each ASCII character.
+            // These are determined by the font encoding, not universal.
+            _ => continue,
+        };
+
+        repair_map.push((mapped_char, ligature));
+    }
+
+    if repair_map.is_empty() { None } else { Some(repair_map) }
+}
+
+/// Apply ligature repairs to a text string using a page-specific repair map.
+fn apply_ligature_repairs(text: &str, repair_map: &[(char, &str)]) -> String {
+    let mut result = String::with_capacity(text.len() + 16);
+    for ch in text.chars() {
+        if let Some((_, replacement)) = repair_map.iter().find(|(c, _)| *c == ch) {
+            result.push_str(replacement);
+        } else {
+            result.push(ch);
+        }
+    }
+    result
+}
+
+/// Convert pdfium paragraphs into SegmentData, preserving per-line positions.
+fn extract_paragraphs_to_segments(paragraphs: Vec<PdfiumParagraph>, segments: &mut Vec<SegmentData>) {
     for para in paragraphs {
         for line in para.into_lines() {
             let line_baseline = line.bottom.value;
             let line_left = line.left.value;
+            let mut running_x = line_left;
 
             for fragment in &line.fragments {
                 match fragment {
@@ -193,12 +320,13 @@ pub(super) fn objects_to_page_data(
                         let is_bold = styled.is_bold();
                         let is_italic = styled.is_italic();
                         let is_monospace = styled.is_monospace();
+                        let estimated_width = text.len() as f32 * font_size * 0.5;
 
                         segments.push(SegmentData {
                             text,
-                            x: line_left,
+                            x: running_x,
                             y: line_baseline,
-                            width: 0.0,
+                            width: estimated_width,
                             height: font_size,
                             font_size,
                             is_bold,
@@ -206,28 +334,14 @@ pub(super) fn objects_to_page_data(
                             is_monospace,
                             baseline_y: line_baseline,
                         });
+
+                        running_x += estimated_width;
                     }
-                    PdfParagraphFragment::NonTextObject(_) | PdfParagraphFragment::LineBreak(_) => {}
+                    PdfParagraphFragment::NonTextObject(_) | PdfParagraphFragment::LineBreak(..) => {}
                 }
             }
         }
     }
-
-    // Separate image scan: iterate page objects to find images with positions
-    for obj in &objects {
-        if let Some(img_obj) = obj.as_image_object() {
-            let y_top = img_obj.bounds().map(|b| b.top().value).unwrap_or(0.0);
-
-            images.push(ImagePosition {
-                page_number,
-                image_index: *image_offset,
-                y_top,
-            });
-            *image_offset += 1;
-        }
-    }
-
-    (segments, images)
 }
 
 /// Normalize text encoding: handle soft hyphens and strip control characters.
@@ -411,5 +525,50 @@ mod tests {
         }];
         let paragraphs = extracted_blocks_to_paragraphs(&blocks);
         assert_eq!(paragraphs.len(), 2);
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_fi() {
+        let map = vec![('\x0C', "fi")];
+        assert_eq!(apply_ligature_repairs("classi\x0Ccation", &map), "classification");
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_ff() {
+        let map = vec![('\x0B', "ff")];
+        assert_eq!(apply_ligature_repairs("e\x0Bective", &map), "effective");
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_fl() {
+        let map = vec![('\x0D', "fl")];
+        assert_eq!(apply_ligature_repairs("re\x0Dection", &map), "reflection");
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_ffi() {
+        let map = vec![('\x0E', "ffi")];
+        assert_eq!(apply_ligature_repairs("e\x0Ecient", &map), "efficient");
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_ffl() {
+        let map = vec![('\x0F', "ffl")];
+        assert_eq!(apply_ligature_repairs("ba\x0Fe", &map), "baffle");
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_no_map() {
+        let map: Vec<(char, &str)> = Vec::new();
+        assert_eq!(apply_ligature_repairs("hello world!", &map), "hello world!");
+    }
+
+    #[test]
+    fn test_apply_ligature_repairs_multiple() {
+        let map = vec![('\x0C', "fi"), ('\x0E', "ffi")];
+        assert_eq!(
+            apply_ligature_repairs("e\x0Ecient and classi\x0Ccation", &map),
+            "efficient and classification"
+        );
     }
 }

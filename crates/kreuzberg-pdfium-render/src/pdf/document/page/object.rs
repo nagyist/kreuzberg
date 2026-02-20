@@ -312,6 +312,19 @@ pub enum PdfPageObject<'a> {
     Unsupported(PdfPageUnsupportedObject<'a>),
 }
 
+impl<'a> Clone for PdfPageObject<'a> {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Text(inner) => Self::Text(inner.clone()),
+            Self::Path(inner) => Self::Path(inner.clone()),
+            Self::Image(inner) => Self::Image(inner.clone()),
+            Self::Shading(inner) => Self::Shading(inner.clone()),
+            Self::XObjectForm(inner) => Self::XObjectForm(inner.clone()),
+            Self::Unsupported(inner) => Self::Unsupported(inner.clone()),
+        }
+    }
+}
+
 impl<'a> PdfPageObject<'a> {
     pub(crate) fn from_pdfium(
         object_handle: FPDF_PAGEOBJECT,

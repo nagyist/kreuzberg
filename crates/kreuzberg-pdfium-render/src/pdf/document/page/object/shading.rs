@@ -20,6 +20,16 @@ pub struct PdfPageShadingObject<'a> {
     bindings: &'a dyn PdfiumLibraryBindings,
 }
 
+impl<'a> Clone for PdfPageShadingObject<'a> {
+    fn clone(&self) -> Self {
+        Self {
+            object_handle: self.object_handle,
+            ownership: self.ownership,
+            bindings: self.bindings,
+        }
+    }
+}
+
 impl<'a> PdfPageShadingObject<'a> {
     pub(crate) fn from_pdfium(
         object_handle: FPDF_PAGEOBJECT,

@@ -62,6 +62,16 @@ pub struct PdfPageImageObject<'a> {
     bindings: &'a dyn PdfiumLibraryBindings,
 }
 
+impl<'a> Clone for PdfPageImageObject<'a> {
+    fn clone(&self) -> Self {
+        Self {
+            object_handle: self.object_handle,
+            ownership: self.ownership,
+            bindings: self.bindings,
+        }
+    }
+}
+
 impl<'a> PdfPageImageObject<'a> {
     #[inline]
     pub(crate) fn from_pdfium(
