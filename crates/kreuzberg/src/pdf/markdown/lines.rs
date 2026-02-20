@@ -17,12 +17,7 @@ pub(super) fn segments_to_lines(segments: Vec<SegmentData>) -> Vec<PdfLine> {
 
     // Sort segments by baseline_y DESCENDING (top-to-bottom), then x ascending.
     let mut sorted = segments;
-    sorted.sort_by(|a, b| {
-        b.baseline_y
-            .partial_cmp(&a.baseline_y)
-            .unwrap_or(std::cmp::Ordering::Equal)
-            .then_with(|| a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal))
-    });
+    sorted.sort_by(|a, b| b.baseline_y.total_cmp(&a.baseline_y).then_with(|| a.x.total_cmp(&b.x)));
 
     let mut lines: Vec<PdfLine> = Vec::new();
     let first = sorted.remove(0);
@@ -54,47 +49,37 @@ pub(super) fn segments_to_lines(segments: Vec<SegmentData>) -> Vec<PdfLine> {
 
 /// Build a PdfLine from a set of segments, sorting them left-to-right.
 fn finalize_line(mut segments: Vec<SegmentData>) -> PdfLine {
-    segments.sort_by(|a, b| a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal));
+    segments.sort_by(|a, b| a.x.total_cmp(&b.x));
 
     let baseline_y = segments.iter().map(|s| s.baseline_y).sum::<f32>() / segments.len() as f32;
-    let y_top = segments
-        .iter()
-        .map(|s| s.baseline_y - s.font_size)
-        .fold(f32::INFINITY, f32::min);
-    let y_bottom = segments.iter().map(|s| s.baseline_y).fold(f32::NEG_INFINITY, f32::max);
-
-    let dominant_font_size = dominant_font_size(&segments);
+    let dominant_font_size = most_frequent_font_size(segments.iter().map(|s| s.font_size));
 
     let bold_count = segments.iter().filter(|s| s.is_bold).count();
-    let italic_count = segments.iter().filter(|s| s.is_italic).count();
     let mono_count = segments.iter().filter(|s| s.is_monospace).count();
     let majority = segments.len().div_ceil(2);
 
     PdfLine {
         baseline_y,
-        y_top,
-        y_bottom,
         dominant_font_size,
         is_bold: bold_count >= majority,
-        is_italic: italic_count >= majority,
         is_monospace: mono_count >= majority,
         segments,
     }
 }
 
-/// Compute the dominant (most frequent) font size from a set of segments.
-fn dominant_font_size(segments: &[SegmentData]) -> f32 {
-    if segments.is_empty() {
-        return 0.0;
-    }
+/// Compute the most frequent font size from an iterator, quantized to 0.5pt.
+pub(super) fn most_frequent_font_size(sizes: impl Iterator<Item = f32>) -> f32 {
     let mut counts: Vec<(i32, usize)> = Vec::new();
-    for s in segments {
-        let key = (s.font_size * 2.0).round() as i32;
+    for fs in sizes {
+        let key = (fs * 2.0).round() as i32;
         if let Some(entry) = counts.iter_mut().find(|(k, _)| *k == key) {
             entry.1 += 1;
         } else {
             counts.push((key, 1));
         }
+    }
+    if counts.is_empty() {
+        return 0.0;
     }
     counts.sort_by(|a, b| b.1.cmp(&a.1));
     counts[0].0 as f32 / 2.0

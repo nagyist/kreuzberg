@@ -3,11 +3,6 @@
 use super::render::render_paragraph_to_output;
 use super::types::PdfParagraph;
 
-/// Assemble final markdown string from classified paragraphs across all pages.
-pub(super) fn assemble_markdown(pages: Vec<Vec<PdfParagraph>>) -> String {
-    assemble_markdown_with_tables(pages, &[])
-}
-
 /// Assemble markdown with tables interleaved at their correct reading-order positions.
 ///
 /// Tables are matched to pages by their `page_number` (1-indexed). Within a page,
@@ -83,7 +78,7 @@ fn assemble_page_with_tables(output: &mut String, paragraphs: &[PdfParagraph], t
     }
 
     // Sort positioned tables by y-position descending (top of page first in PDF coords)
-    positioned.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal));
+    positioned.sort_by(|a, b| b.0.total_cmp(&a.0));
 
     // Build interleaved output: paragraphs and tables sorted by vertical position
     // Each paragraph's position is the baseline_y of its first line
@@ -172,17 +167,13 @@ mod tests {
                     ..plain_segment(text)
                 }],
                 baseline_y,
-                y_top: baseline_y - 12.0,
-                y_bottom: baseline_y,
                 dominant_font_size: 12.0,
                 is_bold: false,
-                is_italic: false,
                 is_monospace: false,
             }],
             dominant_font_size: 12.0,
             heading_level,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         }
@@ -194,13 +185,13 @@ mod tests {
             make_paragraph("Title", Some(1)),
             make_paragraph("Body text", None),
         ]];
-        let result = assemble_markdown(pages);
+        let result = assemble_markdown_with_tables(pages, &[]);
         assert_eq!(result, "# Title\n\nBody text");
     }
 
     #[test]
     fn test_assemble_markdown_empty() {
-        let result = assemble_markdown(vec![]);
+        let result = assemble_markdown_with_tables(vec![], &[]);
         assert_eq!(result, "");
     }
 
@@ -210,7 +201,7 @@ mod tests {
             vec![make_paragraph("Page 1", None)],
             vec![make_paragraph("Page 2", None)],
         ];
-        let result = assemble_markdown(pages);
+        let result = assemble_markdown_with_tables(pages, &[]);
         assert_eq!(result, "Page 1\n\nPage 2");
     }
 

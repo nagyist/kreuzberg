@@ -29,7 +29,7 @@ pub(super) fn lines_to_paragraphs(lines: Vec<PdfLine>) -> Vec<PdfParagraph> {
     let base_spacing = if spacings.is_empty() {
         avg_font_size
     } else {
-        spacings.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+        spacings.sort_by(|a, b| a.total_cmp(b));
         // Use 25th percentile (Q1) for robustness against outlier-tight spacings
         // from superscripts/subscripts, while staying conservative enough to work
         // with small sample sizes (unlike median which can pick a gap spacing).
@@ -84,24 +84,9 @@ pub(super) fn lines_to_paragraphs(lines: Vec<PdfLine>) -> Vec<PdfParagraph> {
 
 /// Build a PdfParagraph from a set of lines.
 fn finalize_paragraph(lines: Vec<PdfLine>) -> PdfParagraph {
-    let dominant_font_size = if lines.is_empty() {
-        0.0
-    } else {
-        let mut fs_counts: Vec<(i32, usize)> = Vec::new();
-        for l in &lines {
-            let key = (l.dominant_font_size * 2.0).round() as i32;
-            if let Some(entry) = fs_counts.iter_mut().find(|(k, _)| *k == key) {
-                entry.1 += 1;
-            } else {
-                fs_counts.push((key, 1));
-            }
-        }
-        fs_counts.sort_by(|a, b| b.1.cmp(&a.1));
-        fs_counts[0].0 as f32 / 2.0
-    };
+    let dominant_font_size = super::lines::most_frequent_font_size(lines.iter().map(|l| l.dominant_font_size));
 
     let bold_count = lines.iter().filter(|l| l.is_bold).count();
-    let italic_count = lines.iter().filter(|l| l.is_italic).count();
     let majority = lines.len().div_ceil(2);
 
     // Detect list items: first segment of first line starts with bullet or number prefix
@@ -120,7 +105,6 @@ fn finalize_paragraph(lines: Vec<PdfLine>) -> PdfParagraph {
         dominant_font_size,
         heading_level: None,
         is_bold: bold_count >= majority,
-        is_italic: italic_count >= majority,
         is_list_item,
         is_code_block,
         lines,
@@ -245,11 +229,8 @@ mod tests {
         PdfLine {
             segments,
             baseline_y,
-            y_top: baseline_y - font_size,
-            y_bottom: baseline_y,
             dominant_font_size: font_size,
             is_bold: false,
-            is_italic: false,
             is_monospace: false,
         }
     }

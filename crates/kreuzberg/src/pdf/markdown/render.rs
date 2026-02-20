@@ -49,21 +49,6 @@ pub fn inject_image_placeholders(markdown: &str, images: &[crate::types::Extract
         images_by_page.entry(page).or_default().push((idx, img));
     }
 
-    if images_by_page.keys().all(|&k| k == 0) {
-        let mut result = markdown.to_string();
-        for img in images {
-            let ii = img.image_index;
-            result.push_str(&format!("\n\n![Image {}](embedded:i{})", ii, ii));
-            if let Some(ref ocr) = img.ocr_result {
-                let text = ocr.content.trim();
-                if !text.is_empty() {
-                    result.push_str(&format!("\n> *Image text: {}*", text));
-                }
-            }
-        }
-        return result;
-    }
-
     let mut result = markdown.to_string();
 
     for (&page, page_images) in &images_by_page {
@@ -237,11 +222,8 @@ mod tests {
         PdfLine {
             segments,
             baseline_y: 700.0,
-            y_top: 688.0,
-            y_bottom: 700.0,
             dominant_font_size: 12.0,
             is_bold: false,
-            is_italic: false,
             is_monospace: false,
         }
     }
@@ -256,7 +238,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -272,7 +253,6 @@ mod tests {
             dominant_font_size: 18.0,
             heading_level: Some(2),
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -291,7 +271,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -307,7 +286,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -323,7 +301,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -343,7 +320,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -369,7 +345,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -390,7 +365,6 @@ mod tests {
             dominant_font_size: 12.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };
@@ -410,7 +384,6 @@ mod tests {
             dominant_font_size: 18.0,
             heading_level: Some(1),
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         };

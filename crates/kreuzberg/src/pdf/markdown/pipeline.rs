@@ -4,7 +4,7 @@ use crate::pdf::error::Result;
 use crate::pdf::hierarchy::{BoundingBox, SegmentData, TextBlock, assign_heading_levels_smart, cluster_font_sizes};
 use pdfium_render::prelude::*;
 
-use super::assembly::{assemble_markdown, assemble_markdown_with_tables};
+use super::assembly::assemble_markdown_with_tables;
 use super::bridge::{ImagePosition, extracted_blocks_to_paragraphs, objects_to_page_data};
 use super::classify::classify_paragraphs;
 use super::constants::{
@@ -14,11 +14,6 @@ use super::lines::segments_to_lines;
 use super::paragraphs::{lines_to_paragraphs, merge_continuation_paragraphs};
 use super::render::inject_image_placeholders;
 use super::types::PdfParagraph;
-
-/// Render an entire PDF document as markdown.
-pub fn render_document_as_markdown(document: &PdfDocument, k_clusters: usize) -> Result<String> {
-    render_document_as_markdown_with_tables(document, k_clusters, &[], None, None)
-}
 
 /// Render a PDF document as markdown, with tables interleaved at their positions.
 pub fn render_document_as_markdown_with_tables(
@@ -135,8 +130,7 @@ pub fn render_document_as_markdown_with_tables(
         if let Some(paragraphs) = struct_tree_results[i].take() {
             all_page_paragraphs.push(paragraphs);
         } else {
-            let page_segments = &all_page_segments[i];
-            let lines = segments_to_lines(page_segments.clone());
+            let lines = segments_to_lines(std::mem::take(&mut all_page_segments[i]));
             let mut paragraphs = lines_to_paragraphs(lines);
             classify_paragraphs(&mut paragraphs, &heading_map);
             merge_continuation_paragraphs(&mut paragraphs);
@@ -145,11 +139,7 @@ pub fn render_document_as_markdown_with_tables(
     }
 
     // Stage 4: Assemble markdown with tables interleaved
-    let markdown = if tables.is_empty() {
-        assemble_markdown(all_page_paragraphs)
-    } else {
-        assemble_markdown_with_tables(all_page_paragraphs, tables)
-    };
+    let markdown = assemble_markdown_with_tables(all_page_paragraphs, tables);
 
     // Stage 5: Inject image placeholders from positions collected during object extraction
     if all_image_positions.is_empty() {

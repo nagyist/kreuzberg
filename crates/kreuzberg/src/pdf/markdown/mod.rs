@@ -15,5 +15,5 @@ mod pipeline;
 mod render;
 mod types;
 
-pub use pipeline::{render_document_as_markdown, render_document_as_markdown_with_tables};
+pub use pipeline::render_document_as_markdown_with_tables;
 pub use render::inject_image_placeholders;

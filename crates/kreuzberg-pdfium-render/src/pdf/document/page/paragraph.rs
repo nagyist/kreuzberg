@@ -2,7 +2,7 @@
 //! styled text strings that should be laid out together on a `PdfPage` as single paragraph.
 
 use crate::bindgen::FPDF_PAGEOBJECT;
-use crate::error::{PdfiumError, PdfiumInternalError};
+use crate::error::PdfiumError;
 use crate::pdf::document::PdfDocument;
 use crate::pdf::document::page::object::private::internal::PdfPageObjectPrivate;
 use crate::pdf::document::page::object::text::PdfPageTextObject;
@@ -198,24 +198,13 @@ pub enum PdfParagraphFragment<'a> {
     /// A run of styled text.
     StyledString(PdfStyledString<'a>),
     /// A line break with alignment and position information from the preceding line.
-    LineBreak(PdfLineAlignment, PdfPoints, PdfPoints), // alignment, bottom, left
+    LineBreak {
+        alignment: PdfLineAlignment,
+        bottom: PdfPoints,
+        left: PdfPoints,
+    },
     /// A non-text page object (image, path, shading, etc.).
     NonTextObject(FPDF_PAGEOBJECT),
-}
-
-/// Controls the overflow behaviour of a [PdfParagraph] that, due to changes in its content,
-/// needs to overflow the maximum bounds of the original page objects from which it was defined.
-#[derive(Copy, Clone, Debug, PartialEq)]
-#[allow(unused)]
-pub enum PdfParagraphOverflowBehaviour {
-    /// The maximum line width will be adjusted so that the paragraph's height stays the same.
-    FixHeightExpandWidth,
-
-    /// The paragraph's height will expand so that the paragraph's maximum width stays the same.
-    FixWidthExpandHeight,
-
-    /// Content overflowing the paragraph's width and height will be clipped.
-    Clip,
 }
 
 /// Controls the line alignment behaviour of a [PdfParagraph].
@@ -306,13 +295,7 @@ pub struct PdfParagraph<'a> {
     bottom: Option<PdfPoints>,
     left: Option<PdfPoints>,
     max_width: Option<PdfPoints>,
-    #[allow(unused)]
-    max_height: Option<PdfPoints>,
-    #[allow(unused)]
-    overflow: PdfParagraphOverflowBehaviour,
     alignment: PdfParagraphAlignment,
-    #[allow(unused)]
-    first_line_indent: PdfPoints,
 }
 
 impl<'a> PdfParagraph<'a> {
@@ -355,7 +338,12 @@ impl<'a> PdfParagraph<'a> {
         let positioned_objects = objects
             .iter()
             .map(|object| {
-                let object_bottom = object.bounds().map(|bounds| bounds.bottom()).unwrap_or(PdfPoints::ZERO);
+                let bounds = object.bounds().ok();
+
+                let object_bottom = bounds.map(|b| b.bottom()).unwrap_or(PdfPoints::ZERO);
+                let object_top = bounds.map(|b| b.top()).unwrap_or(PdfPoints::ZERO);
+                let object_left = bounds.map(|b| b.left()).unwrap_or(PdfPoints::ZERO);
+                let object_right = bounds.map(|b| b.right()).unwrap_or(PdfPoints::ZERO);
 
                 match objects_bottom {
                     Some(paragraph_bottom) => {
@@ -366,8 +354,6 @@ impl<'a> PdfParagraph<'a> {
                     None => objects_bottom = Some(object_bottom),
                 };
 
-                let object_top = object.bounds().map(|bounds| bounds.top()).unwrap_or(PdfPoints::ZERO);
-
                 match objects_top {
                     Some(paragraph_top) => {
                         if paragraph_top < object_top {
@@ -377,10 +363,6 @@ impl<'a> PdfParagraph<'a> {
                     None => objects_top = Some(object_top),
                 }
 
-                let _object_height = object.bounds().map(|bounds| bounds.height()).unwrap_or(PdfPoints::ZERO);
-
-                let object_left = object.bounds().map(|bounds| bounds.left()).unwrap_or(PdfPoints::ZERO);
-
                 match objects_left {
                     Some(paragraph_left) => {
                         if paragraph_left > object_left {
@@ -389,8 +371,6 @@ impl<'a> PdfParagraph<'a> {
                     }
                     None => objects_left = Some(object_left),
                 }
-
-                let object_right = object.bounds().map(|bounds| bounds.right()).unwrap_or(PdfPoints::ZERO);
 
                 match objects_right {
                     Some(paragraph_right) => {
@@ -426,7 +406,7 @@ impl<'a> PdfParagraph<'a> {
         // Rotated objects produce individual characters that interleave with body text.
         let positioned_objects: Vec<_> = positioned_objects
             .into_iter()
-            .filter(|(_, _, _, _, object)| !is_significantly_rotated(object))
+            .filter(|(_, _, _, _, object)| object.as_text_object().is_none() || !is_significantly_rotated(object))
             .collect();
 
         let paragraph_left = objects_left.unwrap_or(PdfPoints::ZERO);
@@ -434,7 +414,7 @@ impl<'a> PdfParagraph<'a> {
 
         let mut current_line_bottom = PdfPoints::ZERO;
         let mut current_line_left = PdfPoints::ZERO;
-        let current_line_right = PdfPoints::ZERO;
+        let mut current_line_right = PdfPoints::ZERO;
         let mut current_line_alignment = PdfLineAlignment::None;
 
         let mut last_object_bottom = None;
@@ -477,9 +457,13 @@ impl<'a> PdfParagraph<'a> {
                         current_line_fragments,
                     ));
 
-                    current_line_fragments =
-                        vec![PdfParagraphFragment::LineBreak(current_line_alignment, bottom, left)];
+                    current_line_fragments = vec![PdfParagraphFragment::LineBreak {
+                        alignment: current_line_alignment,
+                        bottom,
+                        left,
+                    }];
                     current_line_left = left;
+                    current_line_right = PdfPoints::ZERO;
                     current_line_bottom = bottom;
                     current_line_alignment = next_line_alignment;
                 } else {
@@ -497,6 +481,8 @@ impl<'a> PdfParagraph<'a> {
                 // If the styling of this object is the same as the last styled string fragment,
                 // then append the text of this object to the last fragment; otherwise, start a
                 // new text fragment.
+
+                current_line_right = right;
 
                 if let Some(PdfParagraphFragment::StyledString(last_string)) = current_line_fragments.last_mut() {
                     if last_string.does_match_object_styling(object) {
@@ -660,7 +646,7 @@ impl<'a> PdfParagraph<'a> {
         bottom: Option<PdfPoints>,
         left: Option<PdfPoints>,
         right: Option<PdfPoints>,
-        first_line_left: Option<PdfPoints>,
+        _first_line_left: Option<PdfPoints>,
         first_line_alignment: PdfLineAlignment,
         last_line_alignment: PdfLineAlignment,
     ) -> PdfParagraph<'a> {
@@ -672,8 +658,6 @@ impl<'a> PdfParagraph<'a> {
                 (Some(left), Some(right)) => Some(right - left),
                 _ => None,
             },
-            max_height: None,
-            overflow: PdfParagraphOverflowBehaviour::FixWidthExpandHeight,
             alignment: if first_line_alignment == last_line_alignment
                 && first_line_alignment == PdfLineAlignment::Justify
             {
@@ -687,10 +671,6 @@ impl<'a> PdfParagraph<'a> {
                     PdfLineAlignment::Center => PdfParagraphAlignment::Center,
                     PdfLineAlignment::Justify => PdfParagraphAlignment::Justify,
                 }
-            },
-            first_line_indent: match (first_line_left, left) {
-                (Some(first_line_left), Some(left)) => first_line_left - left,
-                _ => PdfPoints::ZERO,
             },
         }
     }
@@ -732,23 +712,16 @@ impl<'a> PdfParagraph<'a> {
         }
     }
 
-    /// Creates a new, empty [PdfParagraph] with the given maximum line width,
-    /// overflow, and alignment settings.
+    /// Creates a new, empty [PdfParagraph] with the given maximum line width
+    /// and alignment settings.
     #[inline]
-    pub fn empty(
-        maximum_width: PdfPoints,
-        overflow: PdfParagraphOverflowBehaviour,
-        alignment: PdfParagraphAlignment,
-    ) -> Self {
+    pub fn empty(maximum_width: PdfPoints, alignment: PdfParagraphAlignment) -> Self {
         PdfParagraph {
             fragments: vec![],
             bottom: None,
             left: None,
             max_width: Some(maximum_width),
-            max_height: None,
-            overflow,
             alignment,
-            first_line_indent: PdfPoints::ZERO,
         }
     }
 
@@ -819,12 +792,6 @@ impl<'a> PdfParagraph<'a> {
         self.max_width = Some(width);
     }
 
-    /// Sets the maximum height of this paragraph to the given value.
-    #[inline]
-    pub fn set_maximum_height(&mut self, height: PdfPoints) {
-        self.max_height = Some(height);
-    }
-
     /// Returns the text contained within all text fragments in this paragraph.
     #[inline]
     pub fn text(&self) -> String {
@@ -832,7 +799,7 @@ impl<'a> PdfParagraph<'a> {
             .iter()
             .filter_map(|fragment| match fragment {
                 PdfParagraphFragment::StyledString(string) => Some(string.text.as_str()),
-                PdfParagraphFragment::LineBreak(..) => Some("\n"),
+                PdfParagraphFragment::LineBreak { .. } => Some("\n"),
                 _ => None,
             })
             .collect::<Vec<_>>()
@@ -866,7 +833,11 @@ impl<'a> PdfParagraph<'a> {
 
         for fragment in self.fragments {
             match fragment {
-                PdfParagraphFragment::LineBreak(alignment, line_bottom, line_left) => {
+                PdfParagraphFragment::LineBreak {
+                    alignment,
+                    bottom: line_bottom,
+                    left: line_left,
+                } => {
                     if !current_fragments.is_empty() {
                         lines.push(PdfLine::new(
                             alignment,
@@ -919,16 +890,6 @@ impl<'a> PdfParagraph<'a> {
         }
 
         lines
-    }
-
-    /// Assembles the fragments in this paragraph into lines, taking into account the paragraph's
-    /// current sizing, overflow, indent, and alignment settings, and generates new page objects for
-    /// each line, adding all generated page objects to a new [PdfPageGroupObject].
-    ///
-    /// Note: Full implementation requires a `PdfDocument` reference to create text objects.
-    /// This is currently a placeholder for future layout rendering support.
-    pub fn as_group(&self) -> Result<(), PdfiumError> {
-        Err(PdfiumError::PdfiumLibraryInternalError(PdfiumInternalError::Unknown))
     }
 }
 

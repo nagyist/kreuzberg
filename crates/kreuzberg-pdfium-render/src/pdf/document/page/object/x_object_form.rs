@@ -37,16 +37,6 @@ pub struct PdfPageXObjectFormObject<'a> {
     bindings: &'a dyn PdfiumLibraryBindings,
 }
 
-impl<'a> Clone for PdfPageXObjectFormObject<'a> {
-    fn clone(&self) -> Self {
-        Self {
-            object_handle: self.object_handle,
-            ownership: self.ownership,
-            bindings: self.bindings,
-        }
-    }
-}
-
 impl<'a> PdfPageXObjectFormObject<'a> {
     pub(crate) fn from_pdfium(
         object_handle: FPDF_PAGEOBJECT,

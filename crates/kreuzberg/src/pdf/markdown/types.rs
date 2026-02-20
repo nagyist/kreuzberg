@@ -7,13 +7,8 @@ use crate::pdf::hierarchy::SegmentData;
 pub(super) struct PdfLine {
     pub segments: Vec<SegmentData>,
     pub baseline_y: f32,
-    #[allow(dead_code)]
-    pub y_top: f32,
-    #[allow(dead_code)]
-    pub y_bottom: f32,
     pub dominant_font_size: f32,
     pub is_bold: bool,
-    pub is_italic: bool,
     pub is_monospace: bool,
 }
 
@@ -24,8 +19,6 @@ pub(super) struct PdfParagraph {
     pub dominant_font_size: f32,
     pub heading_level: Option<u8>,
     pub is_bold: bool,
-    #[allow(dead_code)]
-    pub is_italic: bool,
     pub is_list_item: bool,
     pub is_code_block: bool,
 }

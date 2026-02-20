@@ -15,9 +15,9 @@ pub(super) const MAX_LIST_ITEM_LINES: usize = 5;
 /// Maximum distance multiplier relative to average inter-cluster gap for heading assignment.
 pub(super) const MAX_HEADING_DISTANCE_MULTIPLIER: f32 = 2.0;
 /// Minimum ratio of heading font size to body font size (heading must be this much larger).
-pub const MIN_HEADING_FONT_RATIO: f32 = 1.25;
+pub(super) const MIN_HEADING_FONT_RATIO: f32 = 1.25;
 /// Minimum absolute font-size difference (in points) between heading and body.
-pub const MIN_HEADING_FONT_GAP: f32 = 2.0;
+pub(super) const MIN_HEADING_FONT_GAP: f32 = 2.0;
 /// Fraction of page height to exclude from top (page headers).
 pub(super) const PAGE_TOP_MARGIN_FRACTION: f32 = 0.06;
 /// Fraction of page height to exclude from bottom (page footers/numbers).

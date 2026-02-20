@@ -154,18 +154,6 @@ pub struct PdfPagePathObject<'a> {
     current_point_y: PdfPoints,
 }
 
-impl<'a> Clone for PdfPagePathObject<'a> {
-    fn clone(&self) -> Self {
-        Self {
-            object_handle: self.object_handle,
-            ownership: self.ownership,
-            bindings: self.bindings,
-            current_point_x: self.current_point_x,
-            current_point_y: self.current_point_y,
-        }
-    }
-}
-
 impl<'a> PdfPagePathObject<'a> {
     #[inline]
     pub(crate) fn from_pdfium(

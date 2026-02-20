@@ -23,9 +23,6 @@ pub(super) struct ImagePosition {
     pub page_number: usize,
     /// Global image index across the document.
     pub image_index: usize,
-    /// Top Y position in PDF coordinates (higher = earlier in reading order).
-    #[allow(dead_code)]
-    pub y_top: f32,
 }
 
 /// Convert extracted blocks from the structure tree API into PdfParagraphs.
@@ -51,18 +48,7 @@ fn estimate_body_font_size(blocks: &[ExtractedBlock]) -> f32 {
         return 12.0;
     }
 
-    // Find the most common font size (rounded to 0.5pt)
-    let mut counts: Vec<(i32, usize)> = Vec::new();
-    for &fs in &sizes {
-        let key = (fs * 2.0).round() as i32;
-        if let Some(entry) = counts.iter_mut().find(|(k, _)| *k == key) {
-            entry.1 += 1;
-        } else {
-            counts.push((key, 1));
-        }
-    }
-    counts.sort_by(|a, b| b.1.cmp(&a.1));
-    counts[0].0 as f32 / 2.0
+    super::lines::most_frequent_font_size(sizes.into_iter())
 }
 
 fn collect_font_sizes(blocks: &[ExtractedBlock], sizes: &mut Vec<f32>) {
@@ -83,7 +69,7 @@ fn convert_blocks(blocks: &[ExtractedBlock], body_font_size: f32, paragraphs: &m
             continue;
         }
 
-        if block.text.is_empty() {
+        if block.text.trim().is_empty() {
             continue;
         }
 
@@ -138,11 +124,8 @@ fn convert_blocks(blocks: &[ExtractedBlock], body_font_size: f32, paragraphs: &m
         let line = PdfLine {
             segments,
             baseline_y: 0.0,
-            y_top: 0.0,
-            y_bottom: 0.0,
             dominant_font_size: font_size,
             is_bold: block.is_bold,
-            is_italic: block.is_italic,
             is_monospace: false,
         };
 
@@ -151,7 +134,6 @@ fn convert_blocks(blocks: &[ExtractedBlock], body_font_size: f32, paragraphs: &m
             dominant_font_size: font_size,
             heading_level,
             is_bold: block.is_bold,
-            is_italic: block.is_italic,
             is_list_item,
             is_code_block: false,
         });
@@ -172,13 +154,25 @@ pub(super) fn objects_to_page_data(
 ) -> (Vec<SegmentData>, Vec<ImagePosition>) {
     let objects: Vec<PdfPageObject> = page.objects().iter().collect();
 
+    // Image scan BEFORE column partitioning (partition consumes the vec).
+    let mut images = Vec::new();
+    for obj in &objects {
+        if obj.as_image_object().is_some() {
+            images.push(ImagePosition {
+                page_number,
+                image_index: *image_offset,
+            });
+            *image_offset += 1;
+        }
+    }
+
     // Extract text via page objects API with column detection.
+    // Partition objects into column groups by moving (not cloning) them.
     let mut segments = Vec::new();
     let column_groups = super::columns::split_objects_into_columns(&objects);
-    for column_indices in &column_groups {
-        let column_obj_slice: Vec<PdfPageObject<'_>> =
-            column_indices.iter().filter_map(|&i| objects.get(i)).cloned().collect();
-        let paragraphs: Vec<PdfiumParagraph> = PdfiumParagraph::from_objects(&column_obj_slice);
+    let column_vecs = partition_objects_by_columns(objects, &column_groups);
+    for column_objects in &column_vecs {
+        let paragraphs: Vec<PdfiumParagraph> = PdfiumParagraph::from_objects(column_objects);
         extract_paragraphs_to_segments(paragraphs, &mut segments);
     }
 
@@ -189,21 +183,38 @@ pub(super) fn objects_to_page_data(
         }
     }
 
-    // Separate image scan: iterate page objects to find images with positions
-    let mut images = Vec::new();
-    for obj in &objects {
-        if let Some(img_obj) = obj.as_image_object() {
-            let y_top = img_obj.bounds().map(|b| b.top().value).unwrap_or(0.0);
-            images.push(ImagePosition {
-                page_number,
-                image_index: *image_offset,
-                y_top,
-            });
-            *image_offset += 1;
+    (segments, images)
+}
+
+/// Partition page objects into column groups by moving objects out of the source vec.
+///
+/// Each column group is a `Vec<usize>` of indices into `objects`. This function
+/// consumes the objects vec and returns one `Vec<PdfPageObject>` per column.
+fn partition_objects_by_columns<'a>(
+    objects: Vec<PdfPageObject<'a>>,
+    column_groups: &[Vec<usize>],
+) -> Vec<Vec<PdfPageObject<'a>>> {
+    if column_groups.len() <= 1 {
+        return vec![objects];
+    }
+
+    let total = objects.len();
+    let num_columns = column_groups.len();
+    let mut col_for_obj = vec![0usize; total];
+    for (col_idx, group) in column_groups.iter().enumerate() {
+        for &obj_idx in group {
+            if obj_idx < total {
+                col_for_obj[obj_idx] = col_idx;
+            }
         }
     }
 
-    (segments, images)
+    let mut result: Vec<Vec<PdfPageObject<'a>>> = (0..num_columns).map(|_| Vec::new()).collect();
+    for (i, obj) in objects.into_iter().enumerate() {
+        result[col_for_obj[i]].push(obj);
+    }
+
+    result
 }
 
 /// Build a mapping of corrupted characters → correct ligature expansions for a page.
@@ -337,7 +348,7 @@ fn extract_paragraphs_to_segments(paragraphs: Vec<PdfiumParagraph>, segments: &m
 
                         running_x += estimated_width;
                     }
-                    PdfParagraphFragment::NonTextObject(_) | PdfParagraphFragment::LineBreak(..) => {}
+                    PdfParagraphFragment::NonTextObject(_) | PdfParagraphFragment::LineBreak { .. } => {}
                 }
             }
         }
@@ -356,15 +367,15 @@ fn normalize_text_encoding(text: &str) -> String {
         return text.to_string();
     }
 
-    let chars: Vec<char> = text.chars().collect();
     let mut result = String::with_capacity(text.len());
+    let mut chars = text.chars().peekable();
 
-    for (i, &ch) in chars.iter().enumerate() {
+    while let Some(ch) = chars.next() {
         match ch {
             '\u{00AD}' => {
                 // Soft hyphen at end of text (or before whitespace): convert to regular
                 // hyphen so rendering code can rejoin word fragments.
-                let at_end = i == chars.len() - 1 || chars.get(i + 1).is_some_and(|c| c.is_whitespace());
+                let at_end = chars.peek().is_none_or(|c| c.is_whitespace());
                 if at_end {
                     result.push('-');
                 }

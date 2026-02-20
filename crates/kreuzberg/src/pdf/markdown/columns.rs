@@ -122,7 +122,7 @@ fn find_column_split(bounds: &[ObjectBounds], min_gap: f32, page_y_min: f32, pag
 
     // Collect (left, right) edges sorted by left edge
     let mut edges: Vec<(f32, f32)> = bounds.iter().map(|b| (b.left, b.right)).collect();
-    edges.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    edges.sort_by(|a, b| a.0.total_cmp(&b.0));
 
     // Track the running maximum right edge to find true gaps
     let mut max_right = f32::MIN;

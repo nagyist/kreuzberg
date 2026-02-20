@@ -56,7 +56,7 @@ pub(super) fn find_heading_level(font_size: f32, heading_map: &[(f32, Option<u8>
 
     // Compute average inter-cluster gap
     let mut centroids: Vec<f32> = heading_map.iter().map(|(c, _)| *c).collect();
-    centroids.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    centroids.sort_by(|a, b| a.total_cmp(b));
     let gaps: Vec<f32> = centroids.windows(2).map(|w| (w[1] - w[0]).abs()).collect();
     let avg_gap = if gaps.is_empty() {
         f32::INFINITY
@@ -96,17 +96,13 @@ mod tests {
             lines: vec![super::super::types::PdfLine {
                 segments,
                 baseline_y: 700.0,
-                y_top: 700.0 - font_size,
-                y_bottom: 700.0,
                 dominant_font_size: font_size,
                 is_bold: false,
-                is_italic: false,
                 is_monospace: false,
             }],
             dominant_font_size: font_size,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         }
@@ -213,17 +209,13 @@ mod tests {
             lines: vec![super::super::types::PdfLine {
                 segments,
                 baseline_y: 700.0,
-                y_top: 682.0,
-                y_bottom: 700.0,
                 dominant_font_size: 18.0,
                 is_bold: false,
-                is_italic: false,
                 is_monospace: false,
             }],
             dominant_font_size: 18.0,
             heading_level: None,
             is_bold: false,
-            is_italic: false,
             is_list_item: false,
             is_code_block: false,
         }];
