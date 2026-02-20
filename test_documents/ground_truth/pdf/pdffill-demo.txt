@@ -1,10 +1,23 @@
-  First Page        Previous Page         Next Page       Last Page
-
-                                                                    Print
-                 PDFill: PDF Drawing
-You can open a PDF or create a blank PDF by PDFill.             Online Help
+You can open a PDF or create a blank PDF by PDFill.
 Here are the PDF drawings created by PDFill
-     Please save into a new PDF to see the effect!
+Goto Page 2: Line Tool
+Goto Page 3: Arrow Tool
+Goto Page 4: Tool for Rectangle, Square and Rounded Corner
+First Page Previous Page Next Page Last Page
+Please save into a new PDF to see the effect!
+Online Help
+Goto Page 5: Tool for Circle, Ellipse, Arc, Pie
+Here are the tools to change line width, style, arrow style and colors
+Print PDFill: PDF Drawing
+Goto Page 6: Tool for Basic Shapes
+Goto Page 7: Tool for Curves
+
+PDFill: PDF Drawing
+
+You can open a PDF or create a blank PDF by PDFill.
+Here are the PDF drawings created by PDFill
+
+Please save into a new PDF to see the effect!
 
 Goto Page 2: Line Tool
 Goto Page 3: Arrow Tool
@@ -14,103 +27,116 @@ Goto Page 6: Tool for Basic Shapes
 Goto Page 7: Tool for Curves
 
 Here are the tools to change line width, style, arrow style and colors
-Line Width and Color
 
+0.25 pt
+0.50 pt
+0.75 pt
+1.00 pt
+1.50 pt
+2.25 pt
+3.00 pt
+4.50 pt
+6.00 pt
+More Lines...
 
+Square Dot
 
+Arrow Style 1
 
-                                      Online Help
+More Arrows...
 
+Auto
 
+More Colors...
 
-Arrow Style and Size                First Page
+No Fill
 
-                                    Previous Page
+More Fill Colors...
 
-                                    Next Page
+Line Width and Color
 
-                                    Last Page
+Arrow Style and Size First Page
+Previous Page
+Next Page
+Last Page
+Online Help
+Point Snapping and Hold SHIFT Key
 
+Line Width and Color
 
-
+Arrow Style and Size
 
 Point Snapping and Hold SHIFT Key
-First Page      Previous Page          Next Page      Last Page
 
+Six Arrow Styles:
 
-                             Online Help
- Six Arrow Styles:
+First Page Previous Page Next Page Last Page
 
+Online Help
 
-                                           No Arrow
-                                           Arrow
-                                           Open Arrow Stealth
-                                           Arrow Diamond
-                                           Arrow Oval Arrow
+No Arrow
+Arrow
+Open Arrow Stealth
+Arrow Diamond
+Arrow Oval Arrow
 
+9 Arrow Sizes for Each Style:
 
+Mixed Arrow Styles, Sizes, Color, Dashed Style
 
+Create Rectangle, Square; Add a Corner Radius
 
- 9 Arrow Sizes for Each Style:
+First Page Previous Page Next Page Last Page
 
+Online Help
 
+Rotation
 
+Rotation
 
- Mixed Arrow Styles, Sizes, Color, Dashed Style
-First Page       Previous Page       Next Page   Last Page
+Create Circle, Ellipse, Arc, Pie
 
+First Page Previous Page Next Page Last Page
 
- Create Rectangle, Square; Add a Corner Radius
-                                                   Online Help
+Online Help
 
+Rotation
 
+Create Basic Shapes
 
+First Page Previous Page Next Page
 
-         ta
-             n                         Ro
-           tio
-                                         tatio
-       Ro                                   n
-First Page        Previous Page     Next Page   Last Page
+Online Help
 
+Last Page
 
-                                                 Online Help
- Create Circle, Ellipse, Arc, Pie
+Isosceles Triangle Right Triangle Diamond Pentagon Hexagon Left Arrow
 
+Right Arrow Up Arrow Down Arrow 4 Point Start 5 Point Star 6 Point Star
 
-              n
-         atio
-       Ro t
-     First Page                 Previous Page            Next Page              Last Page
+Rounded Callout Rounded Callout Cloud Callout Heart Lighting Smiley face
 
+Isosceles Triangle Right Triangle Diamond Pentagon Hexagon Left Arrow
 
-        Create Basic Shapes                                                      Online Help
+Right Arrow Up Arrow Down Arrow 4 Point Start 5 Point Star 6 Point Star
 
+Rounded Callout Rounded Callout Cloud Callout Heart Lighting Smiley face
 
+Drawing Curves
 
+First Page Previous Page Next Page
 
-Isosceles Triangle Right Triangle   Diamond      Pentagon        Hexagon         Left Arrow
+Online Help
 
+Last Page
 
+Smooth Curve
+Smooth Freeform Straight Freeform
 
+Straight Curve Smooth Scribble Straight Scribble
 
-Right Arrow       Up Arrow          Down Arrow   4 Point Start   5 Point Star    6 Point Star
+Signature Pen Cloud Tool
 
+Smooth Curve Straight Curve Smooth Scribble Straight Scribble
 
-
-
-Rounded Callout Rounded Callout Cloud Callout    Heart           Lighting        Smiley face
-First Page         Previous Page                Next Page              Last Page
-
-
- Drawing Curves                                                          Online Help
-
-
-
-
-  Smooth Curve     Straight Curve      Smooth Scribble   Straight Scribble
-
-
-
-
- Smooth Freeform   Straight Freeform   Signature Pen     Cloud Tool
+Smooth Freeform Straight Freeform Signature Pen Cloud Tool

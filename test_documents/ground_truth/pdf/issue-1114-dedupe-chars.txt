@@ -1,19 +1,13 @@
 Simple
-
 Duplicated
-
 Font
-
-
 Size
 Italic
-
 Weight
-
-Horizontal
-Horizontalshift
-           shift
-
-Vertical
+Horizontal shift
 Vertical shift
-         shift
+Horizontal shift
+Weight
+Italic
+Size
+Font

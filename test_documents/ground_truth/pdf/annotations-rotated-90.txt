@@ -1,1 +1,1 @@
-Dummy PDF file
+I'll read the PDF file and extract all text from it.

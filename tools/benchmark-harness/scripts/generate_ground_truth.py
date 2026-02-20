@@ -19,6 +19,17 @@ Walks all fixture JSONs, extracts text from source documents using independent
 tools (not benchmarked frameworks), writes ground truth .txt files, patches
 fixture JSONs with ground_truth field, and updates ground_truth_mapping.json.
 
+PDF Ground Truth Methodology (updated Feb 2026):
+    PDF ground truth was regenerated using AI visual extraction (Claude Haiku
+    reading each PDF page as an image) for scanned/complex PDFs, and pdftotext
+    for born-digital PDFs with reliable embedded text. The previous approach of
+    using pdftotext for all PDFs produced incorrect ground truth for scanned
+    documents since pdftotext cannot read image-based text.
+
+    The handle_pdftotext() function below is retained for regenerating GT from
+    born-digital PDFs. For scanned PDFs, GT files were manually curated via AI
+    extraction and should not be overwritten by running this script with --force.
+
 Usage:
     uv run tools/benchmark-harness/scripts/generate_ground_truth.py [OPTIONS]
 
@@ -131,7 +142,12 @@ def handle_raw_source(doc_path: Path) -> str:
 
 
 def handle_pdftotext(doc_path: Path) -> str:
-    """Extract text from PDF using pdftotext (poppler-utils)."""
+    """Extract text from PDF using pdftotext (poppler-utils).
+
+    Note: This works well for born-digital PDFs with embedded text layers.
+    For scanned PDFs, pdftotext produces garbage output. Scanned PDF ground
+    truth should be generated via AI visual extraction instead.
+    """
     result = subprocess.run(
         ["pdftotext", "-layout", str(doc_path), "-"],
         capture_output=True, text=True, timeout=60,
