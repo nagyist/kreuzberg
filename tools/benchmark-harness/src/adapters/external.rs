@@ -47,6 +47,15 @@ fn get_supported_formats(framework_name: &str) -> Vec<String> {
         // pdfplumber: PDF-only (built on pdfminer.six)
         "pdfplumber" => vec!["pdf".to_string()],
 
+        // pypdf: PDF-only (pure Python PDF library)
+        "pypdf" => vec!["pdf".to_string()],
+
+        // pdfminer.six: PDF-only (Python PDF text extraction)
+        "pdfminer" => vec!["pdf".to_string()],
+
+        // pdftotext: PDF-only (Python binding for poppler's pdftotext)
+        "pdftotext" => vec!["pdf".to_string()],
+
         // PyMuPDF4LLM: PDF + formats via PyMuPDF/fitz
         // See: https://pymupdf.readthedocs.io/en/latest/how-to-open-a-file.html
         // Note: many non-PDF formats return empty content — tracked as EmptyContent errors
@@ -382,6 +391,56 @@ pub fn create_pdfplumber_adapter(ocr_enabled: bool) -> Result<SubprocessAdapter>
     )
 }
 
+/// Creates a subprocess adapter for pypdf (persistent server mode)
+pub fn create_pypdf_adapter(ocr_enabled: bool) -> Result<SubprocessAdapter> {
+    let script_path = get_script_path("pypdf_extract.py")?;
+    let (command, mut args) = find_python_with_framework("pypdf")?;
+    args.push(script_path.to_string_lossy().to_string());
+    args.push(format!("--timeout={}", PYTHON_EXTRACTION_TIMEOUT_SECS));
+    args.push(ocr_flag(ocr_enabled));
+    args.push("server".to_string());
+
+    let supported_formats = get_supported_formats("pypdf");
+    Ok(
+        SubprocessAdapter::with_persistent_mode("pypdf", command, args, vec![], supported_formats)
+            .with_max_timeout(Duration::from_secs(PERSISTENT_MAX_TIMEOUT_SECS)),
+    )
+}
+
+/// Creates a subprocess adapter for pdfminer.six (persistent server mode)
+pub fn create_pdfminer_adapter(ocr_enabled: bool) -> Result<SubprocessAdapter> {
+    let script_path = get_script_path("pdfminer_extract.py")?;
+    let (command, mut args) = find_python_with_framework("pdfminer")?;
+    args.push(script_path.to_string_lossy().to_string());
+    args.push(format!("--timeout={}", PYTHON_EXTRACTION_TIMEOUT_SECS));
+    args.push(ocr_flag(ocr_enabled));
+    args.push("server".to_string());
+
+    let supported_formats = get_supported_formats("pdfminer");
+    Ok(
+        SubprocessAdapter::with_persistent_mode("pdfminer", command, args, vec![], supported_formats)
+            .with_max_timeout(Duration::from_secs(PERSISTENT_MAX_TIMEOUT_SECS)),
+    )
+}
+
+/// Creates a subprocess adapter for pdftotext (persistent server mode)
+///
+/// Requires poppler-utils system package for the Python pdftotext binding.
+pub fn create_pdftotext_adapter(ocr_enabled: bool) -> Result<SubprocessAdapter> {
+    let script_path = get_script_path("pdftotext_extract.py")?;
+    let (command, mut args) = find_python_with_framework("pdftotext")?;
+    args.push(script_path.to_string_lossy().to_string());
+    args.push(format!("--timeout={}", PYTHON_EXTRACTION_TIMEOUT_SECS));
+    args.push(ocr_flag(ocr_enabled));
+    args.push("server".to_string());
+
+    let supported_formats = get_supported_formats("pdftotext");
+    Ok(
+        SubprocessAdapter::with_persistent_mode("pdftotext", command, args, vec![], supported_formats)
+            .with_max_timeout(Duration::from_secs(PERSISTENT_MAX_TIMEOUT_SECS)),
+    )
+}
+
 /// Creates a subprocess adapter for MinerU (persistent server mode)
 ///
 /// Uses persistent mode to avoid repeated Python startup and heavy ML model
@@ -421,5 +480,8 @@ mod tests {
         let _ = create_pymupdf4llm_adapter(true);
         let _ = create_pdfplumber_adapter(true);
         let _ = create_mineru_adapter(true);
+        let _ = create_pypdf_adapter(true);
+        let _ = create_pdfminer_adapter(true);
+        let _ = create_pdftotext_adapter(true);
     }
 }

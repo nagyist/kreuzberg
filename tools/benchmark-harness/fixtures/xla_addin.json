@@ -1,0 +1,11 @@
+{
+	"document": "../../../test_documents/xlsx/test_xla.xla",
+	"file_type": "xla",
+	"file_size": 309,
+	"expected_frameworks": ["kreuzberg"],
+	"metadata": {
+		"description": "Excel add-in file (XLA extension)",
+		"category": "spreadsheet",
+		"size_class": "tiny"
+	}
+}

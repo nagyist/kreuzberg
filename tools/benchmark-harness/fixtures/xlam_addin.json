@@ -1,0 +1,11 @@
+{
+	"document": "../../../test_documents/xlsx/test_xlam.xlam",
+	"file_type": "xlam",
+	"file_size": 651,
+	"expected_frameworks": ["kreuzberg"],
+	"metadata": {
+		"description": "Excel macro-enabled add-in file (XLAM extension)",
+		"category": "spreadsheet",
+		"size_class": "tiny"
+	}
+}

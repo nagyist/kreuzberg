@@ -1,0 +1,11 @@
+A comprehensive study of document extraction techniques
+
+This study examines various approaches to automated document extraction and text mining from heterogeneous document formats.
+
+Authors: Smith J, Doe J
+
+Journal: Journal of information processing
+
+Language: English
+
+Document Type: Journal Article

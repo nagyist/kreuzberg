@@ -1,0 +1,32 @@
+MDX Sample Document
+
+This is a sample MDX document that combines Markdown with JSX components.
+
+Features
+
+MDX allows you to use JSX components directly in your markdown:
+
+This is an important warning message rendered by a JSX component.
+
+Regular Markdown
+
+List item one
+List item two
+List item three
+
+Here is a table:
+
+| Format | Extension | Supported |
+|--------|-----------|-----------|
+| MDX    | .mdx      | Yes       |
+| MD     | .md       | Yes       |
+
+Code Example
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+Conclusion
+
+MDX is a powerful format that bridges content and components.

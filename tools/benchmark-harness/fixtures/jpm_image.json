@@ -1,0 +1,11 @@
+{
+	"document": "../../../test_documents/images_extra/invoice_image.jpm",
+	"file_type": "jpm",
+	"file_size": 11830,
+	"expected_frameworks": ["kreuzberg"],
+	"metadata": {
+		"description": "JPEG 2000 multi-component invoice image (JPM extension)",
+		"category": "image",
+		"size_class": "small"
+	}
+}

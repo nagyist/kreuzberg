@@ -1,0 +1,5 @@
+Welcome to the Kreuzberg document extraction demo.
+
+This is a sample WebVTT subtitle file used for testing.
+
+Kreuzberg supports extraction from VTT subtitle files.

@@ -57,6 +57,9 @@ const FRAMEWORKS: &[(&str, &str, &str)] = &[
     ("pymupdf4llm", "pip_package", "PyMuPDF for LLM"),
     ("pdfplumber", "pip_package", "pdfplumber PDF extraction"),
     ("mineru", "pip_package", "MinerU document intelligence"),
+    ("pypdf", "pip_package", "pypdf pure-Python PDF library"),
+    ("pdfminer", "pip_package", "pdfminer.six PDF text extraction"),
+    ("pdftotext", "pip_package", "pdftotext poppler Python binding"),
 ];
 
 /// Known system dependency sizes (in bytes) for frameworks that require
@@ -184,6 +187,9 @@ fn extract_package_name(framework: &str) -> &str {
         "pymupdf4llm" => "pymupdf4llm",
         "pdfplumber" => "pdfplumber",
         "mineru" => "mineru",
+        "pypdf" => "pypdf",
+        "pdfminer" => "pdfminer.six",
+        "pdftotext" => "pdftotext",
         _ => name,
     }
 }
@@ -915,8 +921,8 @@ mod tests {
 
     #[test]
     fn test_frameworks_list_complete() {
-        // 10 kreuzberg bindings + 8 third-party = 18 total
-        assert_eq!(FRAMEWORKS.len(), 18);
+        // 10 kreuzberg bindings + 11 third-party = 21 total
+        assert_eq!(FRAMEWORKS.len(), 21);
 
         // Check all kreuzberg bindings present
         let names: Vec<&str> = FRAMEWORKS.iter().map(|(n, _, _)| *n).collect();

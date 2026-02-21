@@ -1481,9 +1481,174 @@ jobs:
           path: benchmark-results/
           retention-days: 30
 
+  bench-pypdf:
+    name: pypdf (${{ matrix.mode }})
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [single-file, batch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Free disk space
+        run: scripts/ci/benchmarks/free-disk-space.sh
+
+      - name: Download benchmark harness binary
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-harness-binary
+          path: target/release
+
+      - name: Restore benchmark binary permissions
+        run: scripts/benchmarks/restore-binary-permissions.sh
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: "3.11"
+          cache-prefix: benchmark-pypdf
+
+      - name: Install pypdf benchmark dependencies
+        run: uv sync --group dev --group bench-pypdf --all-extras --all-packages --no-install-project --no-install-workspace
+
+      - name: Run benchmark
+        env:
+          FRAMEWORK: pypdf
+          MODE: ${{ matrix.mode }}
+          ITERATIONS: ${{ env.ITERATIONS }}
+          TIMEOUT: ${{ github.event.inputs.timeout }}
+          OCR_ENABLED: "false"
+        run: scripts/benchmarks/run-benchmark.sh
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmarks-pypdf-${{ matrix.mode }}-${{ github.run_id }}
+          path: benchmark-results/
+          retention-days: 30
+
+  bench-pdfminer:
+    name: pdfminer (${{ matrix.mode }})
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [single-file, batch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Free disk space
+        run: scripts/ci/benchmarks/free-disk-space.sh
+
+      - name: Download benchmark harness binary
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-harness-binary
+          path: target/release
+
+      - name: Restore benchmark binary permissions
+        run: scripts/benchmarks/restore-binary-permissions.sh
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: "3.11"
+          cache-prefix: benchmark-pdfminer
+
+      - name: Install pdfminer benchmark dependencies
+        run: uv sync --group dev --group bench-pdfminer --all-extras --all-packages --no-install-project --no-install-workspace
+
+      - name: Run benchmark
+        env:
+          FRAMEWORK: pdfminer
+          MODE: ${{ matrix.mode }}
+          ITERATIONS: ${{ env.ITERATIONS }}
+          TIMEOUT: ${{ github.event.inputs.timeout }}
+          OCR_ENABLED: "false"
+        run: scripts/benchmarks/run-benchmark.sh
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmarks-pdfminer-${{ matrix.mode }}-${{ github.run_id }}
+          path: benchmark-results/
+          retention-days: 30
+
+  bench-pdftotext:
+    name: pdftotext (${{ matrix.mode }})
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [single-file, batch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Free disk space
+        run: scripts/ci/benchmarks/free-disk-space.sh
+
+      - name: Download benchmark harness binary
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-harness-binary
+          path: target/release
+
+      - name: Restore benchmark binary permissions
+        run: scripts/benchmarks/restore-binary-permissions.sh
+
+      - name: Install poppler system dependency
+        run: sudo apt-get update && sudo apt-get install -y libpoppler-cpp-dev
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: "3.11"
+          cache-prefix: benchmark-pdftotext
+
+      - name: Install pdftotext benchmark dependencies
+        run: uv sync --group dev --group bench-pdftotext --all-extras --all-packages --no-install-project --no-install-workspace
+
+      - name: Run benchmark
+        env:
+          FRAMEWORK: pdftotext
+          MODE: ${{ matrix.mode }}
+          ITERATIONS: ${{ env.ITERATIONS }}
+          TIMEOUT: ${{ github.event.inputs.timeout }}
+          OCR_ENABLED: "false"
+        run: scripts/benchmarks/run-benchmark.sh
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmarks-pdftotext-${{ matrix.mode }}-${{ github.run_id }}
+          path: benchmark-results/
+          retention-days: 30
+
   aggregate-and-publish:
     name: Aggregate & Release Results
-    needs: [setup, bench-native, bench-native-paddle, bench-python, bench-node, bench-wasm, bench-ruby, bench-go, bench-java, bench-csharp, bench-elixir, bench-php, bench-docling, bench-markitdown, bench-pandoc, bench-unstructured, bench-tika, bench-pymupdf4llm, bench-pdfplumber, bench-mineru]
+    needs: [setup, bench-native, bench-native-paddle, bench-python, bench-node, bench-wasm, bench-ruby, bench-go, bench-java, bench-csharp, bench-elixir, bench-php, bench-docling, bench-markitdown, bench-pandoc, bench-unstructured, bench-tika, bench-pymupdf4llm, bench-pdfplumber, bench-mineru, bench-pypdf, bench-pdfminer, bench-pdftotext]
     runs-on: ubuntu-latest
     if: ${{ always() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') }}
     permissions:
@@ -1627,6 +1792,9 @@ jobs:
             "pymupdf4llm:single" "pymupdf4llm:batch"
             "pdfplumber:single" "pdfplumber:batch"
             "mineru:single" "mineru:batch"
+            "pypdf:single" "pypdf:batch"
+            "pdfminer:single" "pdfminer:batch"
+            "pdftotext:single" "pdftotext:batch"
           )
 
           # Get actual frameworks from aggregated.json

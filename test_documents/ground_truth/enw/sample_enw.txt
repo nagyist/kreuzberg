@@ -1,0 +1,13 @@
+A comprehensive study of document extraction techniques
+
+Authors: Smith, John; Doe, Jane
+
+Journal: Journal of Information Processing
+
+Date: 2024
+
+Volume: 42
+Issue: 3
+Pages: 125-140
+
+Keywords: document extraction, text mining, natural language processing

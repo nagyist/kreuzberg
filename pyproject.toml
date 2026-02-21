@@ -27,6 +27,9 @@ bench-unstructured = ["unstructured[all-docs]>=0.18.21"]
 bench-pymupdf4llm = ["pymupdf4llm>=0.0.17", "pymupdf-layout>=0.0.1", "Pillow>=10.0.0"]
 bench-pdfplumber = ["pdfplumber>=0.11.4"]
 bench-mineru = ["mineru[pipeline]>=2.6.7", "onnxruntime"]
+bench-pypdf = ["pypdf>=4.0.0"]
+bench-pdfminer = ["pdfminer.six>=20231228"]
+bench-pdftotext = ["pdftotext>=2.2.2"]
 doc = [
     "mkdocs>=1.6.1",
     "mkdocs-gen-files>=0.6.0",
