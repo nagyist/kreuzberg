@@ -40,6 +40,7 @@ All formats support async/await and batch processing. Image formats and PDFs sup
 | Org Mode | `.org` | `text/x-org` | Native (org) | No | Emacs Org mode support |
 | Rich Text Format | `.rtf` | `application/rtf`, `text/rtf` | Native (rtf-parser) | No | RTF 1.x support |
 | Djot | `.djot` | `text/x-djot` | Native Rust (jotdown) | No | Smart punctuation, tables, code blocks, YAML frontmatter, footnotes, math blocks |
+| MDX | `.mdx` | `text/mdx` | Native Rust (pulldown-cmark) | No | JSX-in-Markdown, component-based documents |
 
 ### Structured Data
 
@@ -109,6 +110,7 @@ All image formats support OCR when configured with `ocr` parameter in `Extractio
 | GitHub Flavored Markdown | `text/x-gfm` | Native (pulldown-cmark) | GFM extensions (tables, strikethrough, etc.) |
 | MultiMarkdown | `text/x-multimarkdown` | Native (pulldown-cmark) | MMD extensions |
 | Markdown Extra | `text/x-markdown-extra` | Native (pulldown-cmark) | PHP Markdown Extra extensions |
+| MDX | `text/mdx` | Native (pulldown-cmark) | JSX-in-Markdown format |
 | Djot | `text/x-djot` | Native (jotdown) | Djot markup format with extended features |
 
 ### Other Formats
@@ -167,6 +169,9 @@ Kreuzberg uses Cargo feature flags to enable optional format support:
 | `html` | HTML to Markdown conversion | No |
 | `xml` | XML document parsing | No |
 | `archives` | ZIP, TAR, 7z archive support | No |
+| `markdown` | Markdown documents | No |
+| `djot` | Djot documents | No |
+| `mdx` | MDX documents | No |
 
 **Note:** No features are enabled by default (`default = []`). You must explicitly enable the features you need.
 

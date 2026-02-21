@@ -12,7 +12,7 @@ Kreuzberg extracts text, tables, and metadata from 75+ file formats:
 - PDF (`.pdf`) - Native text extraction with optional OCR fallback
 - Microsoft Word (`.docx`, `.doc`) - Modern and legacy formats
 - OpenDocument Text (`.odt`) - OpenDocument text
-- Plain text (`.txt`, `.md`, `.markdown`, `.djot`) - With metadata extraction for Markdown and Djot
+- Plain text (`.txt`, `.md`, `.markdown`, `.djot`, `.mdx`) - With metadata extraction for Markdown, Djot, and MDX
 
 **Spreadsheets**
 - Excel (`.xlsx`, `.xls`, `.xlsm`, `.xlsb`) - Modern and legacy formats
@@ -727,6 +727,9 @@ Rust provides fine-grained control over included components via Cargo features:
 - `html` - HTML to Markdown conversion
 - `xml` - XML streaming parser
 - `archives` - Archive extraction (ZIP, TAR, 7z)
+- `markdown` - Markdown extraction
+- `djot` - Djot extraction
+- `mdx` - MDX extraction
 
 **Processing Features:**
 - `ocr` - Tesseract OCR integration
