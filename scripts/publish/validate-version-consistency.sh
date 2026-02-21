@@ -12,7 +12,7 @@ errors=0
 echo "Expected version: $expected"
 echo "----------------------------------------"
 
-cargo_version="$(grep '^version' Cargo.toml | head -1 | cut -d'"' -f2)"
+cargo_version="$(grep '^version' Cargo.toml | head -1 | cut -d'"' -f2 || true)"
 echo "Cargo.toml: $cargo_version"
 [ "$cargo_version" = "$expected" ] || {
   echo "❌ Cargo.toml mismatch"
@@ -40,7 +40,7 @@ echo "crates/kreuzberg-node/package.json: $node_version"
   errors=$((errors + 1))
 }
 
-python_version="$(grep '^version' packages/python/pyproject.toml | head -1 | cut -d'"' -f2)"
+python_version="$(grep '^version' packages/python/pyproject.toml | head -1 | cut -d'"' -f2 || true)"
 echo "packages/python/pyproject.toml: $python_version"
 [ "$python_version" = "$expected" ] || {
   echo "❌ Python pyproject.toml mismatch"
@@ -119,7 +119,7 @@ echo "packages/php/composer.json: $php_version"
   errors=$((errors + 1))
 }
 
-elixir_version="$(grep '@version' packages/elixir/mix.exs | head -1 | cut -d'"' -f2)"
+elixir_version="$(grep '@version' packages/elixir/mix.exs | head -1 | cut -d'"' -f2 || true)"
 echo "packages/elixir/mix.exs: $elixir_version"
 [ "$elixir_version" = "$expected" ] || {
   echo "❌ Elixir mix.exs mismatch"

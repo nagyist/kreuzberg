@@ -139,15 +139,15 @@ if ! cargo "${CARGO_ARGS[@]}" 2>&1 | tee "$BUILD_LOG"; then
   echo ""
   echo "Checking for common errors:"
 
-  if grep -i "link" "$BUILD_LOG" | grep -i "error" | head -5; then
+  if grep -i "link" "$BUILD_LOG" | grep -i "error" | head -5 2>/dev/null; then
     echo "⚠️ Linking errors detected. Check library paths and dependencies."
   fi
 
-  if grep -i "could not find" "$BUILD_LOG" | head -5; then
+  if grep -i "could not find" "$BUILD_LOG" | head -5 2>/dev/null; then
     echo "⚠️ Missing dependencies detected."
   fi
 
-  if grep -i "openssl" "$BUILD_LOG" | grep -i "error" | head -5; then
+  if grep -i "openssl" "$BUILD_LOG" | grep -i "error" | head -5 2>/dev/null; then
     echo "⚠️ OpenSSL errors detected. Verify OPENSSL_DIR is set correctly."
   fi
 

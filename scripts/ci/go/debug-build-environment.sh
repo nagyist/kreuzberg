@@ -60,7 +60,7 @@ cargo --version || print_status WARN "cargo not found"
 print_status INFO "Go:"
 go version || print_status WARN "go not found"
 print_status INFO "C Compiler:"
-gcc --version 2>&1 | head -1 || print_status WARN "gcc not found"
+(gcc --version 2>&1 || true) | head -1 || print_status WARN "gcc not found"
 print_status INFO "pkg-config:"
 pkg-config --version 2>&1 || print_status WARN "pkg-config not found"
 echo ""
@@ -138,7 +138,7 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; t
   if [ -d "C:\\msys64" ]; then
     print_status OK "MSYS2 found at C:\\msys64"
     echo "    MinGW64 bin:"
-    if find "C:\\msys64\\mingw64\\bin" -maxdepth 1 -type f 2>/dev/null | head -5 | xargs -r ls -lh; then
+    if find "C:\\msys64\\mingw64\\bin" -maxdepth 1 -type f 2>/dev/null | head -5 | xargs -r ls -lh 2>/dev/null; then
       :
     else
       print_status WARN "Could not list MSYS2 bins"
@@ -181,7 +181,7 @@ print_status INFO "FFI source directory: $REPO_ROOT/crates/kreuzberg-ffi"
 if [ -d "$REPO_ROOT/crates/kreuzberg-ffi" ]; then
   print_status OK "FFI directory exists"
   print_status INFO "FFI Cargo.toml:"
-  grep '^name\|^version' "$REPO_ROOT/crates/kreuzberg-ffi/Cargo.toml" | head -2 | sed 's/^/  /'
+  grep '^name\|^version' "$REPO_ROOT/crates/kreuzberg-ffi/Cargo.toml" | head -2 | sed 's/^/  /' || true
 fi
 
 print_status INFO "FFI header file: $REPO_ROOT/crates/kreuzberg-ffi/kreuzberg.h"
@@ -213,7 +213,7 @@ fi
 
 if [ -d "$REPO_ROOT/packages/go/v4" ]; then
   print_status INFO "Go packages in v4:"
-  find "$REPO_ROOT/packages/go/v4" -maxdepth 1 -type f -name "*.go" | head -5 | sed 's/^/  /'
+  find "$REPO_ROOT/packages/go/v4" -maxdepth 1 -type f -name "*.go" | head -5 | sed 's/^/  /' || true
 fi
 echo ""
 
@@ -221,7 +221,7 @@ print_section "Dependency Status"
 print_status INFO "Checking PDFium..."
 if [ -n "${KREUZBERG_PDFIUM_PREBUILT:-}" ] && [ -d "$KREUZBERG_PDFIUM_PREBUILT" ]; then
   print_status OK "PDFium found at $KREUZBERG_PDFIUM_PREBUILT"
-  if find "$KREUZBERG_PDFIUM_PREBUILT/lib" -maxdepth 1 -type f 2>/dev/null | head -3 | xargs -r ls -lh; then
+  if find "$KREUZBERG_PDFIUM_PREBUILT/lib" -maxdepth 1 -type f 2>/dev/null | head -3 | xargs -r ls -lh 2>/dev/null; then
     :
   else
     echo "  Could not list PDFium libs"
@@ -233,7 +233,7 @@ fi
 print_status INFO "Checking ONNX Runtime..."
 if [ -n "${ORT_LIB_LOCATION:-}" ] && [ -d "$ORT_LIB_LOCATION" ]; then
   print_status OK "ONNX Runtime found at $ORT_LIB_LOCATION"
-  if find "$ORT_LIB_LOCATION" -maxdepth 1 -type f 2>/dev/null | head -3 | xargs -r ls -lh; then
+  if find "$ORT_LIB_LOCATION" -maxdepth 1 -type f 2>/dev/null | head -3 | xargs -r ls -lh 2>/dev/null; then
     :
   else
     echo "  Could not list ORT libs"

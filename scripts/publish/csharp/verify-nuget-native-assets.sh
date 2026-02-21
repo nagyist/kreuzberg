@@ -14,7 +14,7 @@ echo "Package size: $((pkg_size / 1024))K"
 
 echo ""
 echo "=== All runtimes in package ==="
-unzip -l "$pkg" | grep "runtimes/" | head -20 || echo "  (no runtimes found)"
+unzip -l "$pkg" | grep "runtimes/" | head -20 || true
 
 missing_files=0
 for rid in linux-arm64 linux-x64 osx-arm64 win-x64; do

@@ -202,7 +202,7 @@ log_info "Test 5: Checking for MCP socket/port configuration..."
 if grep -qE "(socket|port|[0-9]{4,5})" "$LOG_FILE" 2>/dev/null; then
   log_success "Found socket/port configuration in logs"
   verbose "Configuration:"
-  grep -E "(socket|port|listen|bind)" "$LOG_FILE" | head -5 | sed 's/^/  /'
+  grep -E "(socket|port|listen|bind)" "$LOG_FILE" | head -5 | sed 's/^/  /' || true
 else
   log_info "No explicit socket/port configuration found (may be default)"
 fi
@@ -216,7 +216,7 @@ if [ "$ERROR_COUNT" -eq 0 ]; then
 else
   log_warning "Found $ERROR_COUNT error entries in logs"
   log_warning "Error lines:"
-  grep -iE "(error|failed|exception|panic)" "$LOG_FILE" 2>/dev/null | head -5 | sed 's/^/  /'
+  grep -iE "(error|failed|exception|panic)" "$LOG_FILE" 2>/dev/null | head -5 | sed 's/^/  /' || true
 fi
 
 log_info "Stopping MCP server..."

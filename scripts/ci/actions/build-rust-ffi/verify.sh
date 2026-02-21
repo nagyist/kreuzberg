@@ -18,7 +18,7 @@ if [ -n "$library_path" ] && [ -f "$library_path" ]; then
   if [[ "${RUNNER_OS:-}" != "Windows" ]] && command -v nm &>/dev/null; then
     echo ""
     echo "Exported symbols (first 10):"
-    nm -D "$library_path" 2>/dev/null | grep -E "^[0-9a-f]+ T " | head -10 || echo "Could not extract symbols"
+    nm -D "$library_path" 2>/dev/null | grep -E "^[0-9a-f]+ T " | head -10 || true
   fi
 else
   echo "⚠️ Library artifact not found at expected path"

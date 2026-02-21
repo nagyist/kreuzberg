@@ -14,7 +14,7 @@ if [ ! -f "$cargo_toml" ]; then
   exit 1
 fi
 
-cargo_version=$(grep '^\[workspace.package\]' -A 10 "$cargo_toml" | grep '^version = ' | head -1 | sed -E 's/version = "(.*)"/\1/')
+cargo_version=$(grep '^\[workspace.package\]' -A 10 "$cargo_toml" | grep '^version = ' | head -1 | sed -E 's/version = "(.*)"/\1/' || true)
 
 if [ -z "$cargo_version" ]; then
   echo "Error: Could not extract version from $cargo_toml" >&2
